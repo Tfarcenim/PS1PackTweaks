@@ -6,7 +6,9 @@
   "plugin": "tfar.ps1packtweaks.mixin.MixinPlugin",
   "mixins": [
   ],
-  "client":[
+  "client": [
+    "LivingEntityRenderMixin",
+    "SheepFurLayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
