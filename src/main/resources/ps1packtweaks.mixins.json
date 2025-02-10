@@ -1,12 +1,12 @@
 {
   "required": true,
-  "package": "com.example.examplemod.mixin",
+  "package": "tfar.ps1packtweaks.mixin",
   "compatibilityLevel": "JAVA_16",
-  "refmap": "examplemod.refmap.json",
+  "refmap": "ps1packtweaks.refmap.json",
+  "plugin": "tfar.ps1packtweaks.mixin.MixinPlugin",
   "mixins": [
   ],
   "client":[
-    "ExampleMixin"
   ],
   "injectors": {
     "defaultRequire": 1
