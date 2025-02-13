@@ -5,6 +5,7 @@ import net.minecraft.data.recipes.*;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import tfar.ps1packtweaks.Init;
+import tfar.ps1packtweaks.PS1PackTweaks;
 
 import java.util.function.Consumer;
 
@@ -21,7 +22,7 @@ public class Recipes extends RecipeProvider {
                 .pattern("P")
                 .define('P', Blocks.PRISMARINE_BRICKS)
                 .unlockedBy("has_prismarine", has(Blocks.PRISMARINE_BRICKS))
-                .save(consumer);
+                .save(consumer, PS1PackTweaks.id("prismarine_rod"));
         ShapedRecipeBuilder.shaped(Items.TRIDENT)
                 .pattern(" TT")
                 .pattern(" HT")
@@ -30,7 +31,7 @@ public class Recipes extends RecipeProvider {
                 .define('H', Items.HEART_OF_THE_SEA)
                 .define('R', Init.ModItems.PRISMARINE_ROD)
                 .unlockedBy("has_tooth", has(Init.ModItems.BARNACLE_TOOTH))
-                .save(consumer);
+                .save(consumer, PS1PackTweaks.id("trident"));
 
     }
 }

@@ -16,7 +16,7 @@ public class BlockModels extends BlockModelProvider {
 
     @Override
     protected void registerModels() {
-        tree("palm");
+        /*tree("palm");
         ResourceLocation planks = PS1PackTweaks.id("block/palm_planks");
         cubeAll("palm_planks", planks);
         buttonModel("palm_button", planks);
@@ -39,7 +39,7 @@ public class BlockModels extends BlockModelProvider {
         buttonModel("waxed_copper_button", new ResourceLocation("block/copper_block"));
         buttonModel("waxed_exposed_copper_button", new ResourceLocation("block/exposed_copper"));
         buttonModel("waxed_weathered_copper_button", new ResourceLocation("block/weathered_copper"));
-        buttonModel("waxed_oxidized_copper_button", new ResourceLocation("block/oxidized_copper"));
+        buttonModel("waxed_oxidized_copper_button", new ResourceLocation("block/oxidized_copper"));*/
     }
 
 

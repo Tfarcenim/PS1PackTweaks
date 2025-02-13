@@ -14,13 +14,14 @@ import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.player.SleepingTimeCheckEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.slf4j.Logger;
+import tfar.ps1packtweaks.client.PS1PackTweaksClient;
 import tfar.ps1packtweaks.datagen.DataGenerators;
 import tfar.ps1packtweaks.entity.Barnacle;
 
@@ -40,6 +41,9 @@ public class PS1PackTweaks
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         // Register the setup method for modloading
         bus.addListener(this::setup);
+        if (FMLEnvironment.dist.isClient()) {
+            PS1PackTweaksClient.init(bus);
+        }
 
         bus.addGenericListener(Item.class,this::registerItems);
         bus.addGenericListener(EntityType.class,this::registerEntities);
@@ -47,7 +51,7 @@ public class PS1PackTweaks
 
         bus.addListener(DataGenerators::gatherData);
         MinecraftForge.EVENT_BUS.addListener(this::sleepCheck);
-        MinecraftForge.EVENT_BUS.addListener(this::onAttributeCreate);
+        bus.addListener(this::onAttributeCreate);
 
     }
 

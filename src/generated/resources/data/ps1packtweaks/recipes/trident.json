@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " TT",
+    " HT",
+    "R  "
+  ],
+  "key": {
+    "T": {
+      "item": "ps1packtweaks:barnacle_tooth"
+    },
+    "H": {
+      "item": "minecraft:heart_of_the_sea"
+    },
+    "R": {
+      "item": "ps1packtweaks:prismarine_rods"
+    }
+  },
+  "result": {
+    "item": "minecraft:trident"
+  }
+}
