@@ -5,9 +5,13 @@
   "refmap": "ps1packtweaks.refmap.json",
   "plugin": "tfar.ps1packtweaks.mixin.MixinPlugin",
   "mixins": [
+    "ArmorStandItemMixin",
+    "ArrowInfiniteEnchantmentMixin",
+    "PoiTypeMixin"
   ],
   "client": [
     "LivingEntityRenderMixin",
+    "ScreenShotScreenMixin",
     "SheepFurLayerMixin"
   ],
   "injectors": {
