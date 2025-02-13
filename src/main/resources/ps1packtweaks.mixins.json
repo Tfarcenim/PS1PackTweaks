@@ -7,12 +7,15 @@
   "mixins": [
     "ArmorStandItemMixin",
     "ArrowInfiniteEnchantmentMixin",
-    "PoiTypeMixin"
+    "PoiTypeMixin",
+    "SkeletonHorseMixin",
+    "ZombieHorseMixin"
   ],
   "client": [
     "LivingEntityRenderMixin",
     "ScreenShotScreenMixin",
-    "SheepFurLayerMixin"
+    "SheepFurLayerMixin",
+    "UndeadHorseRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -34,8 +34,17 @@ public class PS1TweaksConfig {
     }
 
     public static class Client {
-        Client(ForgeConfigSpec.Builder builder) {
 
+        public final ConfigHelper.ConfigObject<ChatSettings> singleplayer_chat_settings;
+
+        public final ConfigHelper.ConfigObject<ChatSettings> multiplayer_chat_settings;
+
+        Client(ForgeConfigSpec.Builder builder) {
+            builder.push("tweaks");
+            singleplayer_chat_settings = ConfigHelper.defineObject(builder.comment("FULL,SYSTEM,HIDDEN"),"singleplayer_chat_settings",ChatSettings.CODEC,ChatSettings.DEFAULT_SINGLEPLAYER);
+            multiplayer_chat_settings = ConfigHelper.defineObject(builder.comment("FULL,SYSTEM,HIDDEN"),"multiplayer_chat_settings",ChatSettings.CODEC,ChatSettings.DEFAULT_MULTIPLAYER);
+
+            builder.pop();
         }
     }
 

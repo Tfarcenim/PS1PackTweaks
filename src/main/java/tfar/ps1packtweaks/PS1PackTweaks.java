@@ -4,13 +4,23 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.animal.horse.AbstractHorse;
+import net.minecraft.world.entity.animal.horse.SkeletonHorse;
+import net.minecraft.world.entity.animal.horse.ZombieHorse;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.SleepingTimeCheckEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -52,7 +62,41 @@ public class PS1PackTweaks
         bus.addListener(DataGenerators::gatherData);
         MinecraftForge.EVENT_BUS.addListener(this::sleepCheck);
         bus.addListener(this::onAttributeCreate);
+        MinecraftForge.EVENT_BUS.addListener(this::rightClick);
+    }
 
+    void rightClick(PlayerInteractEvent.EntityInteract event) {
+        Entity target = event.getTarget();
+        Player player = event.getPlayer();
+        InteractionHand hand = event.getHand();
+        ItemStack stack = event.getItemStack();
+        if (target instanceof AbstractHorse abstractHorse) {
+            if (abstractHorse instanceof SkeletonHorse || abstractHorse instanceof ZombieHorse) {
+
+                ItemStack chest = abstractHorse.getItemBySlot(EquipmentSlot.CHEST);
+
+                if (chest.isEmpty()) {
+                    if (abstractHorse.isArmor(stack)) {
+                        if (!player.level.isClientSide) {
+                            abstractHorse.setItemSlot(EquipmentSlot.CHEST, stack);
+                            player.setItemInHand(hand, ItemStack.EMPTY);
+                            event.setCancellationResult(InteractionResult.SUCCESS);
+                        }
+                        event.setCancellationResult(InteractionResult.sidedSuccess(player.level.isClientSide));
+                        event.setCanceled(true);
+                    }
+                }else {
+                    if (stack.isEmpty()) {
+                        if (!player.level.isClientSide) {
+                            player.setItemInHand(hand, chest);
+                            abstractHorse.setItemSlot(EquipmentSlot.CHEST, ItemStack.EMPTY);
+                        }
+                        event.setCancellationResult(InteractionResult.sidedSuccess(player.level.isClientSide));
+                        event.setCanceled(true);
+                    }
+                }
+            }
+        }
     }
 
     void registerItems(RegistryEvent.Register<Item> event) {
