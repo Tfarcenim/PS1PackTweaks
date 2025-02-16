@@ -1,4 +1,4 @@
-package tfar.ps1packtweaks.mixin;
+package tfar.ps1packtweaks.mixin.compat;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;

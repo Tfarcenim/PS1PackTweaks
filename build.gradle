@@ -184,6 +184,14 @@ dependencies {
     annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
     implementation fg.deobf("curse.maven:nicephore-401014:3741832")
 
+
+    implementation fg.deobf("curse.maven:shiny-horses-forge-enchantable-horse-armor-674456:3984182")
+    implementation fg.deobf("curse.maven:skeleton-horse-spawn-346219:4851686")
+    implementation fg.deobf("curse.maven:zombie-horse-spawn-345692:4851243")
+    implementation fg.deobf("curse.maven:collective-342584:4860332")
+
+    implementation fg.deobf("curse.maven:more-horse-armor-581903:3723199")
+
     // For more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html

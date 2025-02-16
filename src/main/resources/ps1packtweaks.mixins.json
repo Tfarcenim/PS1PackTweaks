@@ -5,17 +5,21 @@
   "refmap": "ps1packtweaks.refmap.json",
   "plugin": "tfar.ps1packtweaks.mixin.MixinPlugin",
   "mixins": [
+    "AbstractHorseMixin",
     "ArmorStandItemMixin",
     "ArrowInfiniteEnchantmentMixin",
     "PoiTypeMixin",
     "SkeletonHorseMixin",
-    "ZombieHorseMixin"
+    "ZombieHorseMixin",
+    "compat.ShinyHorsesModMixin",
+    "compat.SkeletonHorseEventMixin",
+    "compat.ZombiwHorseEventMixin"
   ],
   "client": [
     "LivingEntityRenderMixin",
-    "ScreenShotScreenMixin",
     "SheepFurLayerMixin",
-    "UndeadHorseRendererMixin"
+    "UndeadHorseRendererMixin",
+    "compat.ScreenShotScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

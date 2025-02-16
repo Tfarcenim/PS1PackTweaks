@@ -66,6 +66,7 @@ public class PS1PackTweaks
     }
 
     void rightClick(PlayerInteractEvent.EntityInteract event) {
+        if (true) return;
         Entity target = event.getTarget();
         Player player = event.getPlayer();
         InteractionHand hand = event.getHand();

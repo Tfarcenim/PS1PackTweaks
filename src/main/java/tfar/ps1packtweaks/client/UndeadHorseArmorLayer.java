@@ -15,13 +15,14 @@ import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.item.DyeableHorseArmorItem;
 import net.minecraft.world.item.HorseArmorItem;
 import net.minecraft.world.item.ItemStack;
+import tfar.ps1packtweaks.compat.ShinyHorsesCompat;
 
 public class UndeadHorseArmorLayer extends RenderLayer<AbstractHorse, HorseModel<AbstractHorse>> {
     private final HorseModel<AbstractHorse> model;
 
-    public UndeadHorseArmorLayer(RenderLayerParent<AbstractHorse, HorseModel<AbstractHorse>> pRenderer, EntityModelSet p_174497_) {
+    public UndeadHorseArmorLayer(RenderLayerParent<AbstractHorse, HorseModel<AbstractHorse>> pRenderer, EntityModelSet set) {
         super(pRenderer);
-        this.model = new HorseModel<>(p_174497_.bakeLayer(ModelLayers.HORSE_ARMOR));
+        this.model = new HorseModel<>(set.bakeLayer(ModelLayers.HORSE_ARMOR));
     }
 
     public void render(PoseStack pMatrixStack, MultiBufferSource pBuffer, int pPackedLight, AbstractHorse pLivingEntity, float pLimbSwing, float pLimbSwingAmount, float pPartialTicks, float pAgeInTicks, float pNetHeadYaw, float pHeadPitch) {
@@ -35,16 +36,19 @@ public class UndeadHorseArmorLayer extends RenderLayer<AbstractHorse, HorseModel
             float f2;
             if (horsearmoritem instanceof DyeableHorseArmorItem) {
                 int i = ((DyeableHorseArmorItem)horsearmoritem).getColor(itemstack);
-                f = (float)(i >> 16 & 255) / 255.0F;
-                f1 = (float)(i >> 8 & 255) / 255.0F;
-                f2 = (float)(i & 255) / 255.0F;
+                f = (i >> 16 & 255) / 255.0F;
+                f1 = (i >> 8 & 255) / 255.0F;
+                f2 = (i & 255) / 255.0F;
             } else {
                 f = 1.0F;
                 f1 = 1.0F;
                 f2 = 1.0F;
             }
 
-            VertexConsumer vertexconsumer = pBuffer.getBuffer(RenderType.entityCutoutNoCull(horsearmoritem.getTexture()));
+            VertexConsumer vertexconsumer =  pBuffer.getBuffer(RenderType.entityCutoutNoCull(horsearmoritem.getTexture()));
+            vertexconsumer = ShinyHorsesCompat.renderHorseArmorGlintHook(vertexconsumer,pMatrixStack, pBuffer, pPackedLight, pLivingEntity,pLimbSwing, pLimbSwingAmount, pPartialTicks, pAgeInTicks, pNetHeadYaw, pHeadPitch );
+
+
             this.model.renderToBuffer(pMatrixStack, vertexconsumer, pPackedLight, OverlayTexture.NO_OVERLAY, f, f1, f2, 1.0F);
         }
     }
