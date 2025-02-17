@@ -1,5 +1,7 @@
 package tfar.ps1packtweaks;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.mojang.logging.LogUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -17,6 +19,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
@@ -32,8 +36,13 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.slf4j.Logger;
 import tfar.ps1packtweaks.client.PS1PackTweaksClient;
+import tfar.ps1packtweaks.compat.ModIntegration;
+import tfar.ps1packtweaks.compat.MoreHorseArmorCompat;
 import tfar.ps1packtweaks.datagen.DataGenerators;
 import tfar.ps1packtweaks.entity.Barnacle;
+import tfar.ps1packtweaks.mixin.ItemAccess;
+
+import java.util.Set;
 
 import static tfar.ps1packtweaks.Init.ModSounds.*;
 
@@ -44,6 +53,9 @@ public class PS1PackTweaks
     public static final String MOD_ID = "ps1packtweaks";
     // Directly reference a slf4j logger
     private static final Logger LOGGER = LogUtils.getLogger();
+
+    public static final Set<BlockState> ANVILS = ImmutableList.of(Blocks.ANVIL,Blocks.CHIPPED_ANVIL,Blocks.DAMAGED_ANVIL).stream()
+            .flatMap((block) -> block.getStateDefinition().getPossibleStates().stream()).collect(ImmutableSet.toImmutableSet());
 
     public PS1PackTweaks()
     {
@@ -66,38 +78,6 @@ public class PS1PackTweaks
     }
 
     void rightClick(PlayerInteractEvent.EntityInteract event) {
-        if (true) return;
-        Entity target = event.getTarget();
-        Player player = event.getPlayer();
-        InteractionHand hand = event.getHand();
-        ItemStack stack = event.getItemStack();
-        if (target instanceof AbstractHorse abstractHorse) {
-            if (abstractHorse instanceof SkeletonHorse || abstractHorse instanceof ZombieHorse) {
-
-                ItemStack chest = abstractHorse.getItemBySlot(EquipmentSlot.CHEST);
-
-                if (chest.isEmpty()) {
-                    if (abstractHorse.isArmor(stack)) {
-                        if (!player.level.isClientSide) {
-                            abstractHorse.setItemSlot(EquipmentSlot.CHEST, stack);
-                            player.setItemInHand(hand, ItemStack.EMPTY);
-                            event.setCancellationResult(InteractionResult.SUCCESS);
-                        }
-                        event.setCancellationResult(InteractionResult.sidedSuccess(player.level.isClientSide));
-                        event.setCanceled(true);
-                    }
-                }else {
-                    if (stack.isEmpty()) {
-                        if (!player.level.isClientSide) {
-                            player.setItemInHand(hand, chest);
-                            abstractHorse.setItemSlot(EquipmentSlot.CHEST, ItemStack.EMPTY);
-                        }
-                        event.setCancellationResult(InteractionResult.sidedSuccess(player.level.isClientSide));
-                        event.setCanceled(true);
-                    }
-                }
-            }
-        }
     }
 
     void registerItems(RegistryEvent.Register<Item> event) {
@@ -138,7 +118,9 @@ public class PS1PackTweaks
     }
 
     private void setup(final FMLCommonSetupEvent event) {
-        // some preinit code
+        if (ModIntegration.morehorsearmor.loaded) {
+            MoreHorseArmorCompat.setup();
+        }
     }
 
     public static ResourceLocation id(String path) {

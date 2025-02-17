@@ -6,6 +6,7 @@ import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
+import tfar.ps1packtweaks.PS1PackTweaks;
 
 import java.util.Set;
 
@@ -15,7 +16,7 @@ public class PoiTypeMixin {
 
     @ModifyArg(method = "<clinit>",at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/ai/village/poi/PoiType;register(Ljava/lang/String;Ljava/util/Set;II)Lnet/minecraft/world/entity/ai/village/poi/PoiType;",ordinal = 12))
     private static Set<BlockState> modifyBlockStates(Set<BlockState> original) {
-        return original;
+        return PS1PackTweaks.ANVILS;
     }
 
 }

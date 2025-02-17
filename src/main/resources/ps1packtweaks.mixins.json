@@ -8,6 +8,7 @@
     "AbstractHorseMixin",
     "ArmorStandItemMixin",
     "ArrowInfiniteEnchantmentMixin",
+    "ItemAccess",
     "PoiTypeMixin",
     "SkeletonHorseMixin",
     "ZombieHorseMixin",

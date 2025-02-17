@@ -192,6 +192,9 @@ dependencies {
 
     implementation fg.deobf("curse.maven:more-horse-armor-581903:3723199")
 
+    implementation fg.deobf("curse.maven:the-wild-backport-537901:3988035")
+    implementation fg.deobf("curse.maven:terrablender-563928:3957976")
+
     // For more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
