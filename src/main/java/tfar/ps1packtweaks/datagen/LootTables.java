@@ -2,11 +2,14 @@ package tfar.ps1packtweaks.datagen;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
+import net.enderitemc.enderitemod.init.Registration;
 import net.minecraft.data.DataGenerator;
+import net.minecraft.data.loot.BlockLoot;
 import net.minecraft.data.loot.EntityLoot;
 import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.ValidationContext;
@@ -38,7 +41,7 @@ public class LootTables extends LootTableProvider {
 
     @Override
     protected List<Pair<Supplier<Consumer<BiConsumer<ResourceLocation, LootTable.Builder>>>, LootContextParamSet>> getTables() {
-        return ImmutableList.of(Pair.of(ModEntityLootTables::new, LootContextParamSets.ENTITY));
+        return ImmutableList.of(Pair.of(ModEntityLootTables::new, LootContextParamSets.ENTITY),Pair.of(ModBlockLootTables::new, LootContextParamSets.BLOCK));
     }
 
     public static class ModEntityLootTables extends EntityLoot {
@@ -60,6 +63,20 @@ public class LootTables extends LootTableProvider {
                                     .when(LootItemKilledByPlayerCondition.killedByPlayer())))
             );
 
+        }
+    }
+
+    public static class ModBlockLootTables extends BlockLoot {
+        @Override
+        protected Iterable<Block> getKnownBlocks() {
+            List<Block> list = new ArrayList<>();
+            list.add(Registration.ENDERITE_ORE.get());
+            return list;
+        }
+
+        @Override
+        protected void addTables() {
+            dropWhenSilkTouch(Registration.ENDERITE_ORE.get());
         }
     }
 }

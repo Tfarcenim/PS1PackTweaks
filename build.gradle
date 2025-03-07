@@ -103,6 +103,10 @@ minecraft {
         gameTestServer {
             workingDirectory project.file('run')
 
+            properties 'mixin.env.remapRefMap': 'true'
+            property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
+            arg "-mixin.config="+archivesBaseName+".mixins.json"
+
             // Recommended logging data for a userdev environment
             // The markers can be added/remove as needed separated by commas.
             // "SCAN": For mods scan.
@@ -116,7 +120,7 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
 
             // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
-            property 'forge.enabledGameTestNamespaces', 'examplemod'
+            property 'forge.enabledGameTestNamespaces', 'ps1packtweaks'
 
             mods {
                 ps1packtweaks {
@@ -127,7 +131,9 @@ minecraft {
 
         data {
             workingDirectory project.file('run')
-
+            properties 'mixin.env.remapRefMap': 'true'
+            property 'mixin.env.refMapRemappingFile', "${project.projectDir}/build/createSrgToMcp/output.srg"
+            arg "-mixin.config="+archivesBaseName+".mixins.json"
             property 'forge.logging.markers', 'REGISTRIES'
 
             property 'forge.logging.console.level', 'debug'
@@ -136,7 +142,7 @@ minecraft {
             args '--mod', "ps1packtweaks", '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
 
             mods {
-                ps1tweaks {
+                ps1packtweaks {
                     source sourceSets.main
                 }
             }
@@ -194,6 +200,9 @@ dependencies {
 
     implementation fg.deobf("curse.maven:the-wild-backport-537901:3988035")
     implementation fg.deobf("curse.maven:terrablender-563928:3957976")
+
+    implementation fg.deobf("curse.maven:enderite-mod-for-forge-401284:4287555")
+
 
     // For more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html

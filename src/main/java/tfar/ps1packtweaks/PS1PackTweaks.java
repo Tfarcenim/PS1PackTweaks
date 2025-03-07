@@ -6,20 +6,13 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.animal.horse.AbstractHorse;
-import net.minecraft.world.entity.animal.horse.SkeletonHorse;
-import net.minecraft.world.entity.animal.horse.ZombieHorse;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
@@ -36,11 +29,13 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.slf4j.Logger;
 import tfar.ps1packtweaks.client.PS1PackTweaksClient;
+import tfar.ps1packtweaks.compat.EnderiteModCompat;
 import tfar.ps1packtweaks.compat.ModIntegration;
 import tfar.ps1packtweaks.compat.MoreHorseArmorCompat;
-import tfar.ps1packtweaks.datagen.DataGenerators;
+import tfar.ps1packtweaks.datagen.ModDataGenerator;
 import tfar.ps1packtweaks.entity.Barnacle;
-import tfar.ps1packtweaks.mixin.ItemAccess;
+import tfar.ps1packtweaks.mixin.BlockAccess;
+import tfar.ps1packtweaks.mixin.BlockStateAccess;
 
 import java.util.Set;
 
@@ -67,11 +62,13 @@ public class PS1PackTweaks
             PS1PackTweaksClient.init(bus);
         }
 
+        bus.addGenericListener(Block.class,this::registerBlocks);
+        bus.addGenericListener(BlockEntityType.class,this::registerBlockEntities);
         bus.addGenericListener(Item.class,this::registerItems);
         bus.addGenericListener(EntityType.class,this::registerEntities);
         bus.addGenericListener(SoundEvent.class,this::registerSounds);
 
-        bus.addListener(DataGenerators::gatherData);
+        bus.addListener(ModDataGenerator::gatherData);
         MinecraftForge.EVENT_BUS.addListener(this::sleepCheck);
         bus.addListener(this::onAttributeCreate);
         MinecraftForge.EVENT_BUS.addListener(this::rightClick);
@@ -80,9 +77,18 @@ public class PS1PackTweaks
     void rightClick(PlayerInteractEvent.EntityInteract event) {
     }
 
+    void registerBlocks(RegistryEvent.Register<Block> event) {
+    }
+
+    void registerBlockEntities(RegistryEvent.Register<BlockEntityType<?>> event) {
+
+    }
+
     void registerItems(RegistryEvent.Register<Item> event) {
-        event.getRegistry().registerAll(Init.ModItems.BARNACLE_TOOTH.setRegistryName("barnacle_tooth"),
-                Init.ModItems.PRISMARINE_ROD.setRegistryName("prismarine_rods"));
+        event.getRegistry().registerAll(
+                Init.ModItems.BARNACLE_TOOTH.setRegistryName("barnacle_tooth"),
+                Init.ModItems.PRISMARINE_ROD.setRegistryName("prismarine_rods")
+        );
     }
     void registerEntities(RegistryEvent.Register<EntityType<?>> event) {
         event.getRegistry().registerAll(Init.ModEntityTypes.BARNACLE.setRegistryName("barnacle"));
@@ -121,6 +127,30 @@ public class PS1PackTweaks
         if (ModIntegration.morehorsearmor.loaded) {
             MoreHorseArmorCompat.setup();
         }
+        if (ModIntegration.enderitemod.loaded) {
+            EnderiteModCompat.setup();
+        }
+    }
+
+    public static void setDestroySpeed(Block block, float v) {
+        ImmutableList<BlockState> possibleStates = block.getStateDefinition().getPossibleStates();
+        possibleStates.forEach(state -> ((BlockStateAccess)state).setDestroySpeed(v));
+    }
+
+    public static void setRequiresCorrectToolForDrops(Block block, boolean v) {
+        ImmutableList<BlockState> possibleStates = block.getStateDefinition().getPossibleStates();
+        possibleStates.forEach(state -> ((BlockStateAccess)state).setRequiresCorrectToolForDrops(v));
+    }
+
+    public static void setLootTable(Block block,ResourceLocation lootTable) {
+        BlockAccess blockAccess = (BlockAccess) block;
+        blockAccess.setDrops(lootTable);
+        blockAccess.setLootTableSupplier(() -> lootTable);
+    }
+
+    public static void setDefaultLootTable(Block block) {
+        ResourceLocation r = new ResourceLocation(block.getRegistryName().getNamespace(), "blocks/" + block.getRegistryName().getPath());
+        setLootTable(block,r);
     }
 
     public static ResourceLocation id(String path) {

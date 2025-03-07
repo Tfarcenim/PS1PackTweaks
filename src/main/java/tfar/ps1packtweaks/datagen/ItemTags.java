@@ -8,7 +8,7 @@ import tfar.ps1packtweaks.PS1PackTweaks;
 import javax.annotation.Nullable;
 
 public class ItemTags extends ItemTagsProvider {
-    public ItemTags(final DataGenerator generatorIn, BlockTags blockTagProvider, @Nullable final ExistingFileHelper existingFileHelper) {
+    public ItemTags(final DataGenerator generatorIn, ModBlockTagProvider blockTagProvider, @Nullable final ExistingFileHelper existingFileHelper) {
         super(generatorIn, blockTagProvider, PS1PackTweaks.MOD_ID, existingFileHelper);
     }
 

@@ -8,6 +8,8 @@
     "AbstractHorseMixin",
     "ArmorStandItemMixin",
     "ArrowInfiniteEnchantmentMixin",
+    "BlockAccess",
+    "BlockStateAccess",
     "ItemAccess",
     "PoiTypeMixin",
     "SkeletonHorseMixin",
