@@ -10,6 +10,7 @@ import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.ValidationContext;
@@ -71,12 +72,14 @@ public class LootTables extends LootTableProvider {
         protected Iterable<Block> getKnownBlocks() {
             List<Block> list = new ArrayList<>();
             list.add(Registration.ENDERITE_ORE.get());
+            list.add(Registration.ENDERITE_SHULKER_BOX.get());
             return list;
         }
 
         @Override
         protected void addTables() {
             dropWhenSilkTouch(Registration.ENDERITE_ORE.get());
+            this.add(Registration.ENDERITE_SHULKER_BOX.get(), BlockLoot::createShulkerBoxDrop);
         }
     }
 }
