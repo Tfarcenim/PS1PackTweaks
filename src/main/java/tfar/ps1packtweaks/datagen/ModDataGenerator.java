@@ -17,7 +17,7 @@ public class ModDataGenerator {
             generator.addProvider(new LootTables(generator));
             ModBlockTagProvider blockTags = new ModBlockTagProvider(generator, existingFileHelper);
             generator.addProvider(blockTags);
-            generator.addProvider(new ItemTags(generator, blockTags, existingFileHelper));
+            generator.addProvider(new ModItemTagProvider(generator, blockTags, existingFileHelper));
             generator.addProvider(new ConfiguredStructureTags(generator, existingFileHelper));
         }
         if (event.includeClient()) {

@@ -13,7 +13,9 @@
     "ItemAccess",
     "PoiTypeMixin",
     "SkeletonHorseMixin",
+    "SmithingTableMenuMixin",
     "ZombieHorseMixin",
+    "compat.EnderiteSwordMixin",
     "compat.ShinyHorsesModMixin",
     "compat.SkeletonHorseEventMixin",
     "compat.ZombiwHorseEventMixin"
