@@ -16,6 +16,7 @@
     "SmithingTableMenuMixin",
     "ZombieHorseMixin",
     "compat.EnderiteSwordMixin",
+    "compat.NetheriteShulkerBoxBlockEntityMixin",
     "compat.ShinyHorsesModMixin",
     "compat.SkeletonHorseEventMixin",
     "compat.ZombiwHorseEventMixin"
@@ -24,6 +25,7 @@
     "LivingEntityRenderMixin",
     "SheepFurLayerMixin",
     "UndeadHorseRendererMixin",
+    "compat.ForgeGuiEventMixin",
     "compat.ScreenShotScreenMixin"
   ],
   "injectors": {
