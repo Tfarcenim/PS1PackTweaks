@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "ps1packtweaks:item/prismarine_rod"
+  }
+}

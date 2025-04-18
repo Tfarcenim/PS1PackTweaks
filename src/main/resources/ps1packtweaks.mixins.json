@@ -23,6 +23,7 @@
   ],
   "client": [
     "LivingEntityRenderMixin",
+    "MouseHandlerMixin",
     "SheepFurLayerMixin",
     "UndeadHorseRendererMixin",
     "compat.ForgeGuiEventMixin",

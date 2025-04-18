@@ -38,13 +38,13 @@ public class PS1TweaksConfig {
         public final ConfigHelper.ConfigObject<ChatSettings> singleplayer_chat_settings;
 
         public final ConfigHelper.ConfigObject<ChatSettings> multiplayer_chat_settings;
-        public final ForgeConfigSpec.IntValue hideMouseTimer;
+        public final ForgeConfigSpec.IntValue hideTitleMouseTimer;
 
         Client(ForgeConfigSpec.Builder builder) {
             builder.push("tweaks");
             singleplayer_chat_settings = ConfigHelper.defineObject(builder.comment("FULL,SYSTEM,HIDDEN"),"singleplayer_chat_settings",ChatSettings.CODEC,ChatSettings.DEFAULT_SINGLEPLAYER);
             multiplayer_chat_settings = ConfigHelper.defineObject(builder.comment("FULL,SYSTEM,HIDDEN"),"multiplayer_chat_settings",ChatSettings.CODEC,ChatSettings.DEFAULT_MULTIPLAYER);
-            hideMouseTimer = builder.defineInRange("hide_mouse_timer",200,1,1000000);
+            hideTitleMouseTimer = builder.defineInRange("hide_title_mouse_timer",1000,1,1000000);
 
             builder.pop();
         }

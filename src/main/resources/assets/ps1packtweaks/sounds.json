@@ -2,40 +2,40 @@
 
   "barnacle_ambient": {
     "category": "hostile",
-    "subtitle": "subtitles.entity.outvoted.barnacle.ambient",
+    "subtitle": "subtitles.entity.ps1packtweaks.barnacle.ambient",
     "sounds": [
       {
-        "name": "outvoted:entity/barnacle1"
+        "name": "ps1packtweaks:entity/barnacle1"
       },
       {
-        "name": "outvoted:entity/barnacle2"
+        "name": "ps1packtweaks:entity/barnacle2"
       },
       {
-        "name": "outvoted:entity/barnacle3"
+        "name": "ps1packtweaks:entity/barnacle3"
       }
     ]
   },
   "barnacle_hurt": {
     "category": "hostile",
-    "subtitle": "subtitles.entity.outvoted.barnacle.hurt",
+    "subtitle": "subtitles.entity.ps1packtweaks.barnacle.hurt",
     "sounds": [
       {
-        "name": "outvoted:entity/barnacle_hit"
+        "name": "ps1packtweaks:entity/barnacle_hit"
       }
     ]
   },
   "barnacle_death": {
     "category": "hostile",
-    "subtitle": "subtitles.entity.outvoted.barnacle.death",
+    "subtitle": "subtitles.entity.ps1packtweaks.barnacle.death",
     "sounds": [
       {
-        "name": "outvoted:entity/barnacle_death"
+        "name": "ps1packtweaks:entity/barnacle_death"
       }
     ]
   },
   "barnacle_flop": {
     "category": "hostile",
-    "subtitle": "subtitles.entity.outvoted.barnacle.flop",
+    "subtitle": "subtitles.entity.ps1packtweaks.barnacle.flop",
     "sounds": [
       {
         "name": "minecraft:mob/guardian/flop1"

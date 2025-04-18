@@ -206,8 +206,9 @@ dependencies {
 
     implementation fg.deobf("curse.maven:gui-compass-347595:4852707")
 
-    implementation fg.deobf("curse.maven:spiffy-hud-forge-483885:3785712")
-    implementation fg.deobf("curse.maven:konkrete-410295:5028407")
+    //crashes datagen
+    //implementation fg.deobf("curse.maven:spiffy-hud-forge-483885:3785712")
+    //implementation fg.deobf("curse.maven:konkrete-410295:5028407")
 
     // For more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html

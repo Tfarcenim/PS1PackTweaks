@@ -19,6 +19,7 @@ public class ModItemModelProvider extends ItemModelProvider {
     @Override
     protected void registerModels() {
         generatedItem(Init.ModItems.BARNACLE_TOOTH.getRegistryName().getPath());
+        generatedItem(Init.ModItems.PRISMARINE_ROD.getRegistryName().getPath());
     }
 
     private void generatedItem(String path) {

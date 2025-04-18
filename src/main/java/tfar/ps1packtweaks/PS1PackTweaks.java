@@ -87,7 +87,7 @@ public class PS1PackTweaks
     void registerItems(RegistryEvent.Register<Item> event) {
         event.getRegistry().registerAll(
                 Init.ModItems.BARNACLE_TOOTH.setRegistryName("barnacle_tooth"),
-                Init.ModItems.PRISMARINE_ROD.setRegistryName("prismarine_rods")
+                Init.ModItems.PRISMARINE_ROD.setRegistryName("prismarine_rod")
         );
     }
     void registerEntities(RegistryEvent.Register<EntityType<?>> event) {
