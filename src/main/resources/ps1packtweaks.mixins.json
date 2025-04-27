@@ -15,6 +15,7 @@
     "SkeletonHorseMixin",
     "SmithingTableMenuMixin",
     "ZombieHorseMixin",
+    "compat.ClientForgeEventsMixin",
     "compat.EnderiteSwordMixin",
     "compat.NetheriteShulkerBoxBlockEntityMixin",
     "compat.ShinyHorsesModMixin",
