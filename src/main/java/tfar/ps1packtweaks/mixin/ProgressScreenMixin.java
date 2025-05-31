@@ -12,6 +12,6 @@ import tfar.ps1packtweaks.client.PS1PackTweaksClient;
 public class ProgressScreenMixin {
     @Inject(method = "render",at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;setScreen(Lnet/minecraft/client/gui/screens/Screen;)V"))
     private void stopBackground(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick, CallbackInfo ci) {
-        PS1PackTweaksClient.showDisc = false;
+        //PS1PackTweaksClient.showDisc = false;
     }
 }

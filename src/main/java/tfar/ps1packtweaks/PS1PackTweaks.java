@@ -3,12 +3,18 @@ package tfar.ps1packtweaks;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.logging.LogUtils;
+import net.minecraft.Util;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
@@ -16,20 +22,25 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.SleepingTimeCheckEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
+import org.apache.commons.lang3.RandomUtils;
 import org.slf4j.Logger;
 import tfar.ps1packtweaks.client.PS1PackTweaksClient;
 import tfar.ps1packtweaks.compat.EnderiteModCompat;
@@ -79,6 +90,27 @@ public class PS1PackTweaks
         bus.addListener(this::onAttributeCreate);
         MinecraftForge.EVENT_BUS.addListener(this::rightClick);
         MinecraftForge.EVENT_BUS.addListener(this::changeDims);
+        MinecraftForge.EVENT_BUS.addListener(this::playerTick);
+    }
+
+    void playerTick(TickEvent.PlayerTickEvent event) {
+        if (PS1TweaksConfig.SERVER.fallingAnimal.get() && event.phase == TickEvent.Phase.START && event.side == LogicalSide.SERVER) {
+            ServerPlayer player = (ServerPlayer) event.player;
+            if (player.level.dimension() == Level.OVERWORLD) {
+                long time = player.level.getGameTime();
+                if (time % PS1TweaksConfig.SERVER.minFallingTime.get() == 0 && player.getRandom().nextDouble() < PS1TweaksConfig.SERVER.fallingAnimalChance.get()) {
+                    EntityType<?> type = Registry.ENTITY_TYPE.get(new ResourceLocation(Util.getRandom(PS1TweaksConfig.SERVER.fallingAnimalTypes.get(), player.getRandom())));
+                    Vec3 vec3 = player.position().add(player.getLookAngle().scale(6));
+                    BlockPos top = new BlockPos(vec3);
+                    BlockPos dropLocation = player.level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,top);
+                    BlockPos spawnPos = dropLocation.above(20);
+                    Entity spawn = type.spawn(player.getLevel(), null, null, spawnPos, MobSpawnType.EVENT, false, false);
+                    if (spawn instanceof Mob mob) {
+                        mob.setHealth(0.01f);
+                    }
+                }
+            }
+        }
     }
 
     void changeDims(PlayerEvent.PlayerChangedDimensionEvent event) {

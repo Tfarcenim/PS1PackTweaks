@@ -1,7 +1,11 @@
 package tfar.ps1packtweaks;
 
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
+
+import java.util.List;
 
 public class PS1TweaksConfig {
 
@@ -25,7 +29,8 @@ public class PS1TweaksConfig {
         public final ForgeConfigSpec.DoubleValue barnacleHealth;
         public final ForgeConfigSpec.BooleanValue fallingAnimal;
         public final ForgeConfigSpec.DoubleValue fallingAnimalChance;
-        public final ForgeConfigSpec.BooleanValue fallingAnimalInterval;
+        public final ForgeConfigSpec.LongValue minFallingTime;
+        public final ForgeConfigSpec.ConfigValue<List<? extends String>>  fallingAnimalTypes;
 
         Server(ForgeConfigSpec.Builder builder) {
             builder.push("tweaks");
@@ -34,7 +39,10 @@ public class PS1TweaksConfig {
             builder.pop();
             builder.push("events");
             fallingAnimal = builder.define("falling_animal",true);
-            fallingAnimalChance = builder.define("falling_animal",true);
+            fallingAnimalChance = builder.defineInRange("falling_animal_chance",.5,0,1);
+            minFallingTime = builder.defineInRange("falling_delay",100,1,100000000000000L);
+            fallingAnimalTypes = builder.defineList("falling_animal_types",List.of("minecraft:cow"),
+                    o -> o instanceof String s && Registry.ENTITY_TYPE.containsKey(new ResourceLocation(s)));
             builder.pop();
             builder.pop();
         }

@@ -30,6 +30,9 @@ public class MouseHider {
         if (screen instanceof SelectWorldScreen) {
             unhide();
         }
+
+        if (screen == null) PS1PackTweaksClient.showDisc = false;
+
     }
 
     static void clientTick(TickEvent.ClientTickEvent event) {

@@ -72,7 +72,7 @@ public class PS1PackTweaksClient {
 
     public static void replaceBackground(ScreenEvent.BackgroundDrawnEvent event) {
         Screen screen = event.getScreen();
-        if ((screen instanceof ProgressScreen || screen instanceof ReceivingLevelScreen)) {
+        if ((screen instanceof ProgressScreen || screen instanceof ReceivingLevelScreen) && showDisc) {
             PoseStack stack = event.getPoseStack();
 
             int screenHeight = Minecraft.getInstance().getWindow().getGuiScaledHeight();
@@ -190,7 +190,9 @@ public class PS1PackTweaksClient {
 
 
     public static void handle(ResourceKey<Level> key) {
+        if (DISC != key) {
         DISC = key;
         showDisc = true;
+        }
     }
 }

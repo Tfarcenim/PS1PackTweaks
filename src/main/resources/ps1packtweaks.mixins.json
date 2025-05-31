@@ -23,6 +23,7 @@
     "compat.ZombiwHorseEventMixin"
   ],
   "client": [
+    "ClientPacketListenerMixin",
     "LivingEntityRenderMixin",
     "MinecraftMixin",
     "MouseHandlerMixin",
