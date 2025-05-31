@@ -3,7 +3,9 @@ package tfar.ps1packtweaks;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.logging.LogUtils;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
@@ -17,6 +19,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.SleepingTimeCheckEvent;
 import net.minecraftforge.eventbus.api.Event;
@@ -36,6 +39,9 @@ import tfar.ps1packtweaks.datagen.ModDataGenerator;
 import tfar.ps1packtweaks.entity.Barnacle;
 import tfar.ps1packtweaks.mixin.BlockAccess;
 import tfar.ps1packtweaks.mixin.BlockStateAccess;
+import tfar.ps1packtweaks.network.ForgePacketHandler;
+import tfar.ps1packtweaks.network.PacketHandler;
+import tfar.ps1packtweaks.network.client.S2CTargetDimensionPacket;
 
 import java.util.Set;
 
@@ -47,7 +53,7 @@ public class PS1PackTweaks
 {
     public static final String MOD_ID = "ps1packtweaks";
     // Directly reference a slf4j logger
-    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LogUtils.getLogger();
 
     public static final Set<BlockState> ANVILS = ImmutableList.of(Blocks.ANVIL,Blocks.CHIPPED_ANVIL,Blocks.DAMAGED_ANVIL).stream()
             .flatMap((block) -> block.getStateDefinition().getPossibleStates().stream()).collect(ImmutableSet.toImmutableSet());
@@ -72,6 +78,13 @@ public class PS1PackTweaks
         MinecraftForge.EVENT_BUS.addListener(this::sleepCheck);
         bus.addListener(this::onAttributeCreate);
         MinecraftForge.EVENT_BUS.addListener(this::rightClick);
+        MinecraftForge.EVENT_BUS.addListener(this::changeDims);
+    }
+
+    void changeDims(PlayerEvent.PlayerChangedDimensionEvent event) {
+        ResourceKey<Level> eventTo = event.getTo();
+        ServerPlayer player = (ServerPlayer) event.getPlayer();
+        ForgePacketHandler.sendToClient(new S2CTargetDimensionPacket(eventTo),player);
     }
 
     void rightClick(PlayerInteractEvent.EntityInteract event) {
@@ -130,6 +143,7 @@ public class PS1PackTweaks
         if (ModIntegration.enderitemod.loaded) {
             EnderiteModCompat.setup();
         }
+        PacketHandler.registerPackets();
     }
 
     public static void setDestroySpeed(Block block, float v) {

@@ -24,7 +24,9 @@
   ],
   "client": [
     "LivingEntityRenderMixin",
+    "MinecraftMixin",
     "MouseHandlerMixin",
+    "ProgressScreenMixin",
     "SheepFurLayerMixin",
     "UndeadHorseRendererMixin",
     "compat.ForgeGuiEventMixin",

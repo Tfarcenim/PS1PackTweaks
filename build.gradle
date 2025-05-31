@@ -206,7 +206,8 @@ dependencies {
 
     implementation fg.deobf("curse.maven:gui-compass-347595:4852707")
 
-    implementation fg.deobf("curse.maven:mcsx-nightmares-929770:4859327")
+    //this is annoying
+    compileOnly fg.deobf("curse.maven:mcsx-nightmares-929770:4859327")
 
     //crashes datagen
     //implementation fg.deobf("curse.maven:spiffy-hud-forge-483885:3785712")

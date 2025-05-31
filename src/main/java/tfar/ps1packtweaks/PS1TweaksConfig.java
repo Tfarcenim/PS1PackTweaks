@@ -23,11 +23,18 @@ public class PS1TweaksConfig {
 
     public static class Server {
         public final ForgeConfigSpec.DoubleValue barnacleHealth;
+        public final ForgeConfigSpec.BooleanValue fallingAnimal;
+        public final ForgeConfigSpec.DoubleValue fallingAnimalChance;
+        public final ForgeConfigSpec.BooleanValue fallingAnimalInterval;
 
         Server(ForgeConfigSpec.Builder builder) {
             builder.push("tweaks");
             builder.push("barnacle");
             barnacleHealth = builder.defineInRange("health",40, 1, 1023.);
+            builder.pop();
+            builder.push("events");
+            fallingAnimal = builder.define("falling_animal",true);
+            fallingAnimalChance = builder.define("falling_animal",true);
             builder.pop();
             builder.pop();
         }
