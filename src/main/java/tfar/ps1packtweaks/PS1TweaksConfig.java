@@ -55,11 +55,20 @@ public class PS1TweaksConfig {
         public final ConfigHelper.ConfigObject<ChatSettings> multiplayer_chat_settings;
         public final ForgeConfigSpec.IntValue hideTitleMouseTimer;
 
+        public final ForgeConfigSpec.BooleanValue take_random_screenshots;
+
+        public final ForgeConfigSpec.LongValue screenshot_interval;
+        public final ForgeConfigSpec.BooleanValue stop_music_when_record_plays;
+
         Client(ForgeConfigSpec.Builder builder) {
             builder.push("tweaks");
             singleplayer_chat_settings = ConfigHelper.defineObject(builder.comment("FULL,SYSTEM,HIDDEN"),"singleplayer_chat_settings",ChatSettings.CODEC,ChatSettings.DEFAULT_SINGLEPLAYER);
             multiplayer_chat_settings = ConfigHelper.defineObject(builder.comment("FULL,SYSTEM,HIDDEN"),"multiplayer_chat_settings",ChatSettings.CODEC,ChatSettings.DEFAULT_MULTIPLAYER);
             hideTitleMouseTimer = builder.defineInRange("hide_title_mouse_timer",1000,1,1000000);
+
+            take_random_screenshots = builder.define("take_random_screenshots",true);
+            screenshot_interval = builder.defineInRange("screenshot_interval",1200 * 25,1,Long.MAX_VALUE);
+            stop_music_when_record_plays = builder.define("stop_music_when_record_plays",true);
 
             builder.pop();
         }

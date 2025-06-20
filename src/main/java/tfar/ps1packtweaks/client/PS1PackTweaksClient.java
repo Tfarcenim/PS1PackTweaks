@@ -9,20 +9,24 @@ import com.google.gson.stream.JsonWriter;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.screens.ProgressScreen;
 import net.minecraft.client.gui.screens.ReceivingLevelScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderers;
+import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.ScreenEvent;
+import net.minecraftforge.client.event.sound.PlaySoundEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.config.ModConfig;
@@ -64,6 +68,21 @@ public class PS1PackTweaksClient {
         MinecraftForge.EVENT_BUS.addListener(MouseHider::clientTick);
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::replaceBackground);
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::logout);
+        MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::clientTick);
+    }
+
+    static void clientTick(TickEvent.ClientTickEvent event) {
+        if (event.phase == TickEvent.Phase.END) {
+            Minecraft minecraft = Minecraft.getInstance();
+            if (!minecraft.isPaused()) {
+                Level level = minecraft.level;
+                if (level != null && level.getGameTime() % PS1TweaksConfig.CLIENT.screenshot_interval.get() == 0) {
+                    Screenshot.grab(minecraft.gameDirectory, minecraft.getMainRenderTarget(), component -> {
+                        PS1PackTweaks.LOGGER.info("Took automatic screenshot: {}",component);
+                    });
+                }
+            }
+        }
     }
 
     static void logout(ClientPlayerNetworkEvent.LoggedOutEvent event) {
@@ -108,6 +127,7 @@ public class PS1PackTweaksClient {
         if (ModIntegration.guicompass.loaded) {
             BetterGuiCompassHUD.setup();
         }
+        MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::playSoundEvent);
     }
 
     static void joinServer(ClientPlayerNetworkEvent.LoggedInEvent event) {
@@ -118,6 +138,18 @@ public class PS1PackTweaksClient {
         } else {
             ChatSettings chatSettings = PS1TweaksConfig.CLIENT.multiplayer_chat_settings.get();
             minecraft.options.chatVisibility = chatSettings.chatVisiblity();
+        }
+    }
+
+    static void playSoundEvent(PlaySoundEvent event) {
+        SoundInstance sound = event.getOriginalSound();
+        String name = event.getName();
+        if (name.equals("music.creative")) {
+            Minecraft minecraft = Minecraft.getInstance();
+            LevelRenderer levelRenderer = minecraft.levelRenderer;
+            if (!levelRenderer.playingRecords.isEmpty()) {
+                event.setSound(null);
+            }
         }
     }
 
