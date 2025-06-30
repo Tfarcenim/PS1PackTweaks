@@ -60,6 +60,8 @@ public class PS1TweaksConfig {
         public final ForgeConfigSpec.LongValue screenshot_interval;
         public final ForgeConfigSpec.BooleanValue stop_music_when_record_plays;
 
+        public final ForgeConfigSpec.ConfigValue<? extends String> screenshot_message;
+
         Client(ForgeConfigSpec.Builder builder) {
             builder.push("tweaks");
             singleplayer_chat_settings = ConfigHelper.defineObject(builder.comment("FULL,SYSTEM,HIDDEN"),"singleplayer_chat_settings",ChatSettings.CODEC,ChatSettings.DEFAULT_SINGLEPLAYER);
@@ -69,6 +71,8 @@ public class PS1TweaksConfig {
             take_random_screenshots = builder.define("take_random_screenshots",true);
             screenshot_interval = builder.defineInRange("screenshot_interval",1200 * 25,1,Long.MAX_VALUE);
             stop_music_when_record_plays = builder.define("stop_music_when_record_plays",true);
+
+            screenshot_message = builder.define("screenshot_message","Screenshot Saved");
 
             builder.pop();
         }

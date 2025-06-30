@@ -10,18 +10,19 @@
     "ArrowInfiniteEnchantmentMixin",
     "BlockAccess",
     "BlockStateAccess",
+    "GlassyMixin",
     "ItemAccess",
     "LivingEntityMixin",
+    "PoiAccess",
     "PoiTypeMixin",
     "SkeletonHorseMixin",
     "SmithingTableMenuMixin",
     "ZombieHorseMixin",
-    "compat.ClientForgeEventsMixin",
     "compat.EnderiteSwordMixin",
     "compat.NetheriteShulkerBoxBlockEntityMixin",
     "compat.ShinyHorsesModMixin",
     "compat.SkeletonHorseEventMixin",
-    "compat.ZombiwHorseEventMixin"
+    "compat.ZombieHorseEventMixin"
   ],
   "client": [
     "ClientPacketListenerMixin",
@@ -33,6 +34,7 @@
     "ProgressScreenMixin",
     "SheepFurLayerMixin",
     "UndeadHorseRendererMixin",
+    "compat.ClientProxyMixin",
     "compat.ForgeGuiEventMixin",
     "compat.ScreenShotScreenMixin"
   ],

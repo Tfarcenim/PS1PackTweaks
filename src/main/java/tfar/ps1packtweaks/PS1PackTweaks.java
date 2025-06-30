@@ -1,10 +1,11 @@
 package tfar.ps1packtweaks;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.mojang.logging.LogUtils;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -15,14 +16,20 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.HalfTransparentBlock;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
@@ -40,9 +47,10 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
-import org.apache.commons.lang3.RandomUtils;
 import org.slf4j.Logger;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import tfar.ps1packtweaks.client.PS1PackTweaksClient;
+import tfar.ps1packtweaks.compat.BrewingCauldronCompat;
 import tfar.ps1packtweaks.compat.EnderiteModCompat;
 import tfar.ps1packtweaks.compat.ModIntegration;
 import tfar.ps1packtweaks.compat.MoreHorseArmorCompat;
@@ -50,11 +58,13 @@ import tfar.ps1packtweaks.datagen.ModDataGenerator;
 import tfar.ps1packtweaks.entity.Barnacle;
 import tfar.ps1packtweaks.mixin.BlockAccess;
 import tfar.ps1packtweaks.mixin.BlockStateAccess;
+import tfar.ps1packtweaks.mixin.PoiAccess;
 import tfar.ps1packtweaks.network.ForgePacketHandler;
 import tfar.ps1packtweaks.network.PacketHandler;
 import tfar.ps1packtweaks.network.client.S2CTargetDimensionPacket;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static tfar.ps1packtweaks.Init.ModSounds.*;
 
@@ -65,9 +75,6 @@ public class PS1PackTweaks
     public static final String MOD_ID = "ps1packtweaks";
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
-
-    public static final Set<BlockState> ANVILS = ImmutableList.of(Blocks.ANVIL,Blocks.CHIPPED_ANVIL,Blocks.DAMAGED_ANVIL).stream()
-            .flatMap((block) -> block.getStateDefinition().getPossibleStates().stream()).collect(ImmutableSet.toImmutableSet());
 
     public PS1PackTweaks()
     {
@@ -176,6 +183,31 @@ public class PS1PackTweaks
             EnderiteModCompat.setup();
         }
         PacketHandler.registerPackets();
+        changePOI(PoiType.TOOLSMITH,Set.of(Blocks.ANVIL,Blocks.CHIPPED_ANVIL,Blocks.DAMAGED_ANVIL));
+        if (ModIntegration.brewingcauldron.loaded){
+            BrewingCauldronCompat.setup();
+        }
+    }
+
+    public static void skipGlassRendering(BlockAndTintGetter pLevel, BlockPos pPos, FluidState pFluidState, BlockState pBlockState, Direction pSide, FluidState pNeighborFluid, CallbackInfoReturnable<Boolean> cir) {
+        if (!cir.getReturnValue()) return;
+        BlockState otherState =pLevel.getBlockState(pPos.relative(pSide));
+        if (pSide != Direction.UP && otherState.getBlock() instanceof HalfTransparentBlock) {
+            cir.setReturnValue(false);
+        }
+    }
+
+        public static void changePOI(PoiType poiType, Set<Block> blocks) {
+        Set<BlockState> oldStates = poiType.getBlockStates();
+        for (BlockState oldState : oldStates) {
+            PoiAccess.getTYPE_BY_STATE().remove(oldState);
+        }
+        Set<BlockState> newStates = blocks.stream().flatMap(block -> block.getStateDefinition().getPossibleStates().stream()).collect(Collectors.toSet());
+        poiType.matchingStates = newStates;
+        for (BlockState state : newStates) {
+            PoiAccess.getTYPE_BY_STATE().put(state,poiType);
+        }
+        PoiType.ALL_STATES = new ObjectOpenHashSet<>(PoiAccess.getTYPE_BY_STATE().keySet());
     }
 
     public static void setDestroySpeed(Block block, float v) {

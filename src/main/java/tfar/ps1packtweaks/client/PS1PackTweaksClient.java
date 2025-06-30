@@ -18,15 +18,19 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.core.Registry;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.ScreenEvent;
+import net.minecraftforge.client.event.ScreenshotEvent;
 import net.minecraftforge.client.event.sound.PlaySoundEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.config.ModConfig;
@@ -58,7 +62,7 @@ public class PS1PackTweaksClient {
     public static ResourceKey<Level> DISC = Level.OVERWORLD;
     public static boolean showDisc;
 
-
+    public static boolean isAutoScreenshot;
 
     public static void init(IEventBus bus) {
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT,PS1TweaksConfig.CLIENT_SPEC);
@@ -69,19 +73,29 @@ public class PS1PackTweaksClient {
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::replaceBackground);
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::logout);
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::clientTick);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.LOW,PS1PackTweaksClient::message);
     }
 
     static void clientTick(TickEvent.ClientTickEvent event) {
         if (event.phase == TickEvent.Phase.END) {
             Minecraft minecraft = Minecraft.getInstance();
-            if (!minecraft.isPaused()) {
+            if (!minecraft.isPaused() && PS1TweaksConfig.CLIENT.take_random_screenshots.get()) {
                 Level level = minecraft.level;
                 if (level != null && level.getGameTime() % PS1TweaksConfig.CLIENT.screenshot_interval.get() == 0) {
+                    isAutoScreenshot = true;
                     Screenshot.grab(minecraft.gameDirectory, minecraft.getMainRenderTarget(), component -> {
                         PS1PackTweaks.LOGGER.info("Took automatic screenshot: {}",component);
                     });
+                    isAutoScreenshot = false;
                 }
             }
+        }
+    }
+
+    static void message(ScreenshotEvent event) {
+        if (!isAutoScreenshot) {
+            Minecraft.getInstance().gui.setTitle(new TextComponent(PS1TweaksConfig.CLIENT.screenshot_message.get()));
+            //event.setResultMessage(new TextComponent(PS1TweaksConfig.CLIENT.screenshot_message.get()));
         }
     }
 

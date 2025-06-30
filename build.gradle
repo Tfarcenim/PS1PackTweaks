@@ -206,12 +206,15 @@ dependencies {
 
     implementation fg.deobf("curse.maven:gui-compass-347595:4852707")
 
-    //this is annoying
-    compileOnly fg.deobf("curse.maven:mcsx-nightmares-929770:4859327")
 
     implementation fg.deobf("curse.maven:nostalgic-tweaks-592465:4622266")
 
     implementation fg.deobf("curse.maven:architectury-api-419699:5137931")
+
+    implementation fg.deobf("curse.maven:citadel-331936:3783096")
+    implementation fg.deobf("curse.maven:alexs-mobs-426558:3853078")
+
+    implementation fg.deobf("curse.maven:brewing-cauldron-1203449:6423999")
 
     //crashes datagen
     //implementation fg.deobf("curse.maven:spiffy-hud-forge-483885:3785712")
