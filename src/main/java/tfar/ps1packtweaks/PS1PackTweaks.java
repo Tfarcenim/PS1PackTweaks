@@ -6,30 +6,37 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.stats.Stats;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HalfTransparentBlock;
-import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
@@ -76,6 +83,8 @@ public class PS1PackTweaks
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
 
+    public static final boolean TRIGGER_BANNER_CRASH = false;
+
     public PS1PackTweaks()
     {
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER,PS1TweaksConfig.SERVER_SPEC);
@@ -100,6 +109,44 @@ public class PS1PackTweaks
         MinecraftForge.EVENT_BUS.addListener(this::playerTick);
     }
 
+    public static void onStatAwarded(Player player, ResourceLocation pStat, int pIncrement) {
+        if (player instanceof ServerPlayer) {
+            if (pStat == Stats.WALK_ONE_CM || pStat == Stats.SPRINT_ONE_CM) {
+                double leavesLogChance = PS1TweaksConfig.SERVER.leaves_and_logs_chance.get() * pIncrement;
+                if (player.getRandom().nextDouble() < leavesLogChance) {
+                    BlockPos pos = player.blockPosition();
+                    int yMax = player.level.getHeight(Heightmap.Types.MOTION_BLOCKING,pos.getX(),pos.getZ());
+                    while (pos.getY() < yMax) {
+                        pos = pos.above();
+                        BlockState state = player.level.getBlockState(pos);
+                        if (state.isCollisionShapeFullBlock(player.level, pos)) {
+                            if (state.is(BlockTags.LEAVES) && state.getBlock() instanceof LeavesBlock && !state.getValue(LeavesBlock.PERSISTENT)) {
+                                ItemLike itemLike;
+                                if (player.getRandom().nextBoolean()) {
+                                    itemLike = Blocks.OAK_LOG;
+                                } else {
+                                    itemLike = Blocks.OAK_LEAVES;
+                                }
+                                NonNullList<ItemStack> items = player.getInventory().items;
+                                for (int i = 9; i < 36;i++) {
+                                    ItemStack stack = items.get(i);
+                                    if (stack.isEmpty()) {
+                                        items.set(i,itemLike.asItem().getDefaultInstance());
+                                        break;
+                                    } else if (itemLike.asItem() ==stack.getItem() && stack.getCount() < stack.getMaxStackSize()) {
+                                        stack.grow(1);
+                                        break;
+                                    }
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     void playerTick(TickEvent.PlayerTickEvent event) {
         if (PS1TweaksConfig.SERVER.fallingAnimal.get() && event.phase == TickEvent.Phase.START && event.side == LogicalSide.SERVER) {
             ServerPlayer player = (ServerPlayer) event.player;
@@ -110,10 +157,23 @@ public class PS1PackTweaks
                     Vec3 vec3 = player.position().add(player.getLookAngle().scale(6));
                     BlockPos top = new BlockPos(vec3);
                     BlockPos dropLocation = player.level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,top);
-                    BlockPos spawnPos = dropLocation.above(20);
+                    int h = 20;
+                    BlockPos spawnPos = dropLocation.above(h);
+
+                    for (int i = h+dropLocation.getY(); i > player.level.getMinBuildHeight();i--) {
+                        BlockPos pos = dropLocation.above(i);
+                        BlockState state = player.level.getBlockState(pos);
+
+                        FluidState fluidState = player.level.getFluidState(pos);
+                        if (fluidState.is(FluidTags.WATER)) {
+                            return;
+                        } else if (!state.getCollisionShape(player.level,pos).isEmpty()) {
+                            break;
+                        }
+                    }
                     Entity spawn = type.spawn(player.getLevel(), null, null, spawnPos, MobSpawnType.EVENT, false, false);
                     if (spawn instanceof Mob mob) {
-                        mob.setHealth(0.01f);
+                        mob.setHealth(Float.MIN_VALUE);
                     }
                 }
             }
@@ -176,17 +236,21 @@ public class PS1PackTweaks
     }
 
     private void setup(final FMLCommonSetupEvent event) {
-        if (ModIntegration.morehorsearmor.loaded) {
-            MoreHorseArmorCompat.setup();
-        }
-        if (ModIntegration.enderitemod.loaded) {
-            EnderiteModCompat.setup();
-        }
+
         PacketHandler.registerPackets();
-        changePOI(PoiType.TOOLSMITH,Set.of(Blocks.ANVIL,Blocks.CHIPPED_ANVIL,Blocks.DAMAGED_ANVIL));
-        if (ModIntegration.brewingcauldron.loaded){
-            BrewingCauldronCompat.setup();
-        }
+        event.enqueueWork(() -> {
+
+            if (ModIntegration.morehorsearmor.loaded) {
+                MoreHorseArmorCompat.setup();
+            }
+            if (ModIntegration.enderitemod.loaded) {
+                EnderiteModCompat.setup();
+            }
+            changePOI(PoiType.TOOLSMITH, Set.of(Blocks.ANVIL, Blocks.CHIPPED_ANVIL, Blocks.DAMAGED_ANVIL));
+            if (ModIntegration.brewingcauldron.loaded) {
+                BrewingCauldronCompat.setup();
+            }
+        });
     }
 
     public static void skipGlassRendering(BlockAndTintGetter pLevel, BlockPos pPos, FluidState pFluidState, BlockState pBlockState, Direction pSide, FluidState pNeighborFluid, CallbackInfoReturnable<Boolean> cir) {

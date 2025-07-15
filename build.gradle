@@ -178,7 +178,6 @@ dependencies {
 
 
 
-    implementation fg.deobf('software.bernie.geckolib:geckolib-forge-1.18:3.0.57')
 
     // Real mod deobf dependency examples - these get remapped to your current mappings
     // compileOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}:api") // Adds JEI API as a compile dependency
@@ -187,9 +186,10 @@ dependencies {
 
     // Examples using mod jars from ./libs
     // implementation fg.deobf("blank:coolmod-${mc_version}:${coolmod_version}")
-    annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
-    implementation fg.deobf("curse.maven:nicephore-401014:3741832")
 
+    implementation fg.deobf('software.bernie.geckolib:geckolib-forge-1.18:3.0.57')
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    implementation fg.deobf("curse.maven:nicephore-401014:3741832")
 
     implementation fg.deobf("curse.maven:shiny-horses-forge-enchantable-horse-armor-674456:3984182")
     implementation fg.deobf("curse.maven:skeleton-horse-spawn-346219:4851686")
@@ -205,8 +205,6 @@ dependencies {
     implementation fg.deobf("curse.maven:netherite-shulkers-reforged-648491:3953984")
 
     implementation fg.deobf("curse.maven:gui-compass-347595:4852707")
-
-
     implementation fg.deobf("curse.maven:nostalgic-tweaks-592465:4622266")
 
     implementation fg.deobf("curse.maven:architectury-api-419699:5137931")
@@ -215,6 +213,19 @@ dependencies {
     implementation fg.deobf("curse.maven:alexs-mobs-426558:3853078")
 
     implementation fg.deobf("curse.maven:brewing-cauldron-1203449:6423999")
+
+    implementation fg.deobf("curse.maven:more-babies-590517:4121063")
+    implementation fg.deobf("curse.maven:tyrannotitan-library-forge-425570:3711889")
+
+    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.4.1"))
+    implementation(jarJar("io.github.llamalad7:mixinextras-forge:0.4.1")) {
+        jarJar.ranged(it, "[0.4.1,)")
+    }
+
+    implementation fg.deobf("curse.maven:music-plays-when-paused-1202121:6201626")
+    implementation fg.deobf("curse.maven:default-skin-695442:4059339")
+
+
 
     //crashes datagen
     //implementation fg.deobf("curse.maven:spiffy-hud-forge-483885:3785712")

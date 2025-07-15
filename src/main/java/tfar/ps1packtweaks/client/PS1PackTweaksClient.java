@@ -6,30 +6,47 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.mojang.blaze3d.Blaze3D;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
+import de.macbrayne.forge.inventorypause.AbstractClientPlayerDuck;
+import net.minecraft.Util;
+import net.minecraft.client.CameraType;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.screens.ProgressScreen;
 import net.minecraft.client.gui.screens.ReceivingLevelScreen;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.entity.EntityRenderers;
+import net.minecraft.client.resources.model.Material;
+import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.core.Registry;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.entity.BannerPattern;
+import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.client.event.ScreenshotEvent;
 import net.minecraftforge.client.event.sound.PlaySoundEvent;
+import net.minecraftforge.client.gui.IIngameOverlay;
+import net.minecraftforge.client.gui.OverlayRegistry;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -37,12 +54,14 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.loading.FMLPaths;
 import org.apache.commons.io.IOUtils;
+import org.lwjgl.glfw.GLFW;
 import tfar.ps1packtweaks.ChatSettings;
 import tfar.ps1packtweaks.Init;
 import tfar.ps1packtweaks.PS1PackTweaks;
 import tfar.ps1packtweaks.PS1TweaksConfig;
 import tfar.ps1packtweaks.compat.BetterGuiCompassHUD;
 import tfar.ps1packtweaks.compat.ModIntegration;
+import tyrannotitanlib.core.content.init.TyrannoBanners;
 
 import java.io.File;
 import java.io.FileReader;
@@ -53,9 +72,17 @@ import java.util.Map;
 
 public class PS1PackTweaksClient {
 
+    // Key mapping is lazily initialized so it doesn't exist until it is registered
+    public static final Lazy<KeyMapping> COPY_CLASS_NAME = Lazy.of(() -> new KeyMapping(
+            "key.inventorypause.copyClassName", // Localisation
+            InputConstants.Type.KEYSYM, // Default mapping is on the keyboard
+            GLFW.GLFW_KEY_UNKNOWN, // No default mapping
+            "key.categories.inventorypause.main" // Category localisation
+    ));
+
     static final File file = FMLPaths.GAMEDIR.get().resolve("last_seen_disc.json").toFile();
 
-
+    public static final ResourceLocation HEROBRINE_SKIN = PS1PackTweaks.id("textures/entity/herobrine.png");
 
     public static Map<String,ResourceKey<Level>> map;
 
@@ -63,6 +90,55 @@ public class PS1PackTweaksClient {
     public static boolean showDisc;
 
     public static boolean isAutoScreenshot;
+
+    public static final IIngameOverlay banner_overlay = (gui, poseStack, partialTick, width, height) -> {
+        try {
+            MultiBufferSource.BufferSource multibuffersource$buffersource = Minecraft.getInstance().renderBuffers().bufferSource();
+            ModelPart flag = Minecraft.getInstance().getEntityModels().bakeLayer(ModelLayers.BANNER).getChild("flag");
+            renderPattern(poseStack, multibuffersource$buffersource, 0, 0, flag, ModelBakery.BANNER_BASE, true, false);
+        } catch (Error e) {
+            Blaze3D.youJustLostTheGame();
+        }
+    };
+
+
+    public static void renderPattern(PoseStack pPoseStack, MultiBufferSource pBufferSource, int pPackedLight, int pPackedOverlay, ModelPart pFlagPart, Material pFlagMaterial, boolean pBanner, boolean pGlint) {
+        pFlagPart.render(pPoseStack, pFlagMaterial.buffer(pBufferSource, RenderType::entitySolid, pGlint), pPackedLight, pPackedOverlay);
+
+        DyeColor color = DyeColor.BLACK;
+            float[] afloat = color.getTextureDiffuseColors();
+            BannerPattern bannerpattern =TyrannoBanners.TYRANNOTITAN;
+            Material material = pBanner ? Sheets.getBannerMaterial(bannerpattern) : Sheets.getShieldMaterial(bannerpattern);
+            pFlagPart.render(pPoseStack, material.buffer(pBufferSource, RenderType::entityNoOutline), pPackedLight, pPackedOverlay, afloat[0], afloat[1], afloat[2], 1.0F);
+    }
+
+    //lowest
+    public static void onOpenGUI(ScreenEvent.DrawScreenEvent.InitScreenEvent.Pre event) {
+        if (PS1TweaksConfig.CLIENT.inventorypause_debug.get()) {
+            PS1PackTweaks.LOGGER.info(event.getScreen().getClass().getName());
+        }
+    }
+
+    public static float x = 4f;
+    public static float y = 4f;
+    public static int maxDepth = 3;
+
+    //lowest
+    public static void onGUIDrawPost(ScreenEvent.DrawScreenEvent.Post event) {
+        Screen screen = event.getScreen();
+        while (PS1PackTweaksClient.COPY_CLASS_NAME.get().consumeClick()) {
+            var name = screen.getClass().getName();
+            Minecraft.getInstance().keyboardHandler.setClipboard(name);
+            Minecraft.getInstance().player.sendMessage(new TranslatableComponent("chat.inventorypause.copyClassName.action", name), Util.NIL_UUID);
+        }
+        if (PS1TweaksConfig.CLIENT.inventorypause_debug.get()) {
+            int line = 0;
+            for (Class<?> cl = screen.getClass(); cl.getSuperclass() != null && line < maxDepth; cl = cl.getSuperclass()) {
+                Minecraft.getInstance().font.drawShadow(new PoseStack(), cl.getName(), x, y + 10 * line, 0xffffffff);
+                line++;
+            }
+        }
+    }
 
     public static void init(IEventBus bus) {
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT,PS1TweaksConfig.CLIENT_SPEC);
@@ -74,6 +150,10 @@ public class PS1PackTweaksClient {
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::logout);
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::clientTick);
         MinecraftForge.EVENT_BUS.addListener(EventPriority.LOW,PS1PackTweaksClient::message);
+
+        MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::onOpenGUI);
+        MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::onGUIDrawPost);
+        MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::loadWorld);
     }
 
     static void clientTick(TickEvent.ClientTickEvent event) {
@@ -94,7 +174,7 @@ public class PS1PackTweaksClient {
 
     static void message(ScreenshotEvent event) {
         if (!isAutoScreenshot) {
-            Minecraft.getInstance().gui.setTitle(new TextComponent(PS1TweaksConfig.CLIENT.screenshot_message.get()));
+            Minecraft.getInstance().player.displayClientMessage(new TextComponent(PS1TweaksConfig.CLIENT.screenshot_message.get()),true);
             //event.setResultMessage(new TextComponent(PS1TweaksConfig.CLIENT.screenshot_message.get()));
         }
     }
@@ -142,6 +222,11 @@ public class PS1PackTweaksClient {
             BetterGuiCompassHUD.setup();
         }
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::playSoundEvent);
+        if (PS1PackTweaks.TRIGGER_BANNER_CRASH) {
+            OverlayRegistry.registerOverlayTop("banner_crash",banner_overlay);
+        }
+
+        ClientRegistry.registerKeyBinding(COPY_CLASS_NAME.get());
     }
 
     static void joinServer(ClientPlayerNetworkEvent.LoggedInEvent event) {
@@ -171,6 +256,13 @@ public class PS1PackTweaksClient {
 
     public static void changeDisc(String levelName) {
 
+
+    }
+
+    static void loadWorld(WorldEvent.Load event) {
+
+        if (!(event.getWorld() instanceof ClientLevel clientLevel)) return;
+
         //this is first load, always show custom screen and load in map
         if (map == null) {
             map = new HashMap<>();
@@ -199,6 +291,8 @@ public class PS1PackTweaksClient {
             }
         }
 
+        String levelName = getLevelName();
+
         ResourceKey<Level> lastSeen = map.get(levelName);
 
         if (lastSeen == null) {
@@ -209,6 +303,17 @@ public class PS1PackTweaksClient {
                 showDisc = true;
             }
         }
+
+        PS1PackTweaksClient.map.put(levelName,clientLevel.dimension());
+        PS1PackTweaksClient.write();
+    }
+
+    static String getLevelName() {
+        if (Minecraft.getInstance().hasSingleplayerServer()) {
+            return Minecraft.getInstance().getSingleplayerServer().getWorldData().getLevelName();
+            //   ResourceKey<Level> lastSeen = player.level.dimension();
+        }
+        return "Server";
     }
 
     public static void write() {
@@ -239,6 +344,19 @@ public class PS1PackTweaksClient {
         if (DISC != key) {
         DISC = key;
         showDisc = true;
+        }
+    }
+
+    public static void onPerspectiveChange(CameraType cameraType, CameraType pPointOfView) {
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player!=null) {
+            if (cameraType.isFirstPerson() && !pPointOfView.isFirstPerson()) {
+                if (PS1TweaksConfig.CLIENT.herobrine_skin_chance.get() > player.getRandom().nextDouble()) {
+                    ((AbstractClientPlayerDuck)player).setHerobrine(true);
+                }
+            }else if(!cameraType.isFirstPerson() && pPointOfView.isFirstPerson()) {
+                ((AbstractClientPlayerDuck)player).setHerobrine(false);
+            }
         }
     }
 }

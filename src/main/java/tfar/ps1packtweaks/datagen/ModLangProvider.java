@@ -25,33 +25,103 @@ public class ModLangProvider extends LanguageProvider {
     protected void addTranslations() {
         addDefaultItem(() -> Init.ModItems.PRISMARINE_ROD);
         addDefaultItem(() -> Init.ModItems.BARNACLE_TOOTH);
+
+        add("text.autoconfig.inventorypause.title", "Inventory Pause Config");
+
+
+        add("text.autoconfig.inventorypause.category.default", "General");
+
+        add("text.autoconfig.inventorypause.option.enabled", "Enable Mod");
+        add("text.autoconfig.inventorypause.option.disableSaving", "Disable Save on Pause");
+        add("text.autoconfig.inventorypause.option.pauseSounds", "Pause Sounds");
+        add("text.autoconfig.inventorypause.option.debug", "Enable Debug Mode");
+        add("text.autoconfig.inventorypause.option.debugText", "Debug Overlay Options");
+        add("text.autoconfig.inventorypause.option.debugText.x", "X-Coordinate");
+        add("text.autoconfig.inventorypause.option.debugText.y", "Y-Coordinate");
+        add("text.autoconfig.inventorypause.option.debugText.maxDepth", "Maximum Crawl Depth");
+
+
+        add("text.autoconfig.inventorypause.category.abilities", "Abilities");
+
+        add("text.autoconfig.inventorypause.option.abilities.pauseInventory", "Pause on Inventory");
+        add("text.autoconfig.inventorypause.option.abilities.pauseCreativeInventory", "Pause on Creative Inventory");
+        add("text.autoconfig.inventorypause.option.abilities.pauseDeath", "Pause on Death Screen");
+        add("text.autoconfig.inventorypause.option.abilities.pauseGameModeSwitcher", "Pause on Gamemode Switcher");
+        add("text.autoconfig.inventorypause.option.abilities.pauseFurnace", "Pause on Furnace");
+        add("text.autoconfig.inventorypause.option.abilities.pauseCraftingTable", "Pause on Crafting Table");
+        add("text.autoconfig.inventorypause.option.abilities.pauseShulkerBox", "Pause on Shulker Box");
+        add("text.autoconfig.inventorypause.option.abilities.pauseChest", "Pause on Chests");
+
+        add("text.autoconfig.inventorypause.option.abilities.additionalGUIs", "Additional GUIs");
+        add("text.autoconfig.inventorypause.option.abilities.additionalGUIs.pauseAnvil", "Pause on Anvil");
+        add("text.autoconfig.inventorypause.option.abilities.additionalGUIs.pauseBeacon", "Pause on Beacon");
+        add("text.autoconfig.inventorypause.option.abilities.additionalGUIs.pauseDispenser", "Pause on Dispenser / Dropper");
+        add("text.autoconfig.inventorypause.option.abilities.additionalGUIs.pauseBrewingStand", "Pause on Brewing Stand");
+        add("text.autoconfig.inventorypause.option.abilities.additionalGUIs.pauseHopper", "Pause on Hopper");
+        add("text.autoconfig.inventorypause.option.abilities.additionalGUIs.pauseCartographyTable", "Pause on Cartography Table");
+        add("text.autoconfig.inventorypause.option.abilities.additionalGUIs.pauseStonecutter", "Pause on Stonecutter");
+
+        add("text.autoconfig.inventorypause.option.abilities.worldGUIs", "World GUIs");
+        add("text.autoconfig.inventorypause.option.abilities.worldGUIs.pauseHorse", "Pause on Horse Inventory");
+        add("text.autoconfig.inventorypause.option.abilities.worldGUIs.pauseMerchant", "Pause on Villager");
+
+        add("text.autoconfig.inventorypause.category.modCompat", "Mod Compat");
+        add("text.autoconfig.inventorypause.option.modCompat.@PrefixText", "All mod compats have been removed for the initial 1.17/1.18 release, however you can still add classes manually");
+        add("text.autoconfig.inventorypause.option.modCompat.waystonesCompat", "Waystones Compat");
+        add("text.autoconfig.inventorypause.option.modCompat.ironchestCompat", "Iron Chest Compat");
+        add("text.autoconfig.inventorypause.option.modCompat.appliedEnergistics2Compat", "Applied Energistics 2 Compat ⚠");
+        add("text.autoconfig.inventorypause.option.modCompat.botaniaCompat", "Botania Compat");
+        add("text.autoconfig.inventorypause.option.modCompat.curiosCompat", "Curios Compat");
+        add("text.autoconfig.inventorypause.option.modCompat.theTwilightForestCompat", "The Twilight Forest Compat");
+        add("text.autoconfig.inventorypause.option.modCompat.mekanismCompat", "Mekanism Compat ⚠");
+        add("text.autoconfig.inventorypause.option.modCompat.mekanismGeneratorsCompat", "Mekanism Generators Compat ⚠");
+        add("text.autoconfig.inventorypause.option.modCompat.refinedStorageCompat", "Refined Storage Compat ⚠");
+        add("text.autoconfig.inventorypause.option.modCompat.titaniumCompat", "Titanium Compat ⚠");
+        add("text.autoconfig.inventorypause.option.modCompat.industrialForegoingCompat", "Industrial Foregoing Compat ⚠");
+        add("text.autoconfig.inventorypause.option.modCompat.projectECompat", "ProjectE Compat ⚠");
+        add("text.autoconfig.inventorypause.option.modCompat.aquaculture2Compat", "Aquaculture 2 Compat");
+        add("text.autoconfig.inventorypause.option.modCompat.pneumaticcraftCompat", "PneumaticCraft Compat ⚠");
+        add("text.autoconfig.inventorypause.option.modCompat.extendedCraftingCompat", "Extended Crafting Compat");
+        add("text.autoconfig.inventorypause.option.modCompat.customScreens", "Custom mod class names");
+        add("text.autoconfig.inventorypause.option.modCompat.timeBetweenCompatTicks.@PrefixText", "Some mod GUIs may not work correctly without any ticking being done. Any classes listed in compat classes will still be ticked - no real pause - but far slower than normal. The default 'Time between compat ticks' value of 20 means that every 20 ticks (one second) screens listed will be ticked when displayed.");
+        add("text.autoconfig.inventorypause.option.modCompat.timeBetweenCompatTicks", "Time between compat ticks");
+        add("text.autoconfig.inventorypause.option.modCompat.compatScreens", "Compat mod class names");
+
+        add("chat.inventorypause.copyClassName.action", "Copied internal name of the current screen to clipboard,%s");
+
+        add("key.categories.inventorypause.main", "Inventory Pause Helpers");
+        add("key.inventorypause.openSettings", "Open Settings");
+        add("key.inventorypause.copyClassName", "Copy Class Name");
+
+
     }
 
     void addKey(KeyMapping mapping, String translation) {
-        add(mapping.getName(),translation);
+        add(mapping.getName(), translation);
     }
+
     void addAttribute(Attribute attribute, String translation) {
-        add(attribute.getDescriptionId(),translation);
+        add(attribute.getDescriptionId(), translation);
     }
 
     protected void addDefaultMobEffect(Holder<MobEffect> holder) {
-        addEffect(holder::value,getNameFromEffect(holder.value()));
+        addEffect(holder::value, getNameFromEffect(holder.value()));
     }
 
     protected void addDefaultMobEffect(MobEffect effect) {
-        addEffect(() -> effect,getNameFromEffect(effect));
+        addEffect(() -> effect, getNameFromEffect(effect));
     }
 
     protected void addDefaultItem(Supplier<? extends Item> supplier) {
-        addItem(supplier,getNameFromItem(supplier.get()));
+        addItem(supplier, getNameFromItem(supplier.get()));
     }
 
     protected void addDefaultBlock(Supplier<? extends Block> supplier) {
-        addBlock(supplier,getNameFromBlock(supplier.get()));
+        addBlock(supplier, getNameFromBlock(supplier.get()));
     }
 
     protected void addDefaultEntityType(Supplier<EntityType<?>> supplier) {
-        addEntityType(supplier,getNameFromEntity(supplier.get()));
+        addEntityType(supplier, getNameFromEntity(supplier.get()));
     }
 
     public static String getNameFromItem(Item item) {
@@ -71,11 +141,11 @@ public class ModLangProvider extends LanguageProvider {
     }
 
     protected void addTextComponent(MutableComponent component, String text) {
-    //    ComponentContents contents = component.getContents();
-     //   if (contents instanceof TranslatableContents translatableContents) {
-    //        add(translatableContents.getKey(),text);
-    //    } else {
-            throw new UnsupportedOperationException(component +" is not translatable");
-  //      }
+        //    ComponentContents contents = component.getContents();
+        //   if (contents instanceof TranslatableContents translatableContents) {
+        //        add(translatableContents.getKey(),text);
+        //    } else {
+        throw new UnsupportedOperationException(component + " is not translatable");
+        //      }
     }
 }

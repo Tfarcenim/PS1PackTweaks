@@ -1,12 +1,16 @@
 package tfar.ps1packtweaks.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import de.macbrayne.forge.inventorypause.AbstractClientPlayerDuck;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.InBedChatScreen;
 import net.minecraft.client.gui.screens.ProgressScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraftforge.client.event.ScreenOpenEvent;
 import net.minecraftforge.event.TickEvent;
 import org.lwjgl.glfw.GLFW;
@@ -30,6 +34,16 @@ public class MouseHider {
         if (screen instanceof SelectWorldScreen) {
             unhide();
         }
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player != null) {
+            if (screen instanceof InventoryScreen || screen instanceof CreativeModeInventoryScreen) {
+                if (PS1TweaksConfig.CLIENT.herobrine_skin_chance.get() > player.getRandom().nextDouble()) {
+                    ((AbstractClientPlayerDuck) player).setHerobrine(true);
+                }
+            } else if (oldScreen instanceof InventoryScreen || oldScreen instanceof CreativeModeInventoryScreen) {
+            ((AbstractClientPlayerDuck) player).setHerobrine(false);
+        }
+    }
 
         if (screen == null) PS1PackTweaksClient.showDisc = false;
 
