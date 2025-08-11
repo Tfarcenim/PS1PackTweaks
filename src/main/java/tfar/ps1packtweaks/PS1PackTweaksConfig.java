@@ -4,13 +4,18 @@ import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.random.SimpleWeightedRandomList;
+import net.minecraft.util.random.WeightedEntry;
+import net.minecraft.util.random.WeightedRandomList;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
 import org.apache.commons.lang3.tuple.Pair;
+import tfar.ps1packtweaks.entity.HerobrineEntity;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class PS1TweaksConfig {
+public class PS1PackTweaksConfig {
 
     public static final Server SERVER;
     public static final ForgeConfigSpec SERVER_SPEC;
@@ -30,14 +35,22 @@ public class PS1TweaksConfig {
 
     public static class Server {
         public final ForgeConfigSpec.DoubleValue barnacleHealth;
-        public final ForgeConfigSpec.BooleanValue fallingAnimal;
         public final ForgeConfigSpec.DoubleValue fallingAnimalChance;
-        public final ForgeConfigSpec.LongValue minFallingTime;
+        public final ForgeConfigSpec.LongValue minFallingAnimalDelay;
         public final ForgeConfigSpec.ConfigValue<List<? extends String>>  fallingAnimalTypes;
 
         public final ForgeConfigSpec.DoubleValue leaves_and_logs_chance;
 
-        public final ForgeConfigSpec.DoubleValue duplicateWorldChance;
+        //public final ForgeConfigSpec.DoubleValue duplicateWorldChance;
+
+        public final ForgeConfigSpec.DoubleValue herobrineChance;
+        public final ForgeConfigSpec.LongValue minHerobrineDelay;
+        public final ForgeConfigSpec.DoubleValue herobrineSpawnDistance;
+
+        public final ForgeConfigSpec.IntValue herobrineEvent0Weight;
+        public final ForgeConfigSpec.IntValue herobrineEvent1Weight;
+        public final ForgeConfigSpec.IntValue herobrineEvent2Weight;
+        public final ForgeConfigSpec.IntValue herobrineEvent3Weight;
 
         Server(ForgeConfigSpec.Builder builder) {
             builder.push("tweaks");
@@ -45,17 +58,40 @@ public class PS1TweaksConfig {
             barnacleHealth = builder.defineInRange("health",40, 1, 1023.);
             builder.pop();
             builder.push("events");
-            fallingAnimal = builder.define("falling_animal",true);
+
             fallingAnimalChance = builder.defineInRange("falling_animal_chance",.5,0,1);
-            minFallingTime = builder.defineInRange("falling_delay",100,1,100000000000000L);
+            minFallingAnimalDelay = builder.defineInRange("min_falling_animal_delay",1000,1,100000000000000L);
+
+
             fallingAnimalTypes = builder.defineList("falling_animal_types",List.of("minecraft:cow"),
                     o -> o instanceof String s && Registry.ENTITY_TYPE.containsKey(new ResourceLocation(s)));
             leaves_and_logs_chance = builder.defineInRange("leaves_and_logs_chance",1/32768d,0,1);
 
-            duplicateWorldChance = builder.defineInRange("duplicate_world_chance",.5,0,1);
+            builder.push("herobrine");
+            herobrineChance = builder.defineInRange("chance",.5,0,1);
+            minHerobrineDelay = builder.defineInRange("min_delay",10000,1,100000000000000L);
+            herobrineSpawnDistance = builder.defineInRange("spawn_distance",32,1,128d);
+
+
+            herobrineEvent0Weight = builder.defineInRange("vanish_on_seen_weight",8,1,500000000);
+            herobrineEvent1Weight = builder.defineInRange("run_on_seen_weight",4,1,500000000);
+            herobrineEvent2Weight = builder.defineInRange("teleport_on_seen_weight",2,1,500000000);
+            herobrineEvent3Weight = builder.defineInRange("spawn_running_weight",1,1,500000000);
+
+            builder.pop();
+
+            //duplicateWorldChance = builder.defineInRange("duplicate_world_chance",.5,0,1);
 
             builder.pop();
             builder.pop();
+        }
+    }
+
+    public static SimpleWeightedRandomList<HerobrineEntity.Event> herobrineEventList;
+
+    public static void configUpdate(ModConfigEvent event) {
+        if (event.getConfig().getSpec() == SERVER_SPEC) {
+
         }
     }
 

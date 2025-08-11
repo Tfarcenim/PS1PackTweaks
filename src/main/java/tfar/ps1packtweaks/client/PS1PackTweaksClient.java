@@ -10,7 +10,7 @@ import com.mojang.blaze3d.Blaze3D;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import de.macbrayne.forge.inventorypause.AbstractClientPlayerDuck;
+import tfar.ps1packtweaks.AbstractClientPlayerDuck;
 import net.minecraft.Util;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.KeyMapping;
@@ -24,6 +24,7 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.client.resources.model.ModelBakery;
@@ -58,7 +59,7 @@ import org.lwjgl.glfw.GLFW;
 import tfar.ps1packtweaks.ChatSettings;
 import tfar.ps1packtweaks.Init;
 import tfar.ps1packtweaks.PS1PackTweaks;
-import tfar.ps1packtweaks.PS1TweaksConfig;
+import tfar.ps1packtweaks.PS1PackTweaksConfig;
 import tfar.ps1packtweaks.compat.BetterGuiCompassHUD;
 import tfar.ps1packtweaks.compat.ModIntegration;
 import tyrannotitanlib.core.content.init.TyrannoBanners;
@@ -114,7 +115,7 @@ public class PS1PackTweaksClient {
 
     //lowest
     public static void onOpenGUI(ScreenEvent.DrawScreenEvent.InitScreenEvent.Pre event) {
-        if (PS1TweaksConfig.CLIENT.inventorypause_debug.get()) {
+        if (PS1PackTweaksConfig.CLIENT.inventorypause_debug.get()) {
             PS1PackTweaks.LOGGER.info(event.getScreen().getClass().getName());
         }
     }
@@ -131,7 +132,7 @@ public class PS1PackTweaksClient {
             Minecraft.getInstance().keyboardHandler.setClipboard(name);
             Minecraft.getInstance().player.sendMessage(new TranslatableComponent("chat.inventorypause.copyClassName.action", name), Util.NIL_UUID);
         }
-        if (PS1TweaksConfig.CLIENT.inventorypause_debug.get()) {
+        if (PS1PackTweaksConfig.CLIENT.inventorypause_debug.get()) {
             int line = 0;
             for (Class<?> cl = screen.getClass(); cl.getSuperclass() != null && line < maxDepth; cl = cl.getSuperclass()) {
                 Minecraft.getInstance().font.drawShadow(new PoseStack(), cl.getName(), x, y + 10 * line, 0xffffffff);
@@ -141,7 +142,7 @@ public class PS1PackTweaksClient {
     }
 
     public static void init(IEventBus bus) {
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT,PS1TweaksConfig.CLIENT_SPEC);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, PS1PackTweaksConfig.CLIENT_SPEC);
         bus.addListener(PS1PackTweaksClient::setup);
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::joinServer);
         MinecraftForge.EVENT_BUS.addListener(MouseHider::startupScreen);
@@ -159,9 +160,9 @@ public class PS1PackTweaksClient {
     static void clientTick(TickEvent.ClientTickEvent event) {
         if (event.phase == TickEvent.Phase.END) {
             Minecraft minecraft = Minecraft.getInstance();
-            if (!minecraft.isPaused() && PS1TweaksConfig.CLIENT.take_random_screenshots.get()) {
+            if (!minecraft.isPaused() && PS1PackTweaksConfig.CLIENT.take_random_screenshots.get()) {
                 Level level = minecraft.level;
-                if (level != null && level.getGameTime() % PS1TweaksConfig.CLIENT.screenshot_interval.get() == 0) {
+                if (level != null && level.getGameTime() % PS1PackTweaksConfig.CLIENT.screenshot_interval.get() == 0) {
                     isAutoScreenshot = true;
                     Screenshot.grab(minecraft.gameDirectory, minecraft.getMainRenderTarget(), component -> {
                         PS1PackTweaks.LOGGER.info("Took automatic screenshot: {}",component);
@@ -174,8 +175,8 @@ public class PS1PackTweaksClient {
 
     static void message(ScreenshotEvent event) {
         if (!isAutoScreenshot) {
-            Minecraft.getInstance().player.displayClientMessage(new TextComponent(PS1TweaksConfig.CLIENT.screenshot_message.get()),true);
-            //event.setResultMessage(new TextComponent(PS1TweaksConfig.CLIENT.screenshot_message.get()));
+            Minecraft.getInstance().player.displayClientMessage(new TextComponent(PS1PackTweaksConfig.CLIENT.screenshot_message.get()),true);
+            //event.setResultMessage(new TextComponent(PS1PackTweaksConfig.CLIENT.screenshot_message.get()));
         }
     }
 
@@ -218,6 +219,10 @@ public class PS1PackTweaksClient {
 
     static void setup(FMLClientSetupEvent event) {
         EntityRenderers.register(Init.ModEntityTypes.BARNACLE,BarnacleRenderer::new);
+
+        EntityRenderers.register(Init.ModEntityTypes.HEROBRINE, (EntityRendererProvider.Context context) -> new SimplePlayerRenderer<>(context,
+                false,PS1PackTweaks.id("textures/entity/herobrine.png")));
+
         if (ModIntegration.guicompass.loaded) {
             BetterGuiCompassHUD.setup();
         }
@@ -232,10 +237,10 @@ public class PS1PackTweaksClient {
     static void joinServer(ClientPlayerNetworkEvent.LoggedInEvent event) {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.hasSingleplayerServer()) {
-            ChatSettings chatSettings = PS1TweaksConfig.CLIENT.singleplayer_chat_settings.get();
+            ChatSettings chatSettings = PS1PackTweaksConfig.CLIENT.singleplayer_chat_settings.get();
             minecraft.options.chatVisibility = chatSettings.chatVisiblity();
         } else {
-            ChatSettings chatSettings = PS1TweaksConfig.CLIENT.multiplayer_chat_settings.get();
+            ChatSettings chatSettings = PS1PackTweaksConfig.CLIENT.multiplayer_chat_settings.get();
             minecraft.options.chatVisibility = chatSettings.chatVisiblity();
         }
     }
@@ -351,12 +356,22 @@ public class PS1PackTweaksClient {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player!=null) {
             if (cameraType.isFirstPerson() && !pPointOfView.isFirstPerson()) {
-                if (PS1TweaksConfig.CLIENT.herobrine_skin_chance.get() > player.getRandom().nextDouble()) {
+                if (PS1PackTweaksConfig.CLIENT.herobrine_skin_chance.get() > player.getRandom().nextDouble()) {
                     ((AbstractClientPlayerDuck)player).setHerobrine(true);
                 }
             }else if(!cameraType.isFirstPerson() && pPointOfView.isFirstPerson()) {
                 ((AbstractClientPlayerDuck)player).setHerobrine(false);
             }
         }
+    }
+
+    public static boolean isPauseScreen(Screen caller) {
+
+        for (String s : PS1PackTweaksConfig.CLIENT.inventorypause_screens.get()) {
+            if(caller.getClass().getName().equals(s)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

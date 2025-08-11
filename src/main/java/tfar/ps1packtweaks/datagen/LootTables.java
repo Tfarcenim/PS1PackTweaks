@@ -50,6 +50,7 @@ public class LootTables extends LootTableProvider {
         protected Iterable<EntityType<?>> getKnownEntities() {
             List<EntityType<?>> list = new ArrayList<>();
             list.add(Init.ModEntityTypes.BARNACLE);
+            list.add(Init.ModEntityTypes.HEROBRINE);
             return list;
         }
 
@@ -63,7 +64,7 @@ public class LootTables extends LootTableProvider {
                                     .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                                     .when(LootItemKilledByPlayerCondition.killedByPlayer())))
             );
-
+            add(Init.ModEntityTypes.HEROBRINE,LootTable.lootTable());
         }
     }
 

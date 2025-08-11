@@ -46,7 +46,7 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.geckolib3.resource.GeckoLibCache;
 import tfar.ps1packtweaks.Init;
-import tfar.ps1packtweaks.PS1TweaksConfig;
+import tfar.ps1packtweaks.PS1PackTweaksConfig;
 
 import java.util.*;
 
@@ -94,7 +94,7 @@ public class Barnacle extends Monster implements IAnimatable {
 
     @Nullable
     public SpawnGroupData finalizeSpawn(ServerLevelAccessor worldIn, DifficultyInstance difficultyIn, MobSpawnType reason, @Nullable SpawnGroupData spawnDataIn, @Nullable CompoundTag dataTag) {
-        setConfigHealth(this, PS1TweaksConfig.SERVER.barnacleHealth.get());
+        setConfigHealth(this, PS1PackTweaksConfig.SERVER.barnacleHealth.get());
 
         return super.finalizeSpawn(worldIn, difficultyIn, reason, spawnDataIn, dataTag);
     }

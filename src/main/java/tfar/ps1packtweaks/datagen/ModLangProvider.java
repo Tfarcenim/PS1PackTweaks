@@ -26,6 +26,9 @@ public class ModLangProvider extends LanguageProvider {
         addDefaultItem(() -> Init.ModItems.PRISMARINE_ROD);
         addDefaultItem(() -> Init.ModItems.BARNACLE_TOOTH);
 
+        addDefaultEntityType(() -> Init.ModEntityTypes.BARNACLE);
+        addDefaultEntityType(() -> Init.ModEntityTypes.HEROBRINE);
+
         add("text.autoconfig.inventorypause.title", "Inventory Pause Config");
 
 

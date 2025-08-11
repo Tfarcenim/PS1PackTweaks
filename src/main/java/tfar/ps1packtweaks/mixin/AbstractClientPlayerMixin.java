@@ -1,6 +1,6 @@
 package tfar.ps1packtweaks.mixin;
 
-import de.macbrayne.forge.inventorypause.AbstractClientPlayerDuck;
+import tfar.ps1packtweaks.AbstractClientPlayerDuck;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.resources.ResourceLocation;

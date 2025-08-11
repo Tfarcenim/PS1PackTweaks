@@ -3,25 +3,18 @@ package tfar.ps1packtweaks;
 import com.google.common.collect.ImmutableList;
 import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -36,8 +29,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.TickEvent;
@@ -63,6 +54,7 @@ import tfar.ps1packtweaks.compat.ModIntegration;
 import tfar.ps1packtweaks.compat.MoreHorseArmorCompat;
 import tfar.ps1packtweaks.datagen.ModDataGenerator;
 import tfar.ps1packtweaks.entity.Barnacle;
+import tfar.ps1packtweaks.entity.HerobrineEntity;
 import tfar.ps1packtweaks.mixin.BlockAccess;
 import tfar.ps1packtweaks.mixin.BlockStateAccess;
 import tfar.ps1packtweaks.mixin.PoiAccess;
@@ -77,17 +69,15 @@ import static tfar.ps1packtweaks.Init.ModSounds.*;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(PS1PackTweaks.MOD_ID)
-public class PS1PackTweaks
-{
+public class PS1PackTweaks {
     public static final String MOD_ID = "ps1packtweaks";
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public static final boolean TRIGGER_BANNER_CRASH = false;
 
-    public PS1PackTweaks()
-    {
-        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER,PS1TweaksConfig.SERVER_SPEC);
+    public PS1PackTweaks() {
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, PS1PackTweaksConfig.SERVER_SPEC);
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         // Register the setup method for modloading
         bus.addListener(this::setup);
@@ -95,13 +85,14 @@ public class PS1PackTweaks
             PS1PackTweaksClient.init(bus);
         }
 
-        bus.addGenericListener(Block.class,this::registerBlocks);
-        bus.addGenericListener(BlockEntityType.class,this::registerBlockEntities);
-        bus.addGenericListener(Item.class,this::registerItems);
-        bus.addGenericListener(EntityType.class,this::registerEntities);
-        bus.addGenericListener(SoundEvent.class,this::registerSounds);
+        bus.addGenericListener(Block.class, this::registerBlocks);
+        bus.addGenericListener(BlockEntityType.class, this::registerBlockEntities);
+        bus.addGenericListener(Item.class, this::registerItems);
+        bus.addGenericListener(EntityType.class, this::registerEntities);
+        bus.addGenericListener(SoundEvent.class, this::registerSounds);
 
         bus.addListener(ModDataGenerator::gatherData);
+        bus.addListener(PS1PackTweaksConfig::configUpdate);
         MinecraftForge.EVENT_BUS.addListener(this::sleepCheck);
         bus.addListener(this::onAttributeCreate);
         MinecraftForge.EVENT_BUS.addListener(this::rightClick);
@@ -112,10 +103,10 @@ public class PS1PackTweaks
     public static void onStatAwarded(Player player, ResourceLocation pStat, int pIncrement) {
         if (player instanceof ServerPlayer) {
             if (pStat == Stats.WALK_ONE_CM || pStat == Stats.SPRINT_ONE_CM) {
-                double leavesLogChance = PS1TweaksConfig.SERVER.leaves_and_logs_chance.get() * pIncrement;
+                double leavesLogChance = PS1PackTweaksConfig.SERVER.leaves_and_logs_chance.get() * pIncrement;
                 if (player.getRandom().nextDouble() < leavesLogChance) {
                     BlockPos pos = player.blockPosition();
-                    int yMax = player.level.getHeight(Heightmap.Types.MOTION_BLOCKING,pos.getX(),pos.getZ());
+                    int yMax = player.level.getHeight(Heightmap.Types.MOTION_BLOCKING, pos.getX(), pos.getZ());
                     while (pos.getY() < yMax) {
                         pos = pos.above();
                         BlockState state = player.level.getBlockState(pos);
@@ -128,12 +119,12 @@ public class PS1PackTweaks
                                     itemLike = Blocks.OAK_LEAVES;
                                 }
                                 NonNullList<ItemStack> items = player.getInventory().items;
-                                for (int i = 9; i < 36;i++) {
+                                for (int i = 9; i < 36; i++) {
                                     ItemStack stack = items.get(i);
                                     if (stack.isEmpty()) {
-                                        items.set(i,itemLike.asItem().getDefaultInstance());
+                                        items.set(i, itemLike.asItem().getDefaultInstance());
                                         break;
-                                    } else if (itemLike.asItem() ==stack.getItem() && stack.getCount() < stack.getMaxStackSize()) {
+                                    } else if (itemLike.asItem() == stack.getItem() && stack.getCount() < stack.getMaxStackSize()) {
                                         stack.grow(1);
                                         break;
                                     }
@@ -148,42 +139,19 @@ public class PS1PackTweaks
     }
 
     void playerTick(TickEvent.PlayerTickEvent event) {
-        if (PS1TweaksConfig.SERVER.fallingAnimal.get() && event.phase == TickEvent.Phase.START && event.side == LogicalSide.SERVER) {
+        if (event.phase == TickEvent.Phase.START && event.side == LogicalSide.SERVER) {
             ServerPlayer player = (ServerPlayer) event.player;
-            if (player.level.dimension() == Level.OVERWORLD) {
-                long time = player.level.getGameTime();
-                if (time % PS1TweaksConfig.SERVER.minFallingTime.get() == 0 && player.getRandom().nextDouble() < PS1TweaksConfig.SERVER.fallingAnimalChance.get()) {
-                    EntityType<?> type = Registry.ENTITY_TYPE.get(new ResourceLocation(Util.getRandom(PS1TweaksConfig.SERVER.fallingAnimalTypes.get(), player.getRandom())));
-                    Vec3 vec3 = player.position().add(player.getLookAngle().scale(6));
-                    BlockPos top = new BlockPos(vec3);
-                    BlockPos dropLocation = player.level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,top);
-                    int h = 20;
-                    BlockPos spawnPos = dropLocation.above(h);
-
-                    for (int i = h+dropLocation.getY(); i > player.level.getMinBuildHeight();i--) {
-                        BlockPos pos = dropLocation.above(i);
-                        BlockState state = player.level.getBlockState(pos);
-
-                        FluidState fluidState = player.level.getFluidState(pos);
-                        if (fluidState.is(FluidTags.WATER)) {
-                            return;
-                        } else if (!state.getCollisionShape(player.level,pos).isEmpty()) {
-                            break;
-                        }
-                    }
-                    Entity spawn = type.spawn(player.getLevel(), null, null, spawnPos, MobSpawnType.EVENT, false, false);
-                    if (spawn instanceof Mob mob) {
-                        mob.setHealth(Float.MIN_VALUE);
-                    }
-                }
-            }
+            CustomMobSpawners.tickHerobrineSpawn(player);
+            CustomMobSpawners.tickFallingAnimalSpawn(player);
         }
     }
+
+
 
     void changeDims(PlayerEvent.PlayerChangedDimensionEvent event) {
         ResourceKey<Level> eventTo = event.getTo();
         ServerPlayer player = (ServerPlayer) event.getPlayer();
-        ForgePacketHandler.sendToClient(new S2CTargetDimensionPacket(eventTo),player);
+        ForgePacketHandler.sendToClient(new S2CTargetDimensionPacket(eventTo), player);
     }
 
     void rightClick(PlayerInteractEvent.EntityInteract event) {
@@ -202,12 +170,16 @@ public class PS1PackTweaks
                 Init.ModItems.PRISMARINE_ROD.setRegistryName("prismarine_rod")
         );
     }
+
     void registerEntities(RegistryEvent.Register<EntityType<?>> event) {
-        event.getRegistry().registerAll(Init.ModEntityTypes.BARNACLE.setRegistryName("barnacle"));
+        event.getRegistry().registerAll(Init.ModEntityTypes.BARNACLE.setRegistryName("barnacle"),
+                Init.ModEntityTypes.HEROBRINE.setRegistryName("herobrine"));
     }
+
     void registerSounds(RegistryEvent.Register<SoundEvent> event) {
-        event.getRegistry().registerAll(  BARNACLE_AMBIENT.setRegistryName("barnacle_ambient"),
-                BARNACLE_HURT.setRegistryName("barnacle_hurt"),BARNACLE_DEATH.setRegistryName("barnacle_death"),BARNACLE_FLOP.setRegistryName("barnacle_flop"));
+        event.getRegistry().registerAll(BARNACLE_AMBIENT.setRegistryName("barnacle_ambient"),
+                BARNACLE_HURT.setRegistryName("barnacle_hurt"), BARNACLE_DEATH.setRegistryName("barnacle_death"),
+                BARNACLE_FLOP.setRegistryName("barnacle_flop"));
     }
 
     void sleepCheck(SleepingTimeCheckEvent event) {
@@ -219,20 +191,22 @@ public class PS1PackTweaks
 
         int skyDarken = getSkyDarken(level);
 
-        if (skyDarken <4) {
+        if (skyDarken < 4) {
             event.setResult(Event.Result.DENY);
         }
 
     }
 
     void onAttributeCreate(EntityAttributeCreationEvent event) {
-        event.put(Init.ModEntityTypes.BARNACLE, Barnacle.setCustomAttributes().build());;
+        event.put(Init.ModEntityTypes.BARNACLE, Barnacle.setCustomAttributes().build());
+        ;
+        event.put(Init.ModEntityTypes.HEROBRINE, HerobrineEntity.createAttributes().build());
     }
 
     public int getSkyDarken(Level level) {
         double d0 = 1.0D - (level.getRainLevel(1.0F) * 5.0F) / 16.0D;
-        double d2 = 0.5D + 2.0D * Mth.clamp(Mth.cos(level.getTimeOfDay(1.0F) * ((float)Math.PI * 2F)), -0.25D, 0.25D);
-        return (int)((1.0D - d2 * d0) * 11.0D);
+        double d2 = 0.5D + 2.0D * Mth.clamp(Mth.cos(level.getTimeOfDay(1.0F) * ((float) Math.PI * 2F)), -0.25D, 0.25D);
+        return (int) ((1.0D - d2 * d0) * 11.0D);
     }
 
     private void setup(final FMLCommonSetupEvent event) {
@@ -253,15 +227,19 @@ public class PS1PackTweaks
         });
     }
 
-    public static void skipGlassRendering(BlockAndTintGetter pLevel, BlockPos pPos, FluidState pFluidState, BlockState pBlockState, Direction pSide, FluidState pNeighborFluid, CallbackInfoReturnable<Boolean> cir) {
+
+
+
+    public static void skipGlassRendering(BlockAndTintGetter pLevel, BlockPos pPos, FluidState pFluidState,
+                                          BlockState pBlockState, Direction pSide, FluidState pNeighborFluid, CallbackInfoReturnable<Boolean> cir) {
         if (!cir.getReturnValue()) return;
-        BlockState otherState =pLevel.getBlockState(pPos.relative(pSide));
+        BlockState otherState = pLevel.getBlockState(pPos.relative(pSide));
         if (pSide != Direction.UP && otherState.getBlock() instanceof HalfTransparentBlock) {
             cir.setReturnValue(false);
         }
     }
 
-        public static void changePOI(PoiType poiType, Set<Block> blocks) {
+    public static void changePOI(PoiType poiType, Set<Block> blocks) {
         Set<BlockState> oldStates = poiType.getBlockStates();
         for (BlockState oldState : oldStates) {
             PoiAccess.getTYPE_BY_STATE().remove(oldState);
@@ -269,22 +247,22 @@ public class PS1PackTweaks
         Set<BlockState> newStates = blocks.stream().flatMap(block -> block.getStateDefinition().getPossibleStates().stream()).collect(Collectors.toSet());
         poiType.matchingStates = newStates;
         for (BlockState state : newStates) {
-            PoiAccess.getTYPE_BY_STATE().put(state,poiType);
+            PoiAccess.getTYPE_BY_STATE().put(state, poiType);
         }
         PoiType.ALL_STATES = new ObjectOpenHashSet<>(PoiAccess.getTYPE_BY_STATE().keySet());
     }
 
     public static void setDestroySpeed(Block block, float v) {
         ImmutableList<BlockState> possibleStates = block.getStateDefinition().getPossibleStates();
-        possibleStates.forEach(state -> ((BlockStateAccess)state).setDestroySpeed(v));
+        possibleStates.forEach(state -> ((BlockStateAccess) state).setDestroySpeed(v));
     }
 
     public static void setRequiresCorrectToolForDrops(Block block, boolean v) {
         ImmutableList<BlockState> possibleStates = block.getStateDefinition().getPossibleStates();
-        possibleStates.forEach(state -> ((BlockStateAccess)state).setRequiresCorrectToolForDrops(v));
+        possibleStates.forEach(state -> ((BlockStateAccess) state).setRequiresCorrectToolForDrops(v));
     }
 
-    public static void setLootTable(Block block,ResourceLocation lootTable) {
+    public static void setLootTable(Block block, ResourceLocation lootTable) {
         BlockAccess blockAccess = (BlockAccess) block;
         blockAccess.setDrops(lootTable);
         blockAccess.setLootTableSupplier(() -> lootTable);
@@ -292,11 +270,11 @@ public class PS1PackTweaks
 
     public static void setDefaultLootTable(Block block) {
         ResourceLocation r = new ResourceLocation(block.getRegistryName().getNamespace(), "blocks/" + block.getRegistryName().getPath());
-        setLootTable(block,r);
+        setLootTable(block, r);
     }
 
     public static ResourceLocation id(String path) {
-        return new ResourceLocation(MOD_ID,path);
+        return new ResourceLocation(MOD_ID, path);
     }
 
 }

@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import tfar.ps1packtweaks.entity.Barnacle;
+import tfar.ps1packtweaks.entity.HerobrineEntity;
 
 import java.util.Map;
 
@@ -26,6 +27,9 @@ public class Init {
                 .of(Barnacle::new, MobCategory.MONSTER)
                 .sized(1.2F, 1.2F)
                 .build(new ResourceLocation(PS1PackTweaks.MOD_ID, "barnacle").toString());
+
+        public static final EntityType<HerobrineEntity> HEROBRINE = EntityType.Builder.of(HerobrineEntity::new, MobCategory.MONSTER)
+                .sized(0.6F, 1.95F).clientTrackingRange(8).build("");
     }
 
     public static class ModSounds {

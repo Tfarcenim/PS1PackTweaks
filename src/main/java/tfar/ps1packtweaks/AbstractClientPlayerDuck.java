@@ -1,4 +1,4 @@
-package de.macbrayne.forge.inventorypause;
+package tfar.ps1packtweaks;
 
 public interface AbstractClientPlayerDuck {
 
