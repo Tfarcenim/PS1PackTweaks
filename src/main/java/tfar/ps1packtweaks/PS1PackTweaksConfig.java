@@ -73,10 +73,10 @@ public class PS1PackTweaksConfig {
             herobrineSpawnDistance = builder.defineInRange("spawn_distance",32,1,128d);
 
 
-            herobrineEvent0Weight = builder.defineInRange("vanish_on_seen_weight",8,1,500000000);
-            herobrineEvent1Weight = builder.defineInRange("run_on_seen_weight",4,1,500000000);
-            herobrineEvent2Weight = builder.defineInRange("teleport_on_seen_weight",2,1,500000000);
-            herobrineEvent3Weight = builder.defineInRange("spawn_running_weight",1,1,500000000);
+            herobrineEvent0Weight = builder.defineInRange("vanish_on_seen_weight",8,0,500000000);
+            herobrineEvent1Weight = builder.defineInRange("run_on_seen_weight",4,0,500000000);
+            herobrineEvent2Weight = builder.defineInRange("teleport_on_seen_weight",2,0,500000000);
+            herobrineEvent3Weight = builder.defineInRange("spawn_running_weight",1,0,500000000);
 
             builder.pop();
 

@@ -3,9 +3,8 @@ package tfar.ps1packtweaks.entity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
-import net.minecraft.util.random.SimpleWeightedRandomList;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.random.Weight;
 import net.minecraft.util.random.WeightedEntry;
 import net.minecraft.util.random.WeightedRandomList;
@@ -24,15 +23,17 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeConfigSpec;
 import org.jetbrains.annotations.Nullable;
+import tfar.ps1packtweaks.CustomMobSpawners;
+import tfar.ps1packtweaks.Init;
 import tfar.ps1packtweaks.PS1PackTweaksConfig;
 import tfar.ps1packtweaks.entity.goals.BeingLookedAtGoal;
 import tfar.ps1packtweaks.entity.goals.LookAtPlayerGoal;
 import tfar.ps1packtweaks.entity.goals.LookforPlayerGoal;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class HerobrineEntity extends PathfinderMob implements CanLookAt {
@@ -40,6 +41,11 @@ public class HerobrineEntity extends PathfinderMob implements CanLookAt {
         super($$0, level);
     }
 
+
+    public static final int CHASE_DELAY = 50;
+    public static final int DESPAWN_TIME = 1000;
+
+    public static final int DISTANCE = 12;
 
     protected boolean staredAt;
 
@@ -49,10 +55,18 @@ public class HerobrineEntity extends PathfinderMob implements CanLookAt {
     long lifespan = 1200;
     int ticksLookedAt;
 
+    @Nullable Mob lurker;
+
+    @Nullable
+    public Mob getLurker() {
+        return lurker;
+    }
+
+
     public static AttributeSupplier.Builder createAttributes() {
         return Monster.createMonsterAttributes().add(Attributes.FOLLOW_RANGE, 96).add(Attributes.MOVEMENT_SPEED, 0.3)
                 .add(Attributes.ATTACK_DAMAGE, 3.0)
-                .add(Attributes.ARMOR, 2.0).add(Attributes.SPAWN_REINFORCEMENTS_CHANCE);
+                .add(Attributes.ARMOR, 2.0);
     }
 
     /**
@@ -82,7 +96,7 @@ public class HerobrineEntity extends PathfinderMob implements CanLookAt {
     @Override
     protected void registerGoals() {
         super.registerGoals();
-        this.goalSelector.addGoal(1, new LookAtPlayerGoal<>(this));
+        this.goalSelector.addGoal(1, new HerobrineEntity.HerobrineLookatPlayerGoal());
         this.targetSelector.addGoal(1, new BeingLookedAtGoal<>(this, e -> true));
         this.targetSelector.addGoal(2, new LookforPlayerGoal<>(this, e -> true));
     }
@@ -121,8 +135,11 @@ public class HerobrineEntity extends PathfinderMob implements CanLookAt {
         }
     }
 
+    boolean isPerformingEvent;
+
     void performLookedAtCondition(LivingEntity target) {
-        if (event == null) return;
+        if (event == null || isPerformingEvent) return;
+        isPerformingEvent = true;
         switch (event) {
             case VANISH_ON_SEEN -> {
                 despawn();
@@ -137,9 +154,43 @@ public class HerobrineEntity extends PathfinderMob implements CanLookAt {
                 teleportTo(p.x, p.y,p.z);
                 target.addEffect(new MobEffectInstance(MobEffects.BLINDNESS,200));
             }
+            case RUN_FROM_LURKER -> {
+
+                Vec2 lurkerPos = CustomMobSpawners.addPolar(position(),DISTANCE,random.nextInt(360));
+
+                int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, (int) lurkerPos.x, (int) lurkerPos.y);
+
+                //playSound(WBSoundEvents.WARDEN_ROAR,4,1);
+                this.lurker = Init.ModEntityTypes.SCRIPTED_MIDNIGHT_LURKER.spawn((ServerLevel) level,null,null,null,
+                        new BlockPos(lurkerPos.x,y,lurkerPos.y)
+                        ,MobSpawnType.EVENT,false,false);
+
+                lurker.setTarget(this);
+
+                //player sees herobrine -> herobrine turns towards entity a few blocks away -> sound plays -> herobrine starts running
+
+            }
         }
     }
 
+    int chaseTime;
+
+    @Override
+    protected void customServerAiStep() {
+        super.customServerAiStep();
+        if (lurker!=null) {
+
+            if (lurker.getDeltaMovement().length() > .15) {
+                chaseTime++;
+                runAwayFrom(lurker);
+                if (chaseTime > DESPAWN_TIME) {
+                    discard();
+                }
+            } else {
+                getLookControl().setLookAt(lurker.getX(), lurker.getEyeY(), lurker.getZ());
+            }
+        }
+    }
 
     public void runAwayFrom(Entity entity) {
         runAwayFrom(entity.position());
@@ -217,11 +268,23 @@ public class HerobrineEntity extends PathfinderMob implements CanLookAt {
         age = tag.getLong("age");
     }
 
+    public class HerobrineLookatPlayerGoal extends LookAtPlayerGoal<HerobrineEntity> {
+
+        public HerobrineLookatPlayerGoal() {
+            super(HerobrineEntity.this);
+        }
+
+        @Override
+        public boolean canUse() {
+            return super.canUse() && !HerobrineEntity.this.isPerformingEvent;
+        }
+    }
+
     public enum Event implements WeightedEntry {
         VANISH_ON_SEEN(PS1PackTweaksConfig.SERVER.herobrineEvent0Weight),
         RUN_ON_SEEN(PS1PackTweaksConfig.SERVER.herobrineEvent1Weight),
         TELEPORT_ON_SEEN(PS1PackTweaksConfig.SERVER.herobrineEvent2Weight),
-        SPAWN_RUNNING(PS1PackTweaksConfig.SERVER.herobrineEvent3Weight);
+        RUN_FROM_LURKER(PS1PackTweaksConfig.SERVER.herobrineEvent3Weight);
 
         public static final WeightedRandomList<Event> list = WeightedRandomList.create(values());
 

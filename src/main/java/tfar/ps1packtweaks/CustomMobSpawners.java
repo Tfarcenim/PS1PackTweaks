@@ -147,9 +147,9 @@ public class CustomMobSpawners {
     }
 
     //x = r cos θ , y = r sin θ
-    public static Vec2 addPolar(Vec3 vec3, double radius, double angle) {
-        double x = radius * Math.cos(angle * Math.PI / 180);
-        double z = radius * Math.sin(angle * Math.PI / 180);
+    public static Vec2 addPolar(Vec3 vec3, double radius, double angleDegrees) {
+        double x = radius * Math.cos(angleDegrees * Math.PI / 180);
+        double z = radius * Math.sin(angleDegrees * Math.PI / 180);
 
         return new Vec2((float) (x + vec3.x), (float) (z + vec3.z));
     }

@@ -55,6 +55,7 @@ import tfar.ps1packtweaks.compat.MoreHorseArmorCompat;
 import tfar.ps1packtweaks.datagen.ModDataGenerator;
 import tfar.ps1packtweaks.entity.Barnacle;
 import tfar.ps1packtweaks.entity.HerobrineEntity;
+import tfar.ps1packtweaks.entity.ScriptedMidnightLurker;
 import tfar.ps1packtweaks.mixin.BlockAccess;
 import tfar.ps1packtweaks.mixin.BlockStateAccess;
 import tfar.ps1packtweaks.mixin.PoiAccess;
@@ -173,7 +174,8 @@ public class PS1PackTweaks {
 
     void registerEntities(RegistryEvent.Register<EntityType<?>> event) {
         event.getRegistry().registerAll(Init.ModEntityTypes.BARNACLE.setRegistryName("barnacle"),
-                Init.ModEntityTypes.HEROBRINE.setRegistryName("herobrine"));
+                Init.ModEntityTypes.HEROBRINE.setRegistryName("herobrine"),
+                Init.ModEntityTypes.SCRIPTED_MIDNIGHT_LURKER.setRegistryName("scripted_midnight_lurker"));
     }
 
     void registerSounds(RegistryEvent.Register<SoundEvent> event) {
@@ -199,6 +201,7 @@ public class PS1PackTweaks {
 
     void onAttributeCreate(EntityAttributeCreationEvent event) {
         event.put(Init.ModEntityTypes.BARNACLE, Barnacle.setCustomAttributes().build());
+        event.put(Init.ModEntityTypes.SCRIPTED_MIDNIGHT_LURKER, ScriptedMidnightLurker.createAttributes().build());
         ;
         event.put(Init.ModEntityTypes.HEROBRINE, HerobrineEntity.createAttributes().build());
     }

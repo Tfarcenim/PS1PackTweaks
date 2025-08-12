@@ -219,6 +219,7 @@ public class PS1PackTweaksClient {
 
     static void setup(FMLClientSetupEvent event) {
         EntityRenderers.register(Init.ModEntityTypes.BARNACLE,BarnacleRenderer::new);
+        EntityRenderers.register(Init.ModEntityTypes.SCRIPTED_MIDNIGHT_LURKER,ScriptedMidnightLurkerRenderer::new);
 
         EntityRenderers.register(Init.ModEntityTypes.HEROBRINE, (EntityRendererProvider.Context context) -> new SimplePlayerRenderer<>(context,
                 false,PS1PackTweaks.id("textures/entity/herobrine.png")));
