@@ -5,8 +5,6 @@ import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.random.SimpleWeightedRandomList;
-import net.minecraft.util.random.WeightedEntry;
-import net.minecraft.util.random.WeightedRandomList;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import org.apache.commons.lang3.tuple.Pair;
@@ -56,6 +54,14 @@ public class PS1PackTweaksConfig {
         public final ForgeConfigSpec.IntValue disappearingLeavesDelay;
         public final ForgeConfigSpec.IntValue disappearingLeavesRadius;
 
+        public final ForgeConfigSpec.DoubleValue disappearingLogsChance;
+        public final ForgeConfigSpec.IntValue disappearingLogsDelay;
+
+        //public final ForgeConfigSpec.DoubleValue tunnelChance;
+        public final ForgeConfigSpec.IntValue tunnelSizeMin;
+        public final ForgeConfigSpec.IntValue tunnelSizeMax;
+        public final ForgeConfigSpec.DoubleValue tunnelTorchChance;
+
         Server(ForgeConfigSpec.Builder builder) {
             builder.push("tweaks");
             builder.push("barnacle");
@@ -74,6 +80,15 @@ public class PS1PackTweaksConfig {
             disappearingLeavesChance = builder.defineInRange("disappearing_leaves_chance",.5,0,1);
             disappearingLeavesDelay = builder.defineInRange("disappearing_leaves_delay",10000,1,1000000000);
             disappearingLeavesRadius = builder.defineInRange("disappearing_leaves_radius",64,1,512);
+
+            disappearingLogsChance = builder.defineInRange("disappearing_logs_chance",.5,0,1);
+            disappearingLogsDelay = builder.defineInRange("disappearing_logs_delay",10000,1,1000000000);
+
+            /*tunnelChance = builder.defineInRange("tunnel_chance",1/256d,0,1);*/
+            tunnelSizeMin = builder.defineInRange("tunnel_size_min",16,1,200);
+            tunnelSizeMax = builder.defineInRange("tunnel_size_max",32,1,200);
+            tunnelTorchChance = builder.defineInRange("tunnel_torch_chance",.25,0,1);
+
 
             builder.push("herobrine");
             herobrineChance = builder.defineInRange("chance",.5,0,1);

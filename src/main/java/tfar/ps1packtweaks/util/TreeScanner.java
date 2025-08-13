@@ -5,7 +5,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -48,13 +47,16 @@ public class TreeScanner {
             return false;
         }
 
-        BlockPos subtract = pos.subtract(origin);
+        Vec3 subtract = Vec3.atCenterOf(pos.subtract(origin)).normalize();
 
 
+        //arccos ( a.b / |a| . |b| )
 
-        double degrees = Mth.atan2(subtract.getX() - look.x, subtract.getZ() - look.z) * 180 / Math.PI;
-        System.out.println(degrees);
-        return false;
+        //double degrees = Math.atan(subtract.z - look.z, subtract.x - look.x) * 180 / Math.PI;
+        double degrees = Math.acos(subtract.dot(look) / (look.length() * subtract.length())) * 180 / Math.PI;
+
+        //System.out.println(degrees);
+        return degrees > 70;
     }
 
     public void tick(ServerLevel level) {

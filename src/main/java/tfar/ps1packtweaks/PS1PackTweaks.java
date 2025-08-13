@@ -36,6 +36,7 @@ import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.SleepingTimeCheckEvent;
+import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.LogicalSide;
@@ -102,6 +103,17 @@ public class PS1PackTweaks {
         MinecraftForge.EVENT_BUS.addListener(this::rightClick);
         MinecraftForge.EVENT_BUS.addListener(this::changeDims);
         MinecraftForge.EVENT_BUS.addListener(this::playerTick);
+        MinecraftForge.EVENT_BUS.addListener(this::breakBlock);
+    }
+
+    public void breakBlock(BlockEvent.BreakEvent event) {
+        Player player = event.getPlayer();
+        if (!player.level.isClientSide && !player.getAbilities().instabuild) {
+            BlockState state = event.getState();
+            if (state.is(Blocks.STONE)) {
+              //  CustomEvents.tickTunnels((ServerPlayer) player);
+            }
+        }
     }
 
     public static void onStatAwarded(Player player, ResourceLocation pStat, int pIncrement) {

@@ -13,15 +13,14 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.NaturalSpawner;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LeavesBlock;
-import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import tfar.ps1packtweaks.entity.HerobrineEntity;
-import tfar.ps1packtweaks.util.TreeAOEIterator;
 import tfar.ps1packtweaks.util.TreeScanner;
 
 import java.util.*;
@@ -32,6 +31,7 @@ public class CustomEvents {
         tickHerobrineSpawn(player);
         tickFallingAnimalSpawn(player);
         tickVanishingLeaves(player);
+        tickVanishingLogs(player);
     }
 
     static void tickFallingAnimalSpawn(ServerPlayer player) {
@@ -140,15 +140,50 @@ public class CustomEvents {
 
         long tick = serverLevel.getGameTime();
 
-        if (treeScanner == null && tick % PS1PackTweaksConfig.SERVER.disappearingLeavesDelay.get() == 0 &&
-                player.getRandom().nextDouble() < PS1PackTweaksConfig.SERVER.disappearingLeavesChance.get()) {
-            treeScanner = new TreeScanner(player.blockPosition(),state -> state.is(BlockTags.LEAVES)&& !state.getValue(LeavesBlock.PERSISTENT),player.getLookAngle());
+        if (treeScanner == null && tick % PS1PackTweaksConfig.SERVER.disappearingLogsDelay.get() == 0 &&
+                player.getRandom().nextDouble() < PS1PackTweaksConfig.SERVER.disappearingLogsChance.get()) {
+            treeScanner = new TreeScanner(player.blockPosition(),state -> state.is(BlockTags.LOGS),player.getLookAngle());
         }
 
         if (treeScanner != null) {
             treeScanner.tick(serverLevel);
             if (treeScanner.isFinished()) {
                 treeScanner = null;
+            }
+        }
+    }
+
+    //[Tunnels forming] - 2x2 tunnels should form in the side of mountains and underground when the player is mining.
+    // There should occasionally be a redstone torch in these tunnels.
+
+    public static void tickTunnels(ServerPlayer player) {
+        if (player.getRandom().nextDouble() < PS1PackTweaksConfig.SERVER.tunnelChance.get()) {
+            Direction direction = player.getDirection().getOpposite();
+            int length = PS1PackTweaksConfig.SERVER.tunnelSizeMin.get() + player.getRandom().nextInt(PS1PackTweaksConfig.SERVER.tunnelSizeMax.get()
+                    - PS1PackTweaksConfig.SERVER.tunnelSizeMin.get());
+
+            boolean withTorch = player.getRandom().nextDouble() < PS1PackTweaksConfig.SERVER.tunnelTorchChance.get();
+
+            ServerLevel level = player.getLevel();
+
+            BlockPos origin = player.blockPosition().relative(direction,2);
+            for (int i = 0; i < length;i++) {
+                BlockPos relative = origin.relative(direction, i);
+                BlockPos relativeAbove = origin.relative(Direction.UP).relative(direction, i);
+
+                BlockPos relativeSide = origin.relative(direction, i).relative(direction.getClockWise());
+                BlockPos relativeSideAbove = origin.relative(Direction.UP).relative(direction, i).relative(direction.getClockWise());
+                List<BlockPos> toTunnel = List.of(relative,relativeAbove,relativeSide,relativeSideAbove);
+                for (BlockPos pos : toTunnel) {
+                    BlockState state = level.getBlockState(pos);
+                    if (state.getDestroySpeed(level,pos) >= 0) {
+                        level.destroyBlock(pos,false);
+                        if (withTorch) {
+                            level.setBlockAndUpdate(pos,Blocks.REDSTONE_TORCH.defaultBlockState());
+                            withTorch = false;
+                        }
+                    }
+                }
             }
         }
     }
