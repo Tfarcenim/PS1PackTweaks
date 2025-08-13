@@ -45,6 +45,7 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraftforge.fml.loading.FMLLoader;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import tfar.ps1packtweaks.client.PS1PackTweaksClient;
@@ -76,6 +77,8 @@ public class PS1PackTweaks {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public static final boolean TRIGGER_BANNER_CRASH = false;
+
+    public static final boolean DEV = !FMLLoader.isProduction();
 
     public PS1PackTweaks() {
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, PS1PackTweaksConfig.SERVER_SPEC);
@@ -142,8 +145,7 @@ public class PS1PackTweaks {
     void playerTick(TickEvent.PlayerTickEvent event) {
         if (event.phase == TickEvent.Phase.START && event.side == LogicalSide.SERVER) {
             ServerPlayer player = (ServerPlayer) event.player;
-            CustomMobSpawners.tickHerobrineSpawn(player);
-            CustomMobSpawners.tickFallingAnimalSpawn(player);
+            CustomEvents.handleEvents(player);
         }
     }
 
@@ -281,3 +283,35 @@ public class PS1PackTweaks {
     }
 
 }
+//[Leaves disappearing from trees] - All leaves will disappear from trees in a biome.
+// This should happen far away enough or when the player has their back turned so that they never see it happen.
+// It should only happen to naturally generated leaves.
+//
+//[Logs disappearing from trees] - Same thing, just with the logs instead of the leaves.
+//
+//[Tunnels forming] - 2x2 tunnels should form in the side of mountains and underground when the player is mining. There should occasionally be a redstone torch in these tunnels.
+//
+//[Herobrine appearances] - Herobrine should spawn in the distance when the player isn't looking, and disappear when the player looks. The distance should be far enough that he's partially obscured by the shader fog, but not completely. He should also appear outside of the players windows and disapear when looked at. Sometimes he will not disappear when looked at, and instead start running away from the player. The player should never be able to catch up to him. Sometimes instead of doing either of these, he will teleport to the block directly in front of the player and give the player the blindness effect and then disappear. Sometimes instead of appearing standing still, he should be running away from an invisible entity. The invisible entity should make randomly selected cave sounds and warden noises.
+//
+//[Items appearing in chests] - Redstone torch, leaves, logs, rotten flesh. These items should randomly appear in player placed chests.
+//
+//[Sand pyramids] - Small sand pyramids should appear on top of bodies of water.
+//
+//[Randomly placed cobblestone] - Clusters of cobblestone blocks should randomly appear in the world.
+//
+//[Signs] - Signs with warning messages written on them should randomly appear in the world. The type of sign should vary based on the biome.
+//	- STOP
+//	- LEAVE
+//	- Can you see me?
+//	- I see you
+//	- RUN
+//	- You shouldn't be here
+//	- Do you hear it?
+//	- I'm not dead
+//	- Se upp på ryggen
+//	- Bakom dig
+//	- Du är inte säker
+//	- Titta inte
+//
+//[Random noises] - Doors opening, player taking damage, player falling, item pickup, footsteps, block breaking.
+// These noises should not play in situations that don't make sense, such as a door opening when the player isn't near any doors, footsteps when the player isn't near land.

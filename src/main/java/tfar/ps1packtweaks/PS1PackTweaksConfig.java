@@ -52,6 +52,10 @@ public class PS1PackTweaksConfig {
         public final ForgeConfigSpec.IntValue herobrineEvent2Weight;
         public final ForgeConfigSpec.IntValue herobrineEvent3Weight;
 
+        public final ForgeConfigSpec.DoubleValue disappearingLeavesChance;
+        public final ForgeConfigSpec.IntValue disappearingLeavesDelay;
+        public final ForgeConfigSpec.IntValue disappearingLeavesRadius;
+
         Server(ForgeConfigSpec.Builder builder) {
             builder.push("tweaks");
             builder.push("barnacle");
@@ -67,6 +71,10 @@ public class PS1PackTweaksConfig {
                     o -> o instanceof String s && Registry.ENTITY_TYPE.containsKey(new ResourceLocation(s)));
             leaves_and_logs_chance = builder.defineInRange("leaves_and_logs_chance",1/32768d,0,1);
 
+            disappearingLeavesChance = builder.defineInRange("disappearing_leaves_chance",.5,0,1);
+            disappearingLeavesDelay = builder.defineInRange("disappearing_leaves_delay",10000,1,1000000000);
+            disappearingLeavesRadius = builder.defineInRange("disappearing_leaves_radius",64,1,512);
+
             builder.push("herobrine");
             herobrineChance = builder.defineInRange("chance",.5,0,1);
             minHerobrineDelay = builder.defineInRange("min_delay",10000,1,100000000000000L);
@@ -76,7 +84,7 @@ public class PS1PackTweaksConfig {
             herobrineEvent0Weight = builder.defineInRange("vanish_on_seen_weight",8,0,500000000);
             herobrineEvent1Weight = builder.defineInRange("run_on_seen_weight",4,0,500000000);
             herobrineEvent2Weight = builder.defineInRange("teleport_on_seen_weight",2,0,500000000);
-            herobrineEvent3Weight = builder.defineInRange("spawn_running_weight",1,0,500000000);
+            herobrineEvent3Weight = builder.defineInRange("lurker_weight",1,0,500000000);
 
             builder.pop();
 

@@ -27,7 +27,7 @@ import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeConfigSpec;
 import org.jetbrains.annotations.Nullable;
-import tfar.ps1packtweaks.CustomMobSpawners;
+import tfar.ps1packtweaks.CustomEvents;
 import tfar.ps1packtweaks.Init;
 import tfar.ps1packtweaks.PS1PackTweaksConfig;
 import tfar.ps1packtweaks.entity.goals.BeingLookedAtGoal;
@@ -156,7 +156,7 @@ public class HerobrineEntity extends PathfinderMob implements CanLookAt {
             }
             case RUN_FROM_LURKER -> {
 
-                Vec2 lurkerPos = CustomMobSpawners.addPolar(position(),DISTANCE,random.nextInt(360));
+                Vec2 lurkerPos = CustomEvents.addPolar(position(),DISTANCE,random.nextInt(360));
 
                 int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, (int) lurkerPos.x, (int) lurkerPos.y);
 
