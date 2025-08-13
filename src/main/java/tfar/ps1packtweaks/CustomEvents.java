@@ -13,6 +13,7 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.NaturalSpawner;
+import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -21,6 +22,7 @@ import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import tfar.ps1packtweaks.entity.HerobrineEntity;
 import tfar.ps1packtweaks.util.TreeAOEIterator;
+import tfar.ps1packtweaks.util.TreeScanner;
 
 import java.util.*;
 
@@ -110,82 +112,45 @@ public class CustomEvents {
         }
     }
 
-    enum Stage {
-        IDLE,SCANNING,BREAKING
-    }
 
-    static Stage leavesBreakingStage = Stage.IDLE;
-    static List<BlockPos> treeStarts = new ArrayList<>();
 
-    static List<BlockPos> toDestroy = new ArrayList<>();
+
+    public static TreeScanner treeScanner;
 
     public static void tickVanishingLeaves(ServerPlayer player) {
         ServerLevel serverLevel = player.getLevel();
 
-        if (leavesBreakingStage == Stage.BREAKING) {
-            long start = Util.getNanos();
+        long tick = serverLevel.getGameTime();
 
-            long end = Util.getNanos();
-            long elapse = end-start;
-            if (PS1PackTweaks.DEV) {
-                PS1PackTweaks.LOGGER.info("Breaking took {} ms", elapse / 1_000_000d);
-            }
-            leavesBreakingStage = Stage.IDLE;
+        if (treeScanner == null && tick % PS1PackTweaksConfig.SERVER.disappearingLeavesDelay.get() == 0 &&
+                player.getRandom().nextDouble() < PS1PackTweaksConfig.SERVER.disappearingLeavesChance.get()) {
+            treeScanner = new TreeScanner(player.blockPosition(),state -> state.is(BlockTags.LEAVES)&& !state.getValue(LeavesBlock.PERSISTENT),player.getLookAngle());
         }
 
-        if (leavesBreakingStage == Stage.SCANNING) {
-            long start = Util.getNanos();
-            toDestroy.clear();
-
-            for (BlockPos pos : treeStarts) {
-                Iterable<BlockPos> iterable = TreeAOEIterator.calculate(serverLevel,pos, block -> block.is(BlockTags.LEAVES) || block.is(BlockTags.LOGS),0,0);
-                iterable.forEach(pos1 -> toDestroy.add(pos1));
+        if (treeScanner != null) {
+            treeScanner.tick(serverLevel);
+            if (treeScanner.isFinished()) {
+                treeScanner = null;
             }
-
-            long end = Util.getNanos();
-            long elapse = end-start;
-            if (PS1PackTweaks.DEV) {
-                PS1PackTweaks.LOGGER.info("Scanning tree blocks took {} ms, {} blocks scheduled for destruction", elapse / 1_000_000d,toDestroy.size());
-            }
-            leavesBreakingStage = Stage.BREAKING;
         }
+    }
+
+    public static void tickVanishingLogs(ServerPlayer player) {
+        ServerLevel serverLevel = player.getLevel();
 
         long tick = serverLevel.getGameTime();
 
-        if (tick % PS1PackTweaksConfig.SERVER.disappearingLeavesDelay.get() == 0 &&
+        if (treeScanner == null && tick % PS1PackTweaksConfig.SERVER.disappearingLeavesDelay.get() == 0 &&
                 player.getRandom().nextDouble() < PS1PackTweaksConfig.SERVER.disappearingLeavesChance.get()) {
-            leavesBreakingStage = Stage.SCANNING;
-            treeStarts.clear();
-            long start = Util.getNanos();
-            int radius = PS1PackTweaksConfig.SERVER.disappearingLeavesRadius.get();
-            BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
-            BlockPos playerPos = player.blockPosition();
-            int originx = playerPos.getX();
-            int originz = playerPos.getZ();
-            for (int z = -radius; z < radius; z++) {
-                for (int x = -radius; x < radius; x++) {
-                    int height = serverLevel.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,originx+x,originz+z);
-                    mutableBlockPos.set(originx+x,height-1,originz+z);
-                    BlockState state = serverLevel.getBlockState(mutableBlockPos);
-                    if (state.is(BlockTags.LOGS) && state.getValue(RotatedPillarBlock.AXIS).isVertical()) {
-                        BlockState belowState = serverLevel.getBlockState(mutableBlockPos.below());
-                        if (belowState.is(BlockTags.LEAVES)) continue;
-
-                        while (belowState.is(BlockTags.LOGS)) {
-                            mutableBlockPos.move(Direction.DOWN);
-                            belowState = serverLevel.getBlockState(mutableBlockPos.below());
-                        }
-                        treeStarts.add(mutableBlockPos.immutable());
-                    }
-                }
-            }
-            long end = Util.getNanos();
-            long elapse = end-start;
-            if (PS1PackTweaks.DEV) {
-                PS1PackTweaks.LOGGER.info("Scanning tree starts took {} ms, found {} possible trees", elapse / 1_000_000d,treeStarts.size());
-            }
+            treeScanner = new TreeScanner(player.blockPosition(),state -> state.is(BlockTags.LEAVES)&& !state.getValue(LeavesBlock.PERSISTENT),player.getLookAngle());
         }
 
+        if (treeScanner != null) {
+            treeScanner.tick(serverLevel);
+            if (treeScanner.isFinished()) {
+                treeScanner = null;
+            }
+        }
     }
 
     static final Direction[] h_directions = new Direction[]{Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
