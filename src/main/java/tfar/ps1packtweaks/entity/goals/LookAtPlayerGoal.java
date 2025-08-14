@@ -19,7 +19,7 @@ public class LookAtPlayerGoal<T extends PathfinderMob & CanLookAt> extends Goal 
       }
 
       /**
-       * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
+       * Returns whether execution should begin. You can also read and cache any block necessary for execution in this
        * method as well.
        */
       @Override

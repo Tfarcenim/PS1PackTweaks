@@ -26,7 +26,7 @@ public class LookforPlayerGoal<T extends PathfinderMob & CanLookAt> extends Near
     }
 
     /**
-     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
+     * Returns whether execution should begin. You can also read and cache any block necessary for execution in this
      * method as well.
      */
     @Override
@@ -44,7 +44,7 @@ public class LookforPlayerGoal<T extends PathfinderMob & CanLookAt> extends Near
     }
 
     /**
-     * Reset the task's internal state. Called when this task is interrupted by another one
+     * Reset the task's internal block. Called when this task is interrupted by another one
      */
     @Override
     public void stop() {

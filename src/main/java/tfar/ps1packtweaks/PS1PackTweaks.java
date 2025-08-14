@@ -5,7 +5,9 @@ import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.core.NonNullList;
+import net.minecraft.data.worldgen.placement.VegetationPlacements;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -21,21 +23,27 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HalfTransparentBlock;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.world.BiomeGenerationSettingsBuilder;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.SleepingTimeCheckEvent;
+import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -64,11 +72,12 @@ import tfar.ps1packtweaks.mixin.PoiAccess;
 import tfar.ps1packtweaks.network.ForgePacketHandler;
 import tfar.ps1packtweaks.network.PacketHandler;
 import tfar.ps1packtweaks.network.client.S2CTargetDimensionPacket;
+import tfar.ps1packtweaks.worldgen.ModConfiguredFeatures;
+import tfar.ps1packtweaks.worldgen.ModPlacedFeatures;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static tfar.ps1packtweaks.Init.ModSounds.*;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(PS1PackTweaks.MOD_ID)
@@ -95,6 +104,7 @@ public class PS1PackTweaks {
         bus.addGenericListener(Item.class, this::registerItems);
         bus.addGenericListener(EntityType.class, this::registerEntities);
         bus.addGenericListener(SoundEvent.class, this::registerSounds);
+        bus.addGenericListener(Feature.class, this::registerFeatures);
 
         bus.addListener(ModDataGenerator::gatherData);
         bus.addListener(PS1PackTweaksConfig::configUpdate);
@@ -104,6 +114,7 @@ public class PS1PackTweaks {
         MinecraftForge.EVENT_BUS.addListener(this::changeDims);
         MinecraftForge.EVENT_BUS.addListener(this::playerTick);
         MinecraftForge.EVENT_BUS.addListener(this::breakBlock);
+        MinecraftForge.EVENT_BUS.addListener(this::biomeLoading);
     }
 
     public void breakBlock(BlockEvent.BreakEvent event) {
@@ -193,9 +204,14 @@ public class PS1PackTweaks {
     }
 
     void registerSounds(RegistryEvent.Register<SoundEvent> event) {
-        event.getRegistry().registerAll(BARNACLE_AMBIENT.setRegistryName("barnacle_ambient"),
-                BARNACLE_HURT.setRegistryName("barnacle_hurt"), BARNACLE_DEATH.setRegistryName("barnacle_death"),
-                BARNACLE_FLOP.setRegistryName("barnacle_flop"));
+        event.getRegistry().registerAll(Init.ModSounds.BARNACLE_AMBIENT.setRegistryName("barnacle_ambient"),
+                Init.ModSounds.BARNACLE_HURT.setRegistryName("barnacle_hurt"), Init.ModSounds.BARNACLE_DEATH.setRegistryName("barnacle_death"),
+                Init.ModSounds.BARNACLE_FLOP.setRegistryName("barnacle_flop"));
+    }
+
+    void registerFeatures(RegistryEvent.Register<Feature<?>> event) {
+        event.getRegistry().registerAll(Init.ModFeatures.TUNNEL.setRegistryName("tunnel"),Init.ModFeatures.SIGN.setRegistryName("sign"),
+                Init.ModFeatures.PYRAMID.setRegistryName("pyramid"));
     }
 
     void sleepCheck(SleepingTimeCheckEvent event) {
@@ -210,7 +226,48 @@ public class PS1PackTweaks {
         if (skyDarken < 4) {
             event.setResult(Event.Result.DENY);
         }
+    }
 
+    public static final Set<ResourceLocation> GENERATE_BIOMES = Set.of(new ResourceLocation("forest"),
+            new ResourceLocation("windswept_hills"), new ResourceLocation("taiga"),
+            new ResourceLocation("birch_forest"), new ResourceLocation("windswept_forest"), new ResourceLocation("windswept_gravelly_hills"),
+            new ResourceLocation("snowy_taiga"), new ResourceLocation("desert"));
+
+    void biomeLoading(BiomeLoadingEvent event) {
+        BiomeGenerationSettingsBuilder generation = event.getGeneration();
+        ResourceLocation biomeName = event.getName();
+        if (GENERATE_BIOMES.contains(biomeName)) {
+            generation.addFeature(GenerationStep.Decoration.UNDERGROUND_STRUCTURES, ModPlacedFeatures.PLACED_TUNNEL);
+            generation.addFeature(GenerationStep.Decoration.SURFACE_STRUCTURES, ModPlacedFeatures.PLACED_TUNNEL);
+        }
+
+        Biome.BiomeCategory category = event.getCategory();
+
+        if (category == Biome.BiomeCategory.SAVANNA) {
+            addIfNotPresent(generation,GenerationStep.Decoration.SURFACE_STRUCTURES,ModPlacedFeatures.PLACED_OAK_SIGN);
+            addIfNotPresent(generation,GenerationStep.Decoration.SURFACE_STRUCTURES,ModPlacedFeatures.PLACED_ACACIA_SIGN);
+        }
+        if(event.getCategory() == Biome.BiomeCategory.JUNGLE) {
+            addIfNotPresent(generation,GenerationStep.Decoration.SURFACE_STRUCTURES,ModPlacedFeatures.PLACED_JUNGLE_SIGN);
+        }
+        if(category == Biome.BiomeCategory.FOREST) {
+            addIfNotPresent(generation,GenerationStep.Decoration.SURFACE_STRUCTURES,ModPlacedFeatures.PLACED_OAK_SIGN);
+            addIfNotPresent(generation,GenerationStep.Decoration.SURFACE_STRUCTURES,ModPlacedFeatures.PLACED_BIRCH_SIGN);
+            addIfNotPresent(generation,GenerationStep.Decoration.SURFACE_STRUCTURES,ModPlacedFeatures.PLACED_DARK_OAK_SIGN);
+        }
+        if(category == Biome.BiomeCategory.TAIGA) {
+            addIfNotPresent(generation,GenerationStep.Decoration.SURFACE_STRUCTURES,ModPlacedFeatures.PLACED_SPRUCE_SIGN);
+        }
+    }
+
+    static boolean hasFeature(List<Holder<PlacedFeature>> features,Holder<PlacedFeature> feature) {
+        return features.stream().anyMatch(f -> f.is(feature.unwrapKey().get()));
+    }
+
+    static void addIfNotPresent(BiomeGenerationSettingsBuilder generation,GenerationStep.Decoration step, Holder<PlacedFeature> feature) {
+        if (!hasFeature(generation.getFeatures(step),feature)) {
+            generation.addFeature(step, feature);
+        }
     }
 
     void onAttributeCreate(EntityAttributeCreationEvent event) {
@@ -230,7 +287,7 @@ public class PS1PackTweaks {
 
         PacketHandler.registerPackets();
         event.enqueueWork(() -> {
-
+            ModConfiguredFeatures.init();
             if (ModIntegration.morehorsearmor.loaded) {
                 MoreHorseArmorCompat.setup();
             }

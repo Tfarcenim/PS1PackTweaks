@@ -6,9 +6,11 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.levelgen.feature.Feature;
 import tfar.ps1packtweaks.entity.Barnacle;
 import tfar.ps1packtweaks.entity.HerobrineEntity;
 import tfar.ps1packtweaks.entity.ScriptedMidnightLurker;
+import tfar.ps1packtweaks.worldgen.*;
 
 public class Init {
 
@@ -39,6 +41,12 @@ public class Init {
     }
 
     public static class ModBlocks {
+    }
+
+    public static class ModFeatures {
+        public static final Feature<TunnelConfiguration> TUNNEL = new TunnelFeature(TunnelConfiguration.CODEC);
+        public static final Feature<SignFeatureConfig> SIGN = new SignFeature(SignFeatureConfig.CODEC);
+        public static final Feature<PyramidConfig> PYRAMID = new SandPyramidFeature(PyramidConfig.CODEC);
     }
 
 }

@@ -157,7 +157,7 @@ public class CustomEvents {
     // There should occasionally be a redstone torch in these tunnels.
 
     public static void tickTunnels(ServerPlayer player) {
-        if (player.getRandom().nextDouble() < PS1PackTweaksConfig.SERVER.tunnelChance.get()) {
+        if (player.getRandom().nextDouble() < 0) {
             Direction direction = player.getDirection().getOpposite();
             int length = PS1PackTweaksConfig.SERVER.tunnelSizeMin.get() + player.getRandom().nextInt(PS1PackTweaksConfig.SERVER.tunnelSizeMax.get()
                     - PS1PackTweaksConfig.SERVER.tunnelSizeMin.get());
