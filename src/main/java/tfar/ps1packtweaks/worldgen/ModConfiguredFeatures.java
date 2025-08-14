@@ -19,6 +19,10 @@ public class ModConfiguredFeatures {
             Init.ModFeatures.TUNNEL,
             new TunnelConfiguration(16,24,.25f));
 
+    public static final Holder<ConfiguredFeature<PyramidConfig, ?>> CONFIGURED_PYRAMID = FeatureUtils.register(PS1PackTweaks.MOD_ID+":pyramid",
+            Init.ModFeatures.PYRAMID,
+            new PyramidConfig(1));
+
     public static final Holder<ConfiguredFeature<SignFeatureConfig, ?>> CONFIGURED_OAK_SIGN = FeatureUtils.register(PS1PackTweaks.MOD_ID+":oak_sign",
             Init.ModFeatures.SIGN,
             new SignFeatureConfig(getTexts(), Blocks.OAK_SIGN));

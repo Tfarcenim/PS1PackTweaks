@@ -12,6 +12,9 @@ public class ModPlacedFeatures {
     public static final Holder<PlacedFeature> PLACED_TUNNEL = PlacementUtils.register(PS1PackTweaks.MOD_ID+":tunnel", ModConfiguredFeatures.CONFIGURED_TUNNEL,
             tunnelPlacement(HeightRangePlacement.uniform(VerticalAnchor.absolute(-64), VerticalAnchor.absolute(128))));
 
+    public static final Holder<PlacedFeature> PLACED_PYRAMID = PlacementUtils.register(PS1PackTweaks.MOD_ID+":pyramid", ModConfiguredFeatures.CONFIGURED_PYRAMID,
+            pyramidPlacement());
+
     public static final Holder<PlacedFeature> PLACED_OAK_SIGN = PlacementUtils.register(PS1PackTweaks.MOD_ID+":oak_sign",
             ModConfiguredFeatures.CONFIGURED_OAK_SIGN,placeSigns());
 
@@ -32,11 +35,14 @@ public class ModPlacedFeatures {
 
 
     private static List<PlacementModifier> tunnelPlacement(PlacementModifier heightPlacement) {
-        return List.of(CountPlacement.of(2), heightPlacement, BiomeFilter.biome());
+        return List.of(RarityFilter.onAverageOnceEvery(2), heightPlacement, BiomeFilter.biome());
+    }
+
+    public static List<PlacementModifier> pyramidPlacement() {
+        return List.of(RarityFilter.onAverageOnceEvery(400), InSquarePlacement.spread(), PlacementUtils.HEIGHTMAP_WORLD_SURFACE, BiomeFilter.biome());
     }
 
     static List<PlacementModifier> placeSigns() {
-        return ModConfiguredFeatures.commonPlacement(2, HeightRangePlacement.uniform(VerticalAnchor.absolute(-64), VerticalAnchor.absolute(128)));
+        return List.of(RarityFilter.onAverageOnceEvery(2048),InSquarePlacement.spread(), PlacementUtils.HEIGHTMAP_WORLD_SURFACE, BiomeFilter.biome());
     }
-
 }

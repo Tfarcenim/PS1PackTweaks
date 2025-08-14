@@ -243,20 +243,27 @@ public class PS1PackTweaks {
 
         Biome.BiomeCategory category = event.getCategory();
 
-        if (category == Biome.BiomeCategory.SAVANNA) {
-            addIfNotPresent(generation,GenerationStep.Decoration.SURFACE_STRUCTURES,ModPlacedFeatures.PLACED_OAK_SIGN);
-            addIfNotPresent(generation,GenerationStep.Decoration.SURFACE_STRUCTURES,ModPlacedFeatures.PLACED_ACACIA_SIGN);
-        }
-        if(event.getCategory() == Biome.BiomeCategory.JUNGLE) {
-            addIfNotPresent(generation,GenerationStep.Decoration.SURFACE_STRUCTURES,ModPlacedFeatures.PLACED_JUNGLE_SIGN);
-        }
-        if(category == Biome.BiomeCategory.FOREST) {
-            addIfNotPresent(generation,GenerationStep.Decoration.SURFACE_STRUCTURES,ModPlacedFeatures.PLACED_OAK_SIGN);
-            addIfNotPresent(generation,GenerationStep.Decoration.SURFACE_STRUCTURES,ModPlacedFeatures.PLACED_BIRCH_SIGN);
-            addIfNotPresent(generation,GenerationStep.Decoration.SURFACE_STRUCTURES,ModPlacedFeatures.PLACED_DARK_OAK_SIGN);
-        }
-        if(category == Biome.BiomeCategory.TAIGA) {
-            addIfNotPresent(generation,GenerationStep.Decoration.SURFACE_STRUCTURES,ModPlacedFeatures.PLACED_SPRUCE_SIGN);
+        switch (category) {
+            case SAVANNA -> {
+                addIfNotPresent(generation,GenerationStep.Decoration.SURFACE_STRUCTURES,ModPlacedFeatures.PLACED_OAK_SIGN);
+                addIfNotPresent(generation,GenerationStep.Decoration.SURFACE_STRUCTURES,ModPlacedFeatures.PLACED_ACACIA_SIGN);
+            }
+
+            case JUNGLE -> {
+                addIfNotPresent(generation,GenerationStep.Decoration.SURFACE_STRUCTURES,ModPlacedFeatures.PLACED_JUNGLE_SIGN);
+
+            }
+            case FOREST -> {
+                addIfNotPresent(generation,GenerationStep.Decoration.SURFACE_STRUCTURES,ModPlacedFeatures.PLACED_OAK_SIGN);
+                addIfNotPresent(generation,GenerationStep.Decoration.SURFACE_STRUCTURES,ModPlacedFeatures.PLACED_BIRCH_SIGN);
+                addIfNotPresent(generation,GenerationStep.Decoration.SURFACE_STRUCTURES,ModPlacedFeatures.PLACED_DARK_OAK_SIGN);
+            }
+            case TAIGA -> {
+                addIfNotPresent(generation,GenerationStep.Decoration.SURFACE_STRUCTURES,ModPlacedFeatures.PLACED_SPRUCE_SIGN);
+            }
+            case OCEAN -> {
+                generation.addFeature(GenerationStep.Decoration.SURFACE_STRUCTURES,ModPlacedFeatures.PLACED_PYRAMID);
+            }
         }
     }
 
