@@ -6,6 +6,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.configurations.BlockStateConfiguration;
 import net.minecraft.world.level.levelgen.placement.*;
 import tfar.ps1packtweaks.Init;
 import tfar.ps1packtweaks.PS1PackTweaks;
@@ -46,6 +48,9 @@ public class ModConfiguredFeatures {
     public static final Holder<ConfiguredFeature<SignFeatureConfig, ?>> CONFIGURED_DARK_OAK_SIGN = FeatureUtils.register(PS1PackTweaks.MOD_ID+":dark_oak_sign",
             Init.ModFeatures.SIGN,
             new SignFeatureConfig(getTexts(), Blocks.DARK_OAK_SIGN));
+
+    public static final Holder<ConfiguredFeature<BlockStateConfiguration, ?>> COBBLE_ROCK = FeatureUtils.register(PS1PackTweaks.MOD_ID+":cobble_rock", Feature.FOREST_ROCK, new BlockStateConfiguration(Blocks.COBBLESTONE.defaultBlockState()));
+
 
 
     static List<PlacementModifier> commonPlacement(int pCount, PlacementModifier pHeightRange) {

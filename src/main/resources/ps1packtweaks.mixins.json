@@ -28,10 +28,12 @@
   ],
   "client": [
     "AbstractClientPlayerMixin",
+    "BlockColorsAccess",
     "ClientPacketListenerMixin",
     "IntegratedServerMixin",
     "LavaSlimeModelMixin",
     "LevelRendererMixin",
+    "LiquidBlockRendererMixin",
     "LivingEntityRenderMixin",
     "MinecraftMixin",
     "MouseHandlerMixin",

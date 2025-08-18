@@ -119,12 +119,6 @@ public class PS1PackTweaks {
 
     public void breakBlock(BlockEvent.BreakEvent event) {
         Player player = event.getPlayer();
-        if (!player.level.isClientSide && !player.getAbilities().instabuild) {
-            BlockState state = event.getState();
-            if (state.is(Blocks.STONE)) {
-              //  CustomEvents.tickTunnels((ServerPlayer) player);
-            }
-        }
     }
 
     public static void onStatAwarded(Player player, ResourceLocation pStat, int pIncrement) {
@@ -239,6 +233,7 @@ public class PS1PackTweaks {
         if (GENERATE_BIOMES.contains(biomeName)) {
             generation.addFeature(GenerationStep.Decoration.UNDERGROUND_STRUCTURES, ModPlacedFeatures.PLACED_TUNNEL);
             generation.addFeature(GenerationStep.Decoration.SURFACE_STRUCTURES, ModPlacedFeatures.PLACED_TUNNEL);
+            generation.addFeature(GenerationStep.Decoration.LOCAL_MODIFICATIONS, ModPlacedFeatures.COBBLE_ROCK);
         }
 
         Biome.BiomeCategory category = event.getCategory();
@@ -390,4 +385,5 @@ public class PS1PackTweaks {
 //	- Titta inte
 //
 //[Random noises] - Doors opening, player taking damage, player falling, item pickup, footsteps, block breaking.
-// These noises should not play in situations that don't make sense, such as a door opening when the player isn't near any doors, footsteps when the player isn't near land.
+// These noises should not play in situations that don't make sense, such as a door opening when the player isn't near any doors,
+// footsteps when the player isn't near land.

@@ -10,6 +10,11 @@ import com.mojang.blaze3d.Blaze3D;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
+import net.minecraft.client.color.block.BlockColor;
+import net.minecraft.client.color.block.BlockColors;
+import net.minecraft.world.level.block.*;
+import net.minecraftforge.client.event.ColorHandlerEvent;
+import net.minecraftforge.registries.IRegistryDelegate;
 import tfar.ps1packtweaks.AbstractClientPlayerDuck;
 import net.minecraft.Util;
 import net.minecraft.client.CameraType;
@@ -62,6 +67,7 @@ import tfar.ps1packtweaks.PS1PackTweaks;
 import tfar.ps1packtweaks.PS1PackTweaksConfig;
 import tfar.ps1packtweaks.compat.BetterGuiCompassHUD;
 import tfar.ps1packtweaks.compat.ModIntegration;
+import tfar.ps1packtweaks.mixin.BlockColorsAccess;
 import tyrannotitanlib.core.content.init.TyrannoBanners;
 
 import java.io.File;
@@ -85,7 +91,7 @@ public class PS1PackTweaksClient {
 
     public static final ResourceLocation HEROBRINE_SKIN = PS1PackTweaks.id("textures/entity/herobrine.png");
 
-    public static Map<String,ResourceKey<Level>> map;
+    public static Map<String,ResourceKey<Level>> discMap;
 
     public static ResourceKey<Level> DISC = Level.OVERWORLD;
     public static boolean showDisc;
@@ -144,6 +150,7 @@ public class PS1PackTweaksClient {
     public static void init(IEventBus bus) {
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, PS1PackTweaksConfig.CLIENT_SPEC);
         bus.addListener(PS1PackTweaksClient::setup);
+        bus.addListener(EventPriority.LOWEST,PS1PackTweaksClient::removeBlockColors);
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::joinServer);
         MinecraftForge.EVENT_BUS.addListener(MouseHider::startupScreen);
         MinecraftForge.EVENT_BUS.addListener(MouseHider::clientTick);
@@ -155,6 +162,22 @@ public class PS1PackTweaksClient {
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::onOpenGUI);
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::onGUIDrawPost);
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::loadWorld);
+    }
+
+    //So water, foliage, grass, and leaves
+
+    static void removeBlockColors(ColorHandlerEvent.Block event) {
+        BlockColors blockColors = event.getBlockColors();
+        Map<IRegistryDelegate<Block>, BlockColor> map = ((BlockColorsAccess) blockColors).getBlockColors();
+        map.entrySet().removeIf(iRegistryDelegateBlockColorEntry -> {
+            Block block = iRegistryDelegateBlockColorEntry.getKey().get();
+            boolean b = block instanceof LeavesBlock || block instanceof LiquidBlock || block instanceof GrassBlock ||
+                    block instanceof BushBlock||block instanceof VineBlock;
+            if (b && PS1PackTweaks.DEV) {
+                PS1PackTweaks.LOGGER.info("Removed color from: {}", block);
+            }
+            return b;
+        });
     }
 
     static void clientTick(TickEvent.ClientTickEvent event) {
@@ -270,8 +293,8 @@ public class PS1PackTweaksClient {
         if (!(event.getWorld() instanceof ClientLevel clientLevel)) return;
 
         //this is first load, always show custom screen and load in map
-        if (map == null) {
-            map = new HashMap<>();
+        if (discMap == null) {
+            discMap = new HashMap<>();
             if (file.exists()) {
 
                 Reader reader = null;
@@ -286,7 +309,7 @@ public class PS1PackTweaksClient {
                     for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
                         String key = entry.getKey();
                         ResourceLocation value = new ResourceLocation(entry.getValue().getAsString());
-                        map.put(key, ResourceKey.create(Registry.DIMENSION_REGISTRY, value));
+                        discMap.put(key, ResourceKey.create(Registry.DIMENSION_REGISTRY, value));
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -299,7 +322,7 @@ public class PS1PackTweaksClient {
 
         String levelName = getLevelName();
 
-        ResourceKey<Level> lastSeen = map.get(levelName);
+        ResourceKey<Level> lastSeen = discMap.get(levelName);
 
         if (lastSeen == null) {
             showDisc = true;
@@ -310,7 +333,7 @@ public class PS1PackTweaksClient {
             }
         }
 
-        PS1PackTweaksClient.map.put(levelName,clientLevel.dimension());
+        PS1PackTweaksClient.discMap.put(levelName,clientLevel.dimension());
         PS1PackTweaksClient.write();
     }
 
@@ -331,7 +354,7 @@ public class PS1PackTweaksClient {
 
 
             JsonObject jsonObject = new JsonObject();
-            for (Map.Entry<String,ResourceKey<Level>> entry : map.entrySet()) {
+            for (Map.Entry<String,ResourceKey<Level>> entry : discMap.entrySet()) {
                 jsonObject.addProperty(entry.getKey(),entry.getValue().location().toString());
             }
 

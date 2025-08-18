@@ -33,6 +33,9 @@ public class ModPlacedFeatures {
     public static final Holder<PlacedFeature> PLACED_DARK_OAK_SIGN = PlacementUtils.register(PS1PackTweaks.MOD_ID+":dark_oak_sign",
             ModConfiguredFeatures.CONFIGURED_DARK_OAK_SIGN,placeSigns());
 
+    public static final Holder<PlacedFeature> COBBLE_ROCK = PlacementUtils.register(PS1PackTweaks.MOD_ID+":cobble_rock", ModConfiguredFeatures.COBBLE_ROCK, RarityFilter.onAverageOnceEvery(100), InSquarePlacement.spread(), PlacementUtils.HEIGHTMAP, BiomeFilter.biome());
+
+
 
     private static List<PlacementModifier> tunnelPlacement(PlacementModifier heightPlacement) {
         return List.of(RarityFilter.onAverageOnceEvery(2), heightPlacement, BiomeFilter.biome());

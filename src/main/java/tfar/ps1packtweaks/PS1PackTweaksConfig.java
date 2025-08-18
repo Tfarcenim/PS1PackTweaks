@@ -57,10 +57,14 @@ public class PS1PackTweaksConfig {
         public final ForgeConfigSpec.DoubleValue disappearingLogsChance;
         public final ForgeConfigSpec.IntValue disappearingLogsDelay;
 
-        //public final ForgeConfigSpec.DoubleValue tunnelChance;
+        public final ForgeConfigSpec.DoubleValue tunnelChance;
         public final ForgeConfigSpec.IntValue tunnelSizeMin;
+        public final ForgeConfigSpec.IntValue tunnelDelay;
         public final ForgeConfigSpec.IntValue tunnelSizeMax;
         public final ForgeConfigSpec.DoubleValue tunnelTorchChance;
+        public final ForgeConfigSpec.IntValue tunnelYMax;
+
+        public final ForgeConfigSpec.IntValue randomSoundDelay;
 
         Server(ForgeConfigSpec.Builder builder) {
             builder.push("tweaks");
@@ -84,10 +88,13 @@ public class PS1PackTweaksConfig {
             disappearingLogsChance = builder.defineInRange("disappearing_logs_chance",.5,0,1);
             disappearingLogsDelay = builder.defineInRange("disappearing_logs_delay",10000,1,1000000000);
 
-            /*tunnelChance = builder.defineInRange("tunnel_chance",1/256d,0,1);*/
+            tunnelChance = builder.defineInRange("tunnel_chance",1/4d,0,1);
+            tunnelDelay = builder.defineInRange("tunnel_delay",50000,0,1);
             tunnelSizeMin = builder.defineInRange("tunnel_size_min",16,1,200);
             tunnelSizeMax = builder.defineInRange("tunnel_size_max",32,1,200);
             tunnelTorchChance = builder.defineInRange("tunnel_torch_chance",.25,0,1);
+            tunnelYMax = builder.comment("Max Y at which to rarely place extra tunnels").defineInRange("tunnel_y_max",16,-2048,2048);
+            randomSoundDelay = builder.defineInRange("random_sound_delay",50000,1,1000000000);
 
 
             builder.push("herobrine");
@@ -100,6 +107,7 @@ public class PS1PackTweaksConfig {
             herobrineEvent1Weight = builder.defineInRange("run_on_seen_weight",4,0,500000000);
             herobrineEvent2Weight = builder.defineInRange("teleport_on_seen_weight",2,0,500000000);
             herobrineEvent3Weight = builder.defineInRange("lurker_weight",1,0,500000000);
+
 
             builder.pop();
 
@@ -140,6 +148,8 @@ public class PS1PackTweaksConfig {
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> inventorypause_screens;
         public final ForgeConfigSpec.DoubleValue herobrine_skin_chance;
 
+        public final ForgeConfigSpec.BooleanValue disableColorMaps;
+
         //
 
         Client(ForgeConfigSpec.Builder builder) {
@@ -163,6 +173,8 @@ public class PS1PackTweaksConfig {
 
             inventorypause_screens = builder.defineList("screens",defaultClasses(), o -> o instanceof String);
             herobrine_skin_chance = builder.defineInRange("herobrine_skin_chance",1/64d,0,1);
+
+            disableColorMaps = builder.comment("Disables colormaps for leaves, grass and water").define("disable_color_maps",true);
 
             builder.pop();
 

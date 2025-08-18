@@ -1,5 +1,6 @@
 package tfar.ps1packtweaks;
 
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -7,14 +8,15 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.NaturalSpawner;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.FluidState;
@@ -32,6 +34,133 @@ public class CustomEvents {
         tickFallingAnimalSpawn(player);
         tickVanishingLeaves(player);
         tickVanishingLogs(player);
+        tickTunnels(player);
+        playRandomSound(player);
+    }
+
+
+    // Doors opening, player taking damage, player falling, item pickup, footsteps, block breaking.
+    enum RandomSoundEvent{
+        DOOR_OPEN,PLAYER_HURT,PLAYER_FALL,ITEM_PICKUP,FOOTSTEPS,BLOCK_BREAK;
+        static final RandomSoundEvent[] VALUES = values();
+    }
+
+    static void playRandomSound(ServerPlayer player) {
+        ServerLevel level = player.getLevel();
+        if (level.dimension() == Level.OVERWORLD) {
+            long time = level.getGameTime();
+            if (time % PS1PackTweaksConfig.SERVER.randomSoundDelay.get() == 0) {
+                Random random = player.getRandom();
+                RandomSoundEvent randomSoundEvent = RandomSoundEvent.VALUES[random.nextInt(RandomSoundEvent.VALUES.length)];
+                switch (randomSoundEvent) {
+                    case DOOR_OPEN -> {
+                        int attempt = 0;
+                        int r = 16;
+                        while (attempt < 64) {
+                            attempt++;
+                            BlockPos pos = getRandomInCube(player.blockPosition(),r,random);
+                            BlockState state = level.getBlockState(pos);
+                            if (state.getBlock() instanceof DoorBlock doorBlock) {
+                                doorBlock.playSound(level,pos,!state.getValue(DoorBlock.OPEN));
+                                break;
+                            } else if (state.getBlock() instanceof TrapDoorBlock trapDoorBlock) {
+                                trapDoorBlock.playSound(player,level,pos,state.getValue(TrapDoorBlock.OPEN));
+                                break;
+                            } else {
+                                continue;
+                            }
+                        }
+                        //oh well
+                    }
+                    case FOOTSTEPS -> {
+                        int attempt = 0;
+                        int r = 16;
+                        while (attempt < 64) {
+                            attempt++;
+                            BlockPos pos = getRandomInCube(player.blockPosition(), r, random);
+                            BlockState state = level.getBlockState(pos);
+                            if (!state.getCollisionShape(level,pos).isEmpty() && !state.getMaterial().isLiquid()) {
+                                playStepSound(player,pos,state);
+                                break;
+                            }
+                        }
+                    }
+                    case PLAYER_HURT -> {
+                        int attempt = 0;
+                        int r = 16;
+                        while (attempt < 64) {
+                            attempt++;
+                            BlockPos pos = getRandomInCube(player.blockPosition(), r, random);
+                            BlockState state = level.getBlockState(pos);
+                            if (!state.getCollisionShape(level,pos).isEmpty() && !state.getMaterial().isLiquid()) {
+                                player.level.playSound(null,pos, SoundEvents.PLAYER_HURT,player.getSoundSource(), 1,1);
+                                break;
+                            }
+                        }
+                    }
+                    case PLAYER_FALL -> {
+                        int attempt = 0;
+                        int r = 16;
+                        while (attempt < 64) {
+                            attempt++;
+                            BlockPos pos = getRandomInCube(player.blockPosition(), r, random);
+                            BlockState state = level.getBlockState(pos);
+                            if (!state.getCollisionShape(level,pos).isEmpty() && !state.getMaterial().isLiquid()) {
+                                playBlockFallSound(player,pos);
+                                break;
+                            }
+                        }
+                    }
+                    case BLOCK_BREAK -> {
+                        int attempt = 0;
+                        int r = 16;
+                        while (attempt < 64) {
+                            attempt++;
+                            BlockPos pos = getRandomInCube(player.blockPosition(), r, random);
+                            BlockState state = level.getBlockState(pos);
+                            if (!state.getCollisionShape(level,pos).isEmpty() && !state.getMaterial().isLiquid()) {
+                                level.levelEvent(player, LevelEvent.PARTICLES_DESTROY_BLOCK, pos, Block.getId(state));
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Plays the fall sound for the block landed on
+     */
+    protected static void playBlockFallSound(ServerPlayer player, BlockPos pos) {
+        if (!player.isSilent()) {
+            int i = Mth.floor(pos.getX());
+            int j = Mth.floor(pos.getY() - (double)0.2F);
+            int k = Mth.floor(pos.getZ());
+            pos = new BlockPos(i, j, k);
+            BlockState blockstate = player.level.getBlockState(pos);
+            if (!blockstate.isAir()) {
+                SoundType soundtype = blockstate.getSoundType(player.level, pos, player);
+                player.level.playSound(null,pos, soundtype.getFallSound(),player.getSoundSource(), soundtype.getVolume() * 0.5F, soundtype.getPitch() * 0.75F);
+                //this.playSound(soundtype.getFallSound(), soundtype.getVolume() * 0.5F, soundtype.getPitch() * 0.75F);
+            }
+        }
+    }
+
+    protected static void playStepSound(ServerPlayer player,BlockPos pPos, BlockState pState) {
+        if (!pState.getMaterial().isLiquid()) {
+            BlockState blockstate = player.level.getBlockState(pPos.above());
+            SoundType soundtype = blockstate.is(Blocks.SNOW) ? blockstate.getSoundType(player.level, pPos, player) : pState.getSoundType(player.level, pPos, player);
+            player.level.playSound(null,pPos,soundtype.getStepSound(),player.getSoundSource(), soundtype.getVolume() * 0.15F, soundtype.getPitch());
+        }
+    }
+
+
+    static BlockPos getRandomInCube(BlockPos pos,int r,Random random) {
+        int x = pos.getX()+ pickNumber(random,r);
+        int y = pos.getY()+ pickNumber(random,r);
+        int z = pos.getZ()+ pickNumber(random,r);
+        return new BlockPos(x,y,z);
     }
 
     static void tickFallingAnimalSpawn(ServerPlayer player) {
@@ -157,35 +286,76 @@ public class CustomEvents {
     // There should occasionally be a redstone torch in these tunnels.
 
     public static void tickTunnels(ServerPlayer player) {
-        if (player.getRandom().nextDouble() < 0) {
-            Direction direction = player.getDirection().getOpposite();
-            int length = PS1PackTweaksConfig.SERVER.tunnelSizeMin.get() + player.getRandom().nextInt(PS1PackTweaksConfig.SERVER.tunnelSizeMax.get()
-                    - PS1PackTweaksConfig.SERVER.tunnelSizeMin.get());
+        ServerLevel serverLevel = player.getLevel();
 
-            boolean withTorch = player.getRandom().nextDouble() < PS1PackTweaksConfig.SERVER.tunnelTorchChance.get();
+        long tick = serverLevel.getGameTime();
+        if (tick % PS1PackTweaksConfig.SERVER.tunnelDelay.get() == 0 && player.getRandom().nextDouble() < PS1PackTweaksConfig.SERVER.tunnelChance.get()) {
+            Random random =player.getRandom();
+            Pair<BlockPos, Direction> tunnelPos = pickRandomTunnelStartPos(serverLevel, random, player.blockPosition(),PS1PackTweaksConfig.SERVER.tunnelYMax.get());
 
-            ServerLevel level = player.getLevel();
+            if (tunnelPos != null) {
+                Direction direction = tunnelPos.getSecond().getOpposite();
+                int length = PS1PackTweaksConfig.SERVER.tunnelSizeMin.get() + player.getRandom().nextInt(PS1PackTweaksConfig.SERVER.tunnelSizeMax.get()
+                        - PS1PackTweaksConfig.SERVER.tunnelSizeMin.get());
 
-            BlockPos origin = player.blockPosition().relative(direction,2);
-            for (int i = 0; i < length;i++) {
-                BlockPos relative = origin.relative(direction, i);
-                BlockPos relativeAbove = origin.relative(Direction.UP).relative(direction, i);
+                boolean withTorch = player.getRandom().nextDouble() < PS1PackTweaksConfig.SERVER.tunnelTorchChance.get();
 
-                BlockPos relativeSide = origin.relative(direction, i).relative(direction.getClockWise());
-                BlockPos relativeSideAbove = origin.relative(Direction.UP).relative(direction, i).relative(direction.getClockWise());
-                List<BlockPos> toTunnel = List.of(relative,relativeAbove,relativeSide,relativeSideAbove);
-                for (BlockPos pos : toTunnel) {
-                    BlockState state = level.getBlockState(pos);
-                    if (state.getDestroySpeed(level,pos) >= 0) {
-                        level.destroyBlock(pos,false);
-                        if (withTorch) {
-                            level.setBlockAndUpdate(pos,Blocks.REDSTONE_TORCH.defaultBlockState());
-                            withTorch = false;
+                ServerLevel level = player.getLevel();
+
+                BlockPos origin = tunnelPos.getFirst();
+                BlockState torchState =  Blocks.REDSTONE_TORCH.defaultBlockState();
+                for (int i = 0; i < length; i++) {
+                    BlockPos relative = origin.relative(direction, i);
+                    BlockPos relativeAbove = origin.relative(Direction.UP).relative(direction, i);
+
+                    BlockPos relativeSide = origin.relative(direction, i).relative(direction.getClockWise());
+                    BlockPos relativeSideAbove = origin.relative(Direction.UP).relative(direction, i).relative(direction.getClockWise());
+                    List<BlockPos> toTunnel = List.of(relative, relativeAbove, relativeSide, relativeSideAbove);
+                    for (BlockPos pos : toTunnel) {
+                        BlockState state = level.getBlockState(pos);
+                        if (state.getDestroySpeed(level, pos) >= 0) {
+                            level.destroyBlock(pos, false);
+                            if (withTorch && torchState.canSurvive(level,pos)) {
+                                level.setBlockAndUpdate(pos,torchState);
+                                withTorch = false;
+                            }
                         }
                     }
                 }
             }
         }
+    }
+
+    static Pair<BlockPos,Direction> pickRandomTunnelStartPos(ServerLevel level, Random random, BlockPos playerPos, int maxY) {
+        int attempt = 0;
+        int r = 128;
+        int xOrigin = playerPos.getX();
+        int zOrigin = playerPos.getZ();
+        int minTunnelHeight = level.getMinBuildHeight();
+        int maxTunnelHeight =Math.min(maxY,level.getMaxBuildHeight())-1;
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+        while (attempt < 128) {
+            attempt++;
+            int x = xOrigin + pickNumber(random,r);
+            int y = minTunnelHeight + random.nextInt(maxTunnelHeight - minTunnelHeight+1);
+            int z = zOrigin + pickNumber(random,r);
+            pos.set(x,y,z);
+            if (pos.distSqr(playerPos) < 1024) continue;
+
+            if (!level.getBlockState(pos).is(ModTags.CAN_TUNNEL_THROUGH)) continue;
+
+            for (Direction direction : h_directions) {
+                boolean adjacent = level.getBlockState(pos.relative(direction)).isAir();
+                if (!adjacent)continue;
+                return Pair.of(pos,direction);
+            }
+
+        }
+        return null;
+    }
+
+    static int pickNumber(Random random,int r) {
+        return random.nextInt(2*r+1)-r;
     }
 
     static final Direction[] h_directions = new Direction[]{Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
