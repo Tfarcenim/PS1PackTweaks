@@ -7,9 +7,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.NonNullList;
-import net.minecraft.data.worldgen.placement.VegetationPlacements;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.stats.Stats;
@@ -20,15 +20,17 @@ import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.HalfTransparentBlock;
-import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
+import net.minecraft.world.level.block.entity.TrappedChestBlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -55,6 +57,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.FMLLoader;
+import net.minecraftforge.items.CapabilityItemHandler;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import tfar.ps1packtweaks.client.PS1PackTweaksClient;
@@ -76,6 +79,7 @@ import tfar.ps1packtweaks.worldgen.ModConfiguredFeatures;
 import tfar.ps1packtweaks.worldgen.ModPlacedFeatures;
 
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -113,8 +117,28 @@ public class PS1PackTweaks {
         MinecraftForge.EVENT_BUS.addListener(this::rightClick);
         MinecraftForge.EVENT_BUS.addListener(this::changeDims);
         MinecraftForge.EVENT_BUS.addListener(this::playerTick);
-        MinecraftForge.EVENT_BUS.addListener(this::breakBlock);
+        //MinecraftForge.EVENT_BUS.addListener(this::breakBlock);
         MinecraftForge.EVENT_BUS.addListener(this::biomeLoading);
+    }
+
+    ////[Items appearing in chests] - Redstone torch, leaves, logs, rotten flesh. These items should randomly appear in player placed chests.
+    public static final List<Item> items = List.of(Items.REDSTONE_TORCH,Items.OAK_LEAVES,Items.OAK_LOG,Items.ROTTEN_FLESH);
+    public static void onRandomTick(BlockBehaviour block, BlockState pState, ServerLevel pLevel, BlockPos pPos, Random pRandom) {
+        if (block == Blocks.TRAPPED_CHEST || block == Blocks.CHEST) {
+            BlockEntity blockEntity = pLevel.getBlockEntity(pPos);
+            if (pRandom.nextDouble() < PS1PackTweaksConfig.SERVER.randomItemsInChestChance.get() &&
+                    blockEntity instanceof ChestBlockEntity chestBlockEntity && blockEntity.getTileData().getBoolean("ps1packtweaks:player_placed")) {
+                Item item = items.get(pRandom.nextInt(items.size()));
+                chestBlockEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(iItemHandler -> {
+                    int slots = iItemHandler.getSlots();
+                    ItemStack stack = item.getDefaultInstance();
+                    for (int i = 0; i < slots;i++) {
+                        stack = iItemHandler.insertItem(i,stack,false);
+                        if (stack.isEmpty())break;
+                    }
+                });
+            }
+        }
     }
 
     public void breakBlock(BlockEvent.BreakEvent event) {
@@ -300,6 +324,8 @@ public class PS1PackTweaks {
             if (ModIntegration.brewingcauldron.loaded) {
                 BrewingCauldronCompat.setup();
             }
+            ((BlockAccess)Blocks.CHEST).setIsRandomlyTicking(true);
+            ((BlockAccess)Blocks.TRAPPED_CHEST).setIsRandomlyTicking(true);
         });
     }
 

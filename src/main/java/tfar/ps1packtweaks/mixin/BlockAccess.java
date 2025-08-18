@@ -14,4 +14,6 @@ public interface BlockAccess {
     void setDrops(ResourceLocation drops);
           //new ResourceLocation(this.getRegistryName().getNamespace(), "blocks/" + this.getRegistryName().getPath());
     @Accessor @Mutable void setLootTableSupplier(Supplier<ResourceLocation> supplier);
+
+    @Accessor @Mutable void setIsRandomlyTicking(boolean randomlyTicking);
 }

@@ -34,7 +34,7 @@ public class TunnelFeature extends Feature<TunnelConfiguration> {
         boolean placeTorch = random.nextDouble() < config.torchChance();
         for (int i = 0; i < length;i++) {
             BlockPos pos = blockpos.relative(direction,i);
-            if (!level.getBlockState(pos).isAir()) {
+            if (!level.getBlockState(pos).isAir() && !level.getBlockState(pos).getMaterial().isLiquid()) {
                 blockCount++;
             } else {
                 continue;

@@ -65,6 +65,7 @@ public class PS1PackTweaksConfig {
         public final ForgeConfigSpec.IntValue tunnelYMax;
 
         public final ForgeConfigSpec.IntValue randomSoundDelay;
+        public final ForgeConfigSpec.DoubleValue randomItemsInChestChance;
 
         Server(ForgeConfigSpec.Builder builder) {
             builder.push("tweaks");
@@ -108,6 +109,8 @@ public class PS1PackTweaksConfig {
             herobrineEvent2Weight = builder.defineInRange("teleport_on_seen_weight",2,0,500000000);
             herobrineEvent3Weight = builder.defineInRange("lurker_weight",1,0,500000000);
 
+            randomItemsInChestChance = builder.comment("Chance to put random items in chest when randomly ticked")
+                    .defineInRange("random_items_in_chest",1/64d,0,1);
 
             builder.pop();
 
@@ -154,8 +157,10 @@ public class PS1PackTweaksConfig {
 
         Client(ForgeConfigSpec.Builder builder) {
             builder.push("tweaks");
-            singleplayer_chat_settings = ConfigHelper.defineObject(builder.comment("FULL,SYSTEM,HIDDEN"),"singleplayer_chat_settings",ChatSettings.CODEC,ChatSettings.DEFAULT_SINGLEPLAYER);
-            multiplayer_chat_settings = ConfigHelper.defineObject(builder.comment("FULL,SYSTEM,HIDDEN"),"multiplayer_chat_settings",ChatSettings.CODEC,ChatSettings.DEFAULT_MULTIPLAYER);
+            singleplayer_chat_settings = ConfigHelper.defineObject(builder.comment("FULL,SYSTEM,HIDDEN"),"singleplayer_chat_settings",
+                    ChatSettings.CODEC,ChatSettings.DEFAULT_SINGLEPLAYER);
+            multiplayer_chat_settings = ConfigHelper.defineObject(builder.comment("FULL,SYSTEM,HIDDEN"),"multiplayer_chat_settings",
+                    ChatSettings.CODEC,ChatSettings.DEFAULT_MULTIPLAYER);
             hideTitleMouseTimer = builder.defineInRange("hide_title_mouse_timer",1000,1,1000000);
 
             take_random_screenshots = builder.define("take_random_screenshots",true);
