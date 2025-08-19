@@ -12,6 +12,7 @@
     "BlockBehaviourMixin",
     "BlockStateAccess",
     "ChestBlockMixin",
+    "FoliageColorMixin",
     "GlassyMixin",
     "ItemAccess",
     "LivingEntityMixin",

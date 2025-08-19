@@ -91,7 +91,7 @@ public class PS1PackTweaksClient {
 
     public static final ResourceLocation HEROBRINE_SKIN = PS1PackTweaks.id("textures/entity/herobrine.png");
 
-    public static Map<String,ResourceKey<Level>> discMap;
+    public static Map<String, ResourceKey<Level>> discMap;
 
     public static ResourceKey<Level> DISC = Level.OVERWORLD;
     public static boolean showDisc;
@@ -113,10 +113,10 @@ public class PS1PackTweaksClient {
         pFlagPart.render(pPoseStack, pFlagMaterial.buffer(pBufferSource, RenderType::entitySolid, pGlint), pPackedLight, pPackedOverlay);
 
         DyeColor color = DyeColor.BLACK;
-            float[] afloat = color.getTextureDiffuseColors();
-            BannerPattern bannerpattern =TyrannoBanners.TYRANNOTITAN;
-            Material material = pBanner ? Sheets.getBannerMaterial(bannerpattern) : Sheets.getShieldMaterial(bannerpattern);
-            pFlagPart.render(pPoseStack, material.buffer(pBufferSource, RenderType::entityNoOutline), pPackedLight, pPackedOverlay, afloat[0], afloat[1], afloat[2], 1.0F);
+        float[] afloat = color.getTextureDiffuseColors();
+        BannerPattern bannerpattern = TyrannoBanners.TYRANNOTITAN;
+        Material material = pBanner ? Sheets.getBannerMaterial(bannerpattern) : Sheets.getShieldMaterial(bannerpattern);
+        pFlagPart.render(pPoseStack, material.buffer(pBufferSource, RenderType::entityNoOutline), pPackedLight, pPackedOverlay, afloat[0], afloat[1], afloat[2], 1.0F);
     }
 
     //lowest
@@ -150,14 +150,14 @@ public class PS1PackTweaksClient {
     public static void init(IEventBus bus) {
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, PS1PackTweaksConfig.CLIENT_SPEC);
         bus.addListener(PS1PackTweaksClient::setup);
-        bus.addListener(EventPriority.LOWEST,PS1PackTweaksClient::removeBlockColors);
+        bus.addListener(EventPriority.LOWEST, PS1PackTweaksClient::removeBlockColors);
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::joinServer);
         MinecraftForge.EVENT_BUS.addListener(MouseHider::startupScreen);
         MinecraftForge.EVENT_BUS.addListener(MouseHider::clientTick);
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::replaceBackground);
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::logout);
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::clientTick);
-        MinecraftForge.EVENT_BUS.addListener(EventPriority.LOW,PS1PackTweaksClient::message);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.LOW, PS1PackTweaksClient::message);
 
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::onOpenGUI);
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::onGUIDrawPost);
@@ -172,7 +172,7 @@ public class PS1PackTweaksClient {
         map.entrySet().removeIf(iRegistryDelegateBlockColorEntry -> {
             Block block = iRegistryDelegateBlockColorEntry.getKey().get();
             boolean b = block instanceof LeavesBlock || block instanceof LiquidBlock || block instanceof GrassBlock ||
-                    block instanceof BushBlock||block instanceof VineBlock;
+                    block instanceof BushBlock || block instanceof VineBlock;
             if (b && PS1PackTweaks.DEV) {
                 PS1PackTweaks.LOGGER.info("Removed color from: {}", block);
             }
@@ -188,7 +188,7 @@ public class PS1PackTweaksClient {
                 if (level != null && level.getGameTime() % PS1PackTweaksConfig.CLIENT.screenshot_interval.get() == 0) {
                     isAutoScreenshot = true;
                     Screenshot.grab(minecraft.gameDirectory, minecraft.getMainRenderTarget(), component -> {
-                        PS1PackTweaks.LOGGER.info("Took automatic screenshot: {}",component);
+                        PS1PackTweaks.LOGGER.info("Took automatic screenshot: {}", component);
                     });
                     isAutoScreenshot = false;
                 }
@@ -198,7 +198,7 @@ public class PS1PackTweaksClient {
 
     static void message(ScreenshotEvent event) {
         if (!isAutoScreenshot) {
-            Minecraft.getInstance().player.displayClientMessage(new TextComponent(PS1PackTweaksConfig.CLIENT.screenshot_message.get()),true);
+            Minecraft.getInstance().player.displayClientMessage(new TextComponent(PS1PackTweaksConfig.CLIENT.screenshot_message.get()), true);
             //event.setResultMessage(new TextComponent(PS1PackTweaksConfig.CLIENT.screenshot_message.get()));
         }
     }
@@ -221,7 +221,7 @@ public class PS1PackTweaksClient {
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1);
             String s = DISC.location().getPath();
-            RenderSystem.setShaderTexture(0, PS1PackTweaks.id("textures/gui/background/"+s+".png"));
+            RenderSystem.setShaderTexture(0, PS1PackTweaks.id("textures/gui/background/" + s + ".png"));
             Tesselator tesselator = Tesselator.getInstance();
             BufferBuilder bufferbuilder = tesselator.getBuilder();
             bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
@@ -241,21 +241,28 @@ public class PS1PackTweaksClient {
     //LevelLoadingScreen -> ProgressScreen -> ReceivingLevelScreen
 
     static void setup(FMLClientSetupEvent event) {
-        EntityRenderers.register(Init.ModEntityTypes.BARNACLE,BarnacleRenderer::new);
-        EntityRenderers.register(Init.ModEntityTypes.SCRIPTED_MIDNIGHT_LURKER,ScriptedMidnightLurkerRenderer::new);
+        EntityRenderers.register(Init.ModEntityTypes.BARNACLE, BarnacleRenderer::new);
+        EntityRenderers.register(Init.ModEntityTypes.SCRIPTED_MIDNIGHT_LURKER, ScriptedMidnightLurkerRenderer::new);
 
         EntityRenderers.register(Init.ModEntityTypes.HEROBRINE, (EntityRendererProvider.Context context) -> new SimplePlayerRenderer<>(context,
-                false,PS1PackTweaks.id("textures/entity/herobrine.png")));
+                false, PS1PackTweaks.id("textures/entity/herobrine.png")));
 
         if (ModIntegration.guicompass.loaded) {
             BetterGuiCompassHUD.setup();
         }
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::playSoundEvent);
         if (PS1PackTweaks.TRIGGER_BANNER_CRASH) {
-            OverlayRegistry.registerOverlayTop("banner_crash",banner_overlay);
+            OverlayRegistry.registerOverlayTop("banner_crash", banner_overlay);
         }
 
         ClientRegistry.registerKeyBinding(COPY_CLASS_NAME.get());
+
+        event.enqueueWork(() -> {
+            BiomeColors.FOLIAGE_COLOR_RESOLVER = (biome, v, v1) -> 0xffffffff;
+            BiomeColors.GRASS_COLOR_RESOLVER = (biome, v, v1) -> 0xffffffff;
+            BiomeColors.WATER_COLOR_RESOLVER = (biome, v, v1) -> 0xffffffff;
+        });
+
     }
 
     static void joinServer(ClientPlayerNetworkEvent.LoggedInEvent event) {
@@ -333,7 +340,7 @@ public class PS1PackTweaksClient {
             }
         }
 
-        PS1PackTweaksClient.discMap.put(levelName,clientLevel.dimension());
+        PS1PackTweaksClient.discMap.put(levelName, clientLevel.dimension());
         PS1PackTweaksClient.write();
     }
 
@@ -354,8 +361,8 @@ public class PS1PackTweaksClient {
 
 
             JsonObject jsonObject = new JsonObject();
-            for (Map.Entry<String,ResourceKey<Level>> entry : discMap.entrySet()) {
-                jsonObject.addProperty(entry.getKey(),entry.getValue().location().toString());
+            for (Map.Entry<String, ResourceKey<Level>> entry : discMap.entrySet()) {
+                jsonObject.addProperty(entry.getKey(), entry.getValue().location().toString());
             }
 
             gson.toJson(jsonObject, writer);
@@ -371,20 +378,20 @@ public class PS1PackTweaksClient {
 
     public static void handle(ResourceKey<Level> key) {
         if (DISC != key) {
-        DISC = key;
-        showDisc = true;
+            DISC = key;
+            showDisc = true;
         }
     }
 
     public static void onPerspectiveChange(CameraType cameraType, CameraType pPointOfView) {
         LocalPlayer player = Minecraft.getInstance().player;
-        if (player!=null) {
+        if (player != null) {
             if (cameraType.isFirstPerson() && !pPointOfView.isFirstPerson()) {
                 if (PS1PackTweaksConfig.CLIENT.herobrine_skin_chance.get() > player.getRandom().nextDouble()) {
-                    ((AbstractClientPlayerDuck)player).setHerobrine(true);
+                    ((AbstractClientPlayerDuck) player).setHerobrine(true);
                 }
-            }else if(!cameraType.isFirstPerson() && pPointOfView.isFirstPerson()) {
-                ((AbstractClientPlayerDuck)player).setHerobrine(false);
+            } else if (!cameraType.isFirstPerson() && pPointOfView.isFirstPerson()) {
+                ((AbstractClientPlayerDuck) player).setHerobrine(false);
             }
         }
     }
@@ -392,7 +399,7 @@ public class PS1PackTweaksClient {
     public static boolean isPauseScreen(Screen caller) {
 
         for (String s : PS1PackTweaksConfig.CLIENT.inventorypause_screens.get()) {
-            if(caller.getClass().getName().equals(s)) {
+            if (caller.getClass().getName().equals(s)) {
                 return true;
             }
         }
