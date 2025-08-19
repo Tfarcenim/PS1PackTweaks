@@ -10,6 +10,7 @@
     "ArrowInfiniteEnchantmentMixin",
     "BlockAccess",
     "BlockBehaviourMixin",
+    "BlockColorsMixin",
     "BlockStateAccess",
     "ChestBlockMixin",
     "FoliageColorMixin",

@@ -276,6 +276,13 @@ public class PS1PackTweaksClient {
         }
     }
 
+    public static boolean shouldRemoveColor(Block[] blocks) {
+        if (blocks.length== 0) return false;
+        Block firstBlock = blocks[0];
+        return firstBlock instanceof LeavesBlock || firstBlock instanceof LiquidBlock || firstBlock instanceof GrassBlock ||
+                firstBlock instanceof BushBlock || firstBlock instanceof VineBlock || firstBlock instanceof WaterlilyBlock;
+    }
+
     static void playSoundEvent(PlaySoundEvent event) {
         SoundInstance sound = event.getOriginalSound();
         String name = event.getName();
