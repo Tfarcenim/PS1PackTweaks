@@ -35,6 +35,7 @@
     "BlockColorsAccess",
     "ClientPacketListenerMixin",
     "IntegratedServerMixin",
+    "InventoryScreenMixin",
     "LavaSlimeModelMixin",
     "LevelRendererMixin",
     "LiquidBlockRendererMixin",

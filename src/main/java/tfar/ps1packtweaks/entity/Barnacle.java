@@ -45,11 +45,13 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.geckolib3.resource.GeckoLibCache;
+import software.bernie.geckolib3.util.GeckoLibUtil;
 import tfar.ps1packtweaks.Init;
 import tfar.ps1packtweaks.PS1PackTweaksConfig;
 
 import java.util.*;
 
+//see https://github.com/How-Bout-No/Outvoted/blob/forge1.18/src/main/java/io/github/how_bout_no/outvoted/entity/Barnacle.java
 public class Barnacle extends Monster implements IAnimatable {
     private static final EntityDataAccessor<Integer> ATTACKING;
     private static final EntityDataAccessor<Integer> TARGET_ENTITY;
@@ -64,7 +66,7 @@ public class Barnacle extends Monster implements IAnimatable {
     public Barnacle(EntityType<? extends Barnacle> type, Level worldIn) {
         super(type, worldIn);
         this.xpReward = 10;
-        this.setPathfindingMalus(BlockPathTypes.WATER, 0.0F);
+        this.setPathfindingMalus(BlockPathTypes.WATER, 0);
         this.moveControl = new MoveHelperController(this);
     }
 
@@ -107,7 +109,9 @@ public class Barnacle extends Monster implements IAnimatable {
     }
 
     public static boolean canSpawn(EntityType<Barnacle> entity, LevelAccessor world, MobSpawnType spawnReason, BlockPos blockPos, Random random) {
-        return blockPos.getY() >= world.getHeight(Heightmap.Types.OCEAN_FLOOR, blockPos.getX(), blockPos.getZ()) && world.getDifficulty() != Difficulty.PEACEFUL && blockPos.getY() <= 45.0 && (spawnReason == MobSpawnType.SPAWNER || world.getFluidState(blockPos).is(FluidTags.WATER));
+        boolean heightCheck = blockPos.getY() >= world.getHeight(Heightmap.Types.OCEAN_FLOOR, blockPos.getX(), blockPos.getZ()) && world.getDifficulty() != Difficulty.PEACEFUL && blockPos.getY() <= 45.0;
+        boolean b = heightCheck && (spawnReason == MobSpawnType.SPAWNER || world.getFluidState(blockPos).is(FluidTags.WATER));
+        return b;
     }
 
     public int getMaxSpawnClusterSize() {
@@ -550,13 +554,13 @@ public class Barnacle extends Monster implements IAnimatable {
         }
     }
 
-    private final AnimationFactory factory = new AnimationFactory(this);
+    private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
 
     public <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
         int phase = this.getAttackPhase();
         LivingEntity livingEntity = this.getTargetedEntity();
-        if (this.hasTargetedEntity() && phase > 0 && livingEntity != null && livingEntity.position() != null) {
-            GeckoLibCache.getInstance().parser.setValue("distance", this.distanceToSqr(livingEntity) + 15);
+        if (this.hasTargetedEntity() && phase > 0 && livingEntity != null) {
+            GeckoLibCache.getInstance().parser.setValue("distance",() -> this.distanceToSqr(livingEntity) + 15);
         }
         if (event.getController().getCurrentAnimation() == null || event.getController().getCurrentAnimation().animationName == null) {
             event.getController().setAnimation(new AnimationBuilder().addAnimation("swim"));
