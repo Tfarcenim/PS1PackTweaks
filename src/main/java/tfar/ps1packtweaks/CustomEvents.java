@@ -14,15 +14,19 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import tfar.ps1packtweaks.entity.HerobrineEntity;
+import tfar.ps1packtweaks.entity.InvisibleEntity;
 import tfar.ps1packtweaks.util.TreeScanner;
 
 import java.util.*;
@@ -36,6 +40,58 @@ public class CustomEvents {
         tickVanishingLogs(player);
         tickTunnels(player);
         playRandomSound(player);
+        burnWhenLookingUp(player);
+        breakLookedAtGlass(player);
+        invisibleEntity(player);
+    }
+
+    static void invisibleEntity(ServerPlayer player) {
+        if(player.getRandom().nextDouble() <PS1PackTweaksConfig.SERVER.invisible_entity_chance.get()){
+            BlockPos pos = player.blockPosition();
+            int attempt = 0;
+            BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
+            while (attempt <64){
+                attempt++;
+                int x = pos.getX() + pickNumber(player.getRandom(),16);
+                int y = pos.getX() + pickNumber(player.getRandom(),16);
+                int z = pos.getX() + pickNumber(player.getRandom(),16);
+                mutableBlockPos.set(x,y,z);
+                if (NaturalSpawner.isSpawnPositionOk(SpawnPlacements.Type.ON_GROUND,player.getLevel(),mutableBlockPos,Init.ModEntityTypes.INVISIBLE_ENTITY)) {
+                    InvisibleEntity entity = (InvisibleEntity) Init.ModEntityTypes.INVISIBLE_ENTITY.spawn(player.getLevel(), null, null,
+                            mutableBlockPos,MobSpawnType.EVENT,false,false);
+                    entity.setInvisible(true);
+                    break;
+                }
+            }
+        }
+
+    }
+
+    static void breakLookedAtGlass(ServerPlayer player) {
+        BlockHitResult trace = (BlockHitResult) player.pick(5,0,false);
+        BlockPos pos = trace.getBlockPos();
+        BlockState state = player.level.getBlockState(pos);
+        if (state.is(ModTags.HEROBRINE_SPAWNS_BEHIND) && player.getRandom().nextDouble() < PS1PackTweaksConfig.SERVER.break_glass_looked_at_chance.get()) {
+            player.level.destroyBlock(pos,true);
+        }
+    }
+
+    static void burnWhenLookingUp(ServerPlayer player) {
+        boolean isEligibleToBurn = isSunBurnTick(player);
+        if (isEligibleToBurn) {
+            player.setSecondsOnFire(1);
+        }
+    }
+
+    protected static boolean isSunBurnTick(LivingEntity entity) {
+        if (entity.getXRot() < -60 && entity.getRandom().nextDouble() < PS1PackTweaksConfig.SERVER.look_up_burn_chance.get() && entity.level.isDay() && !entity.level.isClientSide) {
+            float f = entity.getBrightness();
+            BlockPos blockpos = new BlockPos(entity.getX(), entity.getEyeY(), entity.getZ());
+            boolean flag = entity.isInWaterRainOrBubble() || entity.isInPowderSnow || entity.wasInPowderSnow;
+            return f > 0.5F && entity.getRandom().nextFloat() * 30.0F < (f - 0.4F) * 2.0F && !flag && entity.level.canSeeSky(blockpos);
+        }
+
+        return false;
     }
 
 

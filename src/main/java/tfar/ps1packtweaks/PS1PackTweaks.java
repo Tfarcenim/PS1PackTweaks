@@ -70,6 +70,7 @@ import tfar.ps1packtweaks.compat.MoreHorseArmorCompat;
 import tfar.ps1packtweaks.datagen.ModDataGenerator;
 import tfar.ps1packtweaks.entity.Barnacle;
 import tfar.ps1packtweaks.entity.HerobrineEntity;
+import tfar.ps1packtweaks.entity.InvisibleEntity;
 import tfar.ps1packtweaks.entity.ScriptedMidnightLurker;
 import tfar.ps1packtweaks.mixin.BlockAccess;
 import tfar.ps1packtweaks.mixin.BlockStateAccess;
@@ -220,7 +221,9 @@ public class PS1PackTweaks {
     void registerEntities(RegistryEvent.Register<EntityType<?>> event) {
         event.getRegistry().registerAll(Init.ModEntityTypes.BARNACLE.setRegistryName("barnacle"),
                 Init.ModEntityTypes.HEROBRINE.setRegistryName("herobrine"),
-                Init.ModEntityTypes.SCRIPTED_MIDNIGHT_LURKER.setRegistryName("scripted_midnight_lurker"));
+                Init.ModEntityTypes.SCRIPTED_MIDNIGHT_LURKER.setRegistryName("scripted_midnight_lurker"),
+                Init.ModEntityTypes.INVISIBLE_ENTITY.setRegistryName("invisible_entity")
+        );
     }
 
     void registerSounds(RegistryEvent.Register<SoundEvent> event) {
@@ -304,6 +307,7 @@ public class PS1PackTweaks {
         event.put(Init.ModEntityTypes.BARNACLE, Barnacle.setCustomAttributes().build());
         event.put(Init.ModEntityTypes.SCRIPTED_MIDNIGHT_LURKER, ScriptedMidnightLurker.createAttributes().build());
         event.put(Init.ModEntityTypes.HEROBRINE, HerobrineEntity.createAttributes().build());
+        event.put(Init.ModEntityTypes.INVISIBLE_ENTITY, InvisibleEntity.createAttributes().build());
     }
 
     public int getSkyDarken(Level level) {

@@ -67,6 +67,10 @@ public class PS1PackTweaksConfig {
         public final ForgeConfigSpec.IntValue randomSoundDelay;
         public final ForgeConfigSpec.DoubleValue randomItemsInChestChance;
 
+        public final ForgeConfigSpec.DoubleValue look_up_burn_chance;
+        public final ForgeConfigSpec.DoubleValue break_glass_looked_at_chance;
+        public final ForgeConfigSpec.DoubleValue invisible_entity_chance;
+
         Server(ForgeConfigSpec.Builder builder) {
             builder.push("tweaks");
             builder.push("barnacle");
@@ -97,6 +101,14 @@ public class PS1PackTweaksConfig {
             tunnelYMax = builder.comment("Max Y at which to rarely place extra tunnels").defineInRange("tunnel_y_max",16,-2048,2048);
             randomSoundDelay = builder.defineInRange("random_sound_delay",50000,1,1000000000);
 
+            look_up_burn_chance = builder.comment("Chance per tick to set player on fire when looking up")
+                    .defineInRange("look_up_burn_chance",1/1024d,0,1);
+
+            break_glass_looked_at_chance = builder.comment("Chance per tick to break glass when looking at it")
+                    .defineInRange("break_glass_looked_at_chance",1/65536d,0,1);
+
+            invisible_entity_chance = builder.comment("Chance to spawn invisible entity near player")
+                    .defineInRange("invisible_entity_chance",1d,0,1);
 
             builder.push("herobrine");
             herobrineChance = builder.defineInRange("chance",.5,0,1);
@@ -152,8 +164,6 @@ public class PS1PackTweaksConfig {
         public final ForgeConfigSpec.DoubleValue herobrine_skin_chance;
 
         public final ForgeConfigSpec.BooleanValue disableColorMaps;
-
-        //
 
         Client(ForgeConfigSpec.Builder builder) {
             builder.push("tweaks");

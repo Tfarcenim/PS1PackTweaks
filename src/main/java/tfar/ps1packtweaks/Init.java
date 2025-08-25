@@ -9,6 +9,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import tfar.ps1packtweaks.entity.Barnacle;
 import tfar.ps1packtweaks.entity.HerobrineEntity;
+import tfar.ps1packtweaks.entity.InvisibleEntity;
 import tfar.ps1packtweaks.entity.ScriptedMidnightLurker;
 import tfar.ps1packtweaks.worldgen.*;
 
@@ -31,6 +32,9 @@ public class Init {
         public static final EntityType<ScriptedMidnightLurker> SCRIPTED_MIDNIGHT_LURKER =  EntityType.Builder.of(ScriptedMidnightLurker::new, MobCategory.MONSTER)
                 .setTrackingRange(8)
                 .setUpdateInterval(3).fireImmune().sized(0.7F, 2.5F).build("");
+
+        public static final EntityType<InvisibleEntity> INVISIBLE_ENTITY = EntityType.Builder.of(InvisibleEntity::new, MobCategory.MONSTER)
+                .sized(0.6F, 1.95F).clientTrackingRange(8).build("");
     }
 
     public static class ModSounds {
