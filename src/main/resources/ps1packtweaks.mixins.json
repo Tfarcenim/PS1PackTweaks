@@ -28,7 +28,9 @@
     "compat.NetheriteShulkerBoxBlockEntityMixin",
     "compat.ShinyHorsesModMixin",
     "compat.SkeletonHorseEventMixin",
-    "compat.ZombieHorseEventMixin"
+    "compat.ZombieHorseEventMixin",
+    "villagertrades.EnchantBookForEmeraldsMixin",
+    "villagertrades.EnchantedItemForEmeraldsMixin"
   ],
   "client": [
     "AbstractClientPlayerMixin",
@@ -42,6 +44,7 @@
     "LivingEntityRenderMixin",
     "MinecraftMixin",
     "MouseHandlerMixin",
+    "MusicManagerMixin",
     "OptionsMixin",
     "ProgressScreenMixin",
     "SheepFurLayerMixin",

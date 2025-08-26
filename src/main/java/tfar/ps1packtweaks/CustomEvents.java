@@ -53,13 +53,13 @@ public class CustomEvents {
             while (attempt <64){
                 attempt++;
                 int x = pos.getX() + pickNumber(player.getRandom(),16);
-                int y = pos.getX() + pickNumber(player.getRandom(),16);
-                int z = pos.getX() + pickNumber(player.getRandom(),16);
+                int y = pos.getY() + pickNumber(player.getRandom(),16);
+                int z = pos.getZ() + pickNumber(player.getRandom(),16);
                 mutableBlockPos.set(x,y,z);
                 if (NaturalSpawner.isSpawnPositionOk(SpawnPlacements.Type.ON_GROUND,player.getLevel(),mutableBlockPos,Init.ModEntityTypes.INVISIBLE_ENTITY)) {
                     InvisibleEntity entity = (InvisibleEntity) Init.ModEntityTypes.INVISIBLE_ENTITY.spawn(player.getLevel(), null, null,
                             mutableBlockPos,MobSpawnType.EVENT,false,false);
-                    entity.setInvisible(true);
+                    //entity.setInvisible(true);
                     break;
                 }
             }

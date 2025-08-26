@@ -247,7 +247,7 @@ public class PS1PackTweaksClient {
         EntityRenderers.register(Init.ModEntityTypes.HEROBRINE, (EntityRendererProvider.Context context) -> new SimplePlayerRenderer<>(context,
                 false, PS1PackTweaks.id("textures/entity/herobrine.png")));
 
-        EntityRenderers.register(Init.ModEntityTypes.INVISIBLE_ENTITY, (EntityRendererProvider.Context context) -> new SimplePlayerRenderer<>(context,
+        EntityRenderers.register(Init.ModEntityTypes.INVISIBLE_ENTITY, (EntityRendererProvider.Context context) -> new InvisibleEntityRenderer<>(context,
                 false, PS1PackTweaks.id("textures/entity/herobrine.png")));
 
         if (ModIntegration.guicompass.loaded) {

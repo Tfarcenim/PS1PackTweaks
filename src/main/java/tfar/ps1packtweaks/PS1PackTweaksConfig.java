@@ -108,7 +108,7 @@ public class PS1PackTweaksConfig {
                     .defineInRange("break_glass_looked_at_chance",1/65536d,0,1);
 
             invisible_entity_chance = builder.comment("Chance to spawn invisible entity near player")
-                    .defineInRange("invisible_entity_chance",1d,0,1);
+                    .defineInRange("invisible_entity_chance",1/1024d,0,1);
 
             builder.push("herobrine");
             herobrineChance = builder.defineInRange("chance",.5,0,1);
@@ -127,6 +127,8 @@ public class PS1PackTweaksConfig {
             builder.pop();
 
             //duplicateWorldChance = builder.defineInRange("duplicate_world_chance",.5,0,1);
+
+
 
             builder.pop();
             builder.pop();
@@ -163,7 +165,15 @@ public class PS1PackTweaksConfig {
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> inventorypause_screens;
         public final ForgeConfigSpec.DoubleValue herobrine_skin_chance;
 
-        public final ForgeConfigSpec.BooleanValue disableColorMaps;
+        //public final ForgeConfigSpec.BooleanValue disableColorMaps;
+
+        public final ForgeConfigSpec.DoubleValue minMusicPitch;
+        public final ForgeConfigSpec.DoubleValue maxMusicPitch;
+        public final ForgeConfigSpec.IntValue ticksMusicPitch;
+        public final ForgeConfigSpec.DoubleValue randomPitchChance;
+
+        public final ForgeConfigSpec.DoubleValue pauseChance;
+
 
         Client(ForgeConfigSpec.Builder builder) {
             builder.push("tweaks");
@@ -189,9 +199,20 @@ public class PS1PackTweaksConfig {
             inventorypause_screens = builder.defineList("screens",defaultClasses(), o -> o instanceof String);
             herobrine_skin_chance = builder.defineInRange("herobrine_skin_chance",1/64d,0,1);
 
-            disableColorMaps = builder.comment("Disables colormaps for leaves, grass and water").define("disable_color_maps",true);
+           // disableColorMaps = builder.comment("Disables colormaps for leaves, grass and water").define("disable_color_maps",true);
 
             builder.pop();
+
+            builder.push("random_music_pitch");
+
+            minMusicPitch = builder.defineInRange("min",.5,0,64);
+            maxMusicPitch = builder.defineInRange("max",1.5,0,64);
+            ticksMusicPitch = builder.comment("How long the modified pitch will last").defineInRange("ticks",80,1,100000000);
+            randomPitchChance = builder.comment("Chance of pitch changing every time music manager ticks").defineInRange("chance",.125d,0,1);
+
+            builder.pop();
+
+            pauseChance = builder.defineInRange("pause_chance",1/1024d,0,1);
 
             builder.pop();
         }

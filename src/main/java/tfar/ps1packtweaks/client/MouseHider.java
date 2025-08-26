@@ -1,6 +1,11 @@
 package tfar.ps1packtweaks.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import com.nyfaria.nightmare.config.CommonConfig;
+import com.nyfaria.nightmare.init.SoundInit;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.level.levelgen.RandomSource;
 import tfar.ps1packtweaks.AbstractClientPlayerDuck;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.InBedChatScreen;
@@ -15,6 +20,8 @@ import net.minecraftforge.client.event.ScreenOpenEvent;
 import net.minecraftforge.event.TickEvent;
 import org.lwjgl.glfw.GLFW;
 import tfar.ps1packtweaks.PS1PackTweaksConfig;
+
+import java.util.Random;
 
 public class MouseHider {
 
@@ -41,22 +48,30 @@ public class MouseHider {
                     ((AbstractClientPlayerDuck) player).setHerobrine(true);
                 }
             } else if (oldScreen instanceof InventoryScreen || oldScreen instanceof CreativeModeInventoryScreen) {
-            ((AbstractClientPlayerDuck) player).setHerobrine(false);
+                ((AbstractClientPlayerDuck) player).setHerobrine(false);
+            }
         }
-    }
 
         if (screen == null) PS1PackTweaksClient.showDisc = false;
 
     }
 
     static void clientTick(TickEvent.ClientTickEvent event) {
-        if (event.phase ==  TickEvent.Phase.START) {
+        if (event.phase == TickEvent.Phase.START) {
             if (hidden) {
                 if (hideTimer > 0) {
                     hideTimer--;
                     if (hideTimer == 0) {
                         unhide();
                     }
+                }
+            }
+        } else {
+            LocalPlayer player = Minecraft.getInstance().player;
+            if (player != null) {
+                Random random = player.getRandom();
+                if (player.tickCount % 20 == 0 && random.nextDouble() < PS1PackTweaksConfig.CLIENT.pauseChance.get()) {
+                    Minecraft.getInstance().pauseGame(false);
                 }
             }
         }
