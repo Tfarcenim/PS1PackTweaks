@@ -50,5 +50,14 @@
         "name": "minecraft:mob/guardian/flop4"
       }
     ]
+  },
+  "screen": {
+    "category": "music",
+    "subtitle": "subtitles.ui.ps1packtweaks.screen",
+    "sounds": [
+      {
+        "name": "ps1packtweaks:screen"
+      }
+    ]
   }
 }

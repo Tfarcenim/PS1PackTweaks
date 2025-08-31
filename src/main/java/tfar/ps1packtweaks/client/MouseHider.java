@@ -35,6 +35,7 @@ public class MouseHider {
         Screen screen = event.getScreen();
         Screen oldScreen = Minecraft.getInstance().screen;
         if (first && screen instanceof TitleScreen) {
+            PS1PackTweaksClient.DIRT_TIME = PS1PackTweaksConfig.CLIENT.replaceBlocksTime.get();
             hide(PS1PackTweaksConfig.CLIENT.hideTitleMouseTimer.get());
             first = false;
         }
@@ -53,28 +54,6 @@ public class MouseHider {
         }
 
         if (screen == null) PS1PackTweaksClient.showDisc = false;
-
-    }
-
-    static void clientTick(TickEvent.ClientTickEvent event) {
-        if (event.phase == TickEvent.Phase.START) {
-            if (hidden) {
-                if (hideTimer > 0) {
-                    hideTimer--;
-                    if (hideTimer == 0) {
-                        unhide();
-                    }
-                }
-            }
-        } else {
-            LocalPlayer player = Minecraft.getInstance().player;
-            if (player != null) {
-                Random random = player.getRandom();
-                if (player.tickCount % 20 == 0 && random.nextDouble() < PS1PackTweaksConfig.CLIENT.pauseChance.get()) {
-                    Minecraft.getInstance().pauseGame(false);
-                }
-            }
-        }
     }
 
     public static void hide(int ticks) {

@@ -28,21 +28,10 @@ public class InvisibleEntity extends PathfinderMob {
     }
 
     @Override
-    public void tick() {
-        super.tick();
-        age++;
-        if (age >= lifespan) {
-            despawn();
-        }
-    }
-
-    @Override
     protected void customServerAiStep() {
         super.customServerAiStep();
-    }
-
-    void despawn() {
-        if (!level.isClientSide) {
+        age++;
+        if (age >= lifespan) {
             discard();
         }
     }

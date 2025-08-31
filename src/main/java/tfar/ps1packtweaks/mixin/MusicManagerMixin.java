@@ -4,7 +4,6 @@ import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.sounds.MusicManager;
 import net.minecraft.sounds.Music;
 import net.minecraft.sounds.SoundSource;
-import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -15,7 +14,7 @@ import tfar.ps1packtweaks.client.DynamicSoundInstance;
 import javax.annotation.Nullable;
 
 @Mixin(MusicManager.class)
-@Debug(export = true)
+//@Debug(export = true)
 public class MusicManagerMixin {
 
     @Shadow @Nullable private SoundInstance currentMusic;

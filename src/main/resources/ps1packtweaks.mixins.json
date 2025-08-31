@@ -6,6 +6,7 @@
   "plugin": "tfar.ps1packtweaks.mixin.MixinPlugin",
   "mixins": [
     "AbstractHorseMixin",
+    "ApplyBonusCountMixin",
     "ArmorStandItemMixin",
     "ArrowInfiniteEnchantmentMixin",
     "BlockAccess",
@@ -17,6 +18,7 @@
     "GlassyMixin",
     "ItemAccess",
     "LivingEntityMixin",
+    "PaintingEntityMixin",
     "PlayerMixin",
     "PoiAccess",
     "PoiTypeMixin",
@@ -29,12 +31,14 @@
     "compat.ShinyHorsesModMixin",
     "compat.SkeletonHorseEventMixin",
     "compat.ZombieHorseEventMixin",
+    "compat.embeddium.FluidRendererMixin",
     "villagertrades.EnchantBookForEmeraldsMixin",
     "villagertrades.EnchantedItemForEmeraldsMixin"
   ],
   "client": [
     "AbstractClientPlayerMixin",
     "BlockColorsAccess",
+    "BlockRenderDispatcherMixin",
     "ClientPacketListenerMixin",
     "IntegratedServerMixin",
     "InventoryScreenMixin",
@@ -46,12 +50,14 @@
     "MouseHandlerMixin",
     "MusicManagerMixin",
     "OptionsMixin",
+    "PaintingRendererMixin",
     "ProgressScreenMixin",
     "SheepFurLayerMixin",
     "UndeadHorseRendererMixin",
     "compat.ClientProxyMixin",
     "compat.ForgeGuiEventMixin",
-    "compat.ScreenShotScreenMixin"
+    "compat.ScreenShotScreenMixin",
+    "compat.embeddium.ChunkRenderRebuildTaskMixin"
   ],
   "injectors": {
     "defaultRequire": 1

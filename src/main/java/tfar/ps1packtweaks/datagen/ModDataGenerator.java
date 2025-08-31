@@ -19,6 +19,7 @@ public class ModDataGenerator {
             generator.addProvider(blockTags);
             generator.addProvider(new ModItemTagProvider(generator, blockTags, existingFileHelper));
             generator.addProvider(new ConfiguredStructureTags(generator, existingFileHelper));
+            generator.addProvider(new ModGlobalLootModifierProvider(generator));
         }
         if (event.includeClient()) {
             generator.addProvider(new ModBlockStateProvider(generator, existingFileHelper));

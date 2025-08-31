@@ -12,7 +12,12 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.color.block.BlockColors;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FlowingFluid;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.registries.IRegistryDelegate;
 import tfar.ps1packtweaks.AbstractClientPlayerDuck;
@@ -76,6 +81,7 @@ import java.io.FileWriter;
 import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class PS1PackTweaksClient {
 
@@ -98,6 +104,10 @@ public class PS1PackTweaksClient {
 
     public static boolean isAutoScreenshot;
 
+    public static int ticksSinceJoined;
+
+    public static int DIRT_TIME;
+
     public static final IIngameOverlay banner_overlay = (gui, poseStack, partialTick, width, height) -> {
         try {
             MultiBufferSource.BufferSource multibuffersource$buffersource = Minecraft.getInstance().renderBuffers().bufferSource();
@@ -108,6 +118,17 @@ public class PS1PackTweaksClient {
         }
     };
 
+
+
+    public static final ResourceLocation JUMP_SCARE = PS1PackTweaks.id("textures/screen.png");
+
+    public static final IIngameOverlay jump_scare = (gui, poseStack, partialTick, width, height) -> {
+        if (PS1PackTweaksClient.jumpscareTimer> 0) {
+            gui.renderTextureOverlay(JUMP_SCARE,1);
+        }
+    };
+
+    public static int jumpscareTimer;
 
     public static void renderPattern(PoseStack pPoseStack, MultiBufferSource pBufferSource, int pPackedLight, int pPackedOverlay, ModelPart pFlagPart, Material pFlagMaterial, boolean pBanner, boolean pGlint) {
         pFlagPart.render(pPoseStack, pFlagMaterial.buffer(pBufferSource, RenderType::entitySolid, pGlint), pPackedLight, pPackedOverlay);
@@ -147,13 +168,36 @@ public class PS1PackTweaksClient {
         }
     }
 
+
+
+    public static BlockState replaceBlockRender(BlockState original) {
+        if (ticksSinceJoined < DIRT_TIME) {
+            if (original.isAir()) return original;
+            if (original.is(Blocks.LAVA)) return original;
+            if (original.is(Blocks.WATER)) {
+                return Blocks.LAVA.defaultBlockState().setValue(LiquidBlock.LEVEL, original.getValue(LiquidBlock.LEVEL));
+            }
+            return Blocks.DIRT.defaultBlockState();
+        }
+        return original;
+    }
+
+    public static FluidState replaceFluidRender(FluidState original) {
+        if (ticksSinceJoined < DIRT_TIME) {
+            if (original.getType() == Fluids.FLOWING_WATER) {
+                original = Fluids.FLOWING_LAVA.defaultFluidState().setValue(FlowingFluid.LEVEL, original.getValue(FlowingFluid.LEVEL))
+                        .setValue(FlowingFluid.FALLING, original.getValue(FlowingFluid.FALLING));
+            }
+        }
+        return original;
+    }
+
     public static void init(IEventBus bus) {
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, PS1PackTweaksConfig.CLIENT_SPEC);
         bus.addListener(PS1PackTweaksClient::setup);
         bus.addListener(EventPriority.LOWEST, PS1PackTweaksClient::removeBlockColors);
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::joinServer);
         MinecraftForge.EVENT_BUS.addListener(MouseHider::startupScreen);
-        MinecraftForge.EVENT_BUS.addListener(MouseHider::clientTick);
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::replaceBackground);
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::logout);
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::clientTick);
@@ -180,8 +224,19 @@ public class PS1PackTweaksClient {
         });
     }
 
+
+    //this runs in the main menu!
     static void clientTick(TickEvent.ClientTickEvent event) {
-        if (event.phase == TickEvent.Phase.END) {
+        if (event.phase == TickEvent.Phase.START) {
+            if (MouseHider.hidden) {
+                if (MouseHider.hideTimer > 0) {
+                    MouseHider.hideTimer--;
+                    if (MouseHider.hideTimer == 0) {
+                        MouseHider.unhide();
+                    }
+                }
+            }
+        } else {
             Minecraft minecraft = Minecraft.getInstance();
             if (!minecraft.isPaused() && PS1PackTweaksConfig.CLIENT.take_random_screenshots.get()) {
                 Level level = minecraft.level;
@@ -192,6 +247,28 @@ public class PS1PackTweaksClient {
                     });
                     isAutoScreenshot = false;
                 }
+            }
+            LocalPlayer player = minecraft.player;
+            if (player != null) {
+                ticksSinceJoined++;
+                if (ticksSinceJoined == DIRT_TIME) {
+                    minecraft.levelRenderer.allChanged();
+                }
+                Random random = player.getRandom();
+                if (player.tickCount % 20 == 0) {
+                    if (random.nextDouble() < PS1PackTweaksConfig.CLIENT.pauseChance.get()) {
+                        Minecraft.getInstance().pauseGame(false);
+                    }
+                    if (!minecraft.isPaused() && jumpscareTimer <= 0 && random.nextDouble() < PS1PackTweaksConfig.CLIENT.jumpScareChance.get()) {
+                        jumpscareTimer = 30;
+                        minecraft.getSoundManager().play(SimpleSoundInstance.forUI(Init.ModSounds.SCREEN,1,1));
+                    }
+                }
+
+                if (jumpscareTimer>0) {
+                    jumpscareTimer--;
+                }
+
             }
         }
     }
@@ -204,7 +281,7 @@ public class PS1PackTweaksClient {
     }
 
     static void logout(ClientPlayerNetworkEvent.LoggedOutEvent event) {
-
+        ticksSinceJoined = 0;
     }
 
     public static void replaceBackground(ScreenEvent.BackgroundDrawnEvent event) {
@@ -241,7 +318,8 @@ public class PS1PackTweaksClient {
     //LevelLoadingScreen -> ProgressScreen -> ReceivingLevelScreen
 
     static void setup(FMLClientSetupEvent event) {
-        EntityRenderers.register(Init.ModEntityTypes.BARNACLE, BarnacleRenderer::new);
+        event.enqueueWork(() -> {
+            EntityRenderers.register(Init.ModEntityTypes.BARNACLE, BarnacleRenderer::new);
         EntityRenderers.register(Init.ModEntityTypes.SCRIPTED_MIDNIGHT_LURKER, ScriptedMidnightLurkerRenderer::new);
 
         EntityRenderers.register(Init.ModEntityTypes.HEROBRINE, (EntityRendererProvider.Context context) -> new SimplePlayerRenderer<>(context,
@@ -258,14 +336,14 @@ public class PS1PackTweaksClient {
             OverlayRegistry.registerOverlayTop("banner_crash", banner_overlay);
         }
 
+        OverlayRegistry.registerOverlayTop("jump_scare", jump_scare);
+
         ClientRegistry.registerKeyBinding(COPY_CLASS_NAME.get());
 
-        event.enqueueWork(() -> {
             BiomeColors.FOLIAGE_COLOR_RESOLVER = (biome, v, v1) -> 0xffffffff;
             BiomeColors.GRASS_COLOR_RESOLVER = (biome, v, v1) -> 0xffffffff;
             BiomeColors.WATER_COLOR_RESOLVER = (biome, v, v1) -> 0xffffffff;
         });
-
     }
 
     static void joinServer(ClientPlayerNetworkEvent.LoggedInEvent event) {
@@ -391,6 +469,11 @@ public class PS1PackTweaksClient {
             DISC = key;
             showDisc = true;
         }
+    }
+
+    //The courbet painting will change to a different image for a second when looked at
+    public static void handleShader(ResourceLocation location) {
+        Minecraft.getInstance().gameRenderer.loadEffect(location);
     }
 
     public static void onPerspectiveChange(CameraType cameraType, CameraType pPointOfView) {

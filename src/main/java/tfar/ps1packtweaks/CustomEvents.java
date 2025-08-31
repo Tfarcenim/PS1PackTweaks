@@ -5,6 +5,7 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -33,6 +34,8 @@ import java.util.*;
 
 public class CustomEvents {
 
+    public static final String FOLLOW = PS1PackTweaks.id("follow").toString();
+
     public static void handleEvents(ServerPlayer player) {
         tickHerobrineSpawn(player);
         tickFallingAnimalSpawn(player);
@@ -43,6 +46,19 @@ public class CustomEvents {
         burnWhenLookingUp(player);
         breakLookedAtGlass(player);
         invisibleEntity(player);
+        followPlayer(player);
+    }
+
+    static void followPlayer(ServerPlayer player) {
+        CompoundTag persist = player.getPersistentData();
+        if(player.getRandom().nextDouble() <PS1PackTweaksConfig.SERVER.mobsFollowPlayerChance.get()) {
+            persist.putInt(FOLLOW,PS1PackTweaksConfig.SERVER.mobsFollowPlayerDuration.get());
+        }
+
+        if (persist.getInt(FOLLOW) > 0) {
+            persist.putInt(FOLLOW,persist.getInt(FOLLOW) -1);
+        }
+
     }
 
     static void invisibleEntity(ServerPlayer player) {

@@ -1,12 +1,11 @@
 package tfar.ps1packtweaks;
 
+import com.Apothic0n.StarryEnd.core.objects.StarryEndBlocks;
 import com.google.common.collect.ImmutableList;
 import com.mojang.logging.LogUtils;
+import com.nyfaria.nightmare.mixin.BrewingRecipeMixin;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
-import net.minecraft.core.NonNullList;
+import net.minecraft.core.*;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -15,15 +14,22 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.entity.SpawnPlacements;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
+import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
-import net.minecraft.world.entity.npc.VillagerTrades;
+import net.minecraft.world.entity.decoration.Motive;
+import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionBrewing;
+import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
@@ -41,15 +47,23 @@ import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
+import net.minecraftforge.common.loot.GlobalLootModifierSerializer;
+import net.minecraftforge.common.loot.LootTableIdCondition;
 import net.minecraftforge.common.world.BiomeGenerationSettingsBuilder;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LootingLevelEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
 import net.minecraftforge.event.entity.player.SleepingTimeCheckEvent;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.world.SleepFinishedTimeEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.LogicalSide;
@@ -69,15 +83,18 @@ import tfar.ps1packtweaks.compat.EnderiteModCompat;
 import tfar.ps1packtweaks.compat.ModIntegration;
 import tfar.ps1packtweaks.compat.MoreHorseArmorCompat;
 import tfar.ps1packtweaks.datagen.ModDataGenerator;
+import tfar.ps1packtweaks.datagen.OrLootTableCondition;
 import tfar.ps1packtweaks.entity.Barnacle;
 import tfar.ps1packtweaks.entity.HerobrineEntity;
 import tfar.ps1packtweaks.entity.InvisibleEntity;
 import tfar.ps1packtweaks.entity.ScriptedMidnightLurker;
+import tfar.ps1packtweaks.entity.goals.FollowPlayerGoal;
 import tfar.ps1packtweaks.mixin.BlockAccess;
 import tfar.ps1packtweaks.mixin.BlockStateAccess;
 import tfar.ps1packtweaks.mixin.PoiAccess;
 import tfar.ps1packtweaks.network.ForgePacketHandler;
 import tfar.ps1packtweaks.network.PacketHandler;
+import tfar.ps1packtweaks.network.client.S2CShaderPacket;
 import tfar.ps1packtweaks.network.client.S2CTargetDimensionPacket;
 import tfar.ps1packtweaks.worldgen.ModConfiguredFeatures;
 import tfar.ps1packtweaks.worldgen.ModPlacedFeatures;
@@ -113,6 +130,8 @@ public class PS1PackTweaks {
         bus.addGenericListener(EntityType.class, this::registerEntities);
         bus.addGenericListener(SoundEvent.class, this::registerSounds);
         bus.addGenericListener(Feature.class, this::registerFeatures);
+        bus.addGenericListener(Motive.class, this::registerMotives);
+        bus.addGenericListener(GlobalLootModifierSerializer.class, this::registerGLMs);
 
         bus.addListener(ModDataGenerator::gatherData);
         bus.addListener(PS1PackTweaksConfig::configUpdate);
@@ -123,6 +142,36 @@ public class PS1PackTweaks {
         MinecraftForge.EVENT_BUS.addListener(this::playerTick);
         //MinecraftForge.EVENT_BUS.addListener(this::breakBlock);
         MinecraftForge.EVENT_BUS.addListener(this::biomeLoading);
+        MinecraftForge.EVENT_BUS.addListener(this::entityJoinWorld);
+        MinecraftForge.EVENT_BUS.addListener(this::onKill);
+        MinecraftForge.EVENT_BUS.addListener(this::adjustLooting);
+        MinecraftForge.EVENT_BUS.addListener(this::afterSleep);
+    }
+
+    void afterSleep(PlayerWakeUpEvent event) {
+        Player player = event.getPlayer();
+        if (player instanceof ServerPlayer && player.getRandom().nextDouble() < PS1PackTweaksConfig.SERVER.wakeupSurpriseChance.get()) {
+            EntityType<? extends Monster> type = player.getRandom().nextBoolean() ? EntityType.ZOMBIE : EntityType.SKELETON;
+            type.spawn((ServerLevel) player.level, null, null, player.blockPosition(), MobSpawnType.EVENT, false, false);
+        }
+    }
+
+    void adjustLooting(LootingLevelEvent event) {
+        DamageSource damageSource = event.getDamageSource();
+        if (damageSource.getEntity() instanceof LivingEntity living) {
+            MobEffectInstance luckEffect = living.getEffect(MobEffects.LUCK);
+            if (luckEffect != null) {
+                event.setLootingLevel(event.getLootingLevel()+luckEffect.getAmplifier()+1);
+            }
+        }
+    }
+
+    //Killing a mob will turn the whole screen black and white
+    void onKill(LivingDeathEvent event) {
+        DamageSource source = event.getSource();
+        if (source.getEntity() instanceof ServerPlayer player) {
+            ForgePacketHandler.sendToClient(new S2CShaderPacket(id("shaders/post/noir.json")),player);
+        }
     }
 
     ////[Items appearing in chests] - Redstone torch, leaves, logs, rotten flesh. These items should randomly appear in player placed chests.
@@ -145,8 +194,18 @@ public class PS1PackTweaks {
         }
     }
 
+    public static List<Motive> getCongruent(Motive motive) {
+        return Registry.MOTIVE.stream().filter(motive1 -> motive1.getHeight() == motive.getHeight() && motive1.getWidth() == motive.getWidth()).toList();
+    }
+
     public void breakBlock(BlockEvent.BreakEvent event) {
         Player player = event.getPlayer();
+        /*if (player != null) {
+            MobEffectInstance luckEffect = player.getEffect(MobEffects.LUCK);
+            if (luckEffect != null) {
+               // event.get(event.getLootingLevel()+luckEffect.getAmplifier()+1);
+            }
+        }*/
     }
 
     public static void onStatAwarded(Player player, ResourceLocation pStat, int pIncrement) {
@@ -230,13 +289,23 @@ public class PS1PackTweaks {
     void registerSounds(RegistryEvent.Register<SoundEvent> event) {
         event.getRegistry().registerAll(Init.ModSounds.BARNACLE_AMBIENT.setRegistryName("barnacle_ambient"),
                 Init.ModSounds.BARNACLE_HURT.setRegistryName("barnacle_hurt"), Init.ModSounds.BARNACLE_DEATH.setRegistryName("barnacle_death"),
-                Init.ModSounds.BARNACLE_FLOP.setRegistryName("barnacle_flop"));
+                Init.ModSounds.BARNACLE_FLOP.setRegistryName("barnacle_flop"),Init.ModSounds.SCREEN.setRegistryName("screen"));
     }
 
     void registerFeatures(RegistryEvent.Register<Feature<?>> event) {
         event.getRegistry().registerAll(Init.ModFeatures.TUNNEL.setRegistryName("tunnel"),Init.ModFeatures.SIGN.setRegistryName("sign"),
                 Init.ModFeatures.PYRAMID.setRegistryName("pyramid"));
     }
+
+    void registerMotives(RegistryEvent.Register<Motive> event) {
+        event.getRegistry().registerAll(Init.ModPaintings.CURSED_COURBET.setRegistryName("cursed_courbet"));
+    }
+
+    void registerGLMs(RegistryEvent.Register<GlobalLootModifierSerializer<?>> event) {
+        Registry.register(Registry.LOOT_CONDITION_TYPE,id("or_loot_table_id"), OrLootTableCondition.OR_LOOT_TABLE_ID);
+        event.getRegistry().registerAll(Init.GlobalLootModifiers.DUPLICATE_OUTPUTS.setRegistryName("duplicate_outputs"));
+    }
+
 
     void sleepCheck(SleepingTimeCheckEvent event) {
         if (event.getResult() == Event.Result.DENY) return;
@@ -294,6 +363,15 @@ public class PS1PackTweaks {
         }
     }
 
+    void entityJoinWorld(EntityJoinWorldEvent event) {
+        Entity var2 = event.getEntity();
+        if (var2 instanceof PathfinderMob pathfinderMob) {
+            if (pathfinderMob.getNavigation() instanceof GroundPathNavigation || pathfinderMob.getNavigation() instanceof FlyingPathNavigation) {
+                pathfinderMob.goalSelector.addGoal(0, new FollowPlayerGoal(pathfinderMob, 1.0, 4.0F, 30.0F));
+            }
+        }
+    }
+
     static boolean hasFeature(List<Holder<PlacedFeature>> features,Holder<PlacedFeature> feature) {
         return features.stream().anyMatch(f -> f.is(feature.unwrapKey().get()));
     }
@@ -316,11 +394,13 @@ public class PS1PackTweaks {
         double d2 = 0.5D + 2.0D * Mth.clamp(Mth.cos(level.getTimeOfDay(1.0F) * ((float) Math.PI * 2F)), -0.25D, 0.25D);
         return (int) ((1.0D - d2 * d0) * 11.0D);
     }
+    //Potion of luck can be brewed with an ender clover from End's Phantasm mod
 
     private void setup(final FMLCommonSetupEvent event) {
 
         PacketHandler.registerPackets();
         event.enqueueWork(() -> {
+            PotionBrewing.addMix(Potions.AWKWARD, StarryEndBlocks.ENDER_CLOVER.get().asItem(),Potions.LUCK);
             ModConfiguredFeatures.init();
             if (ModIntegration.morehorsearmor.loaded) {
                 MoreHorseArmorCompat.setup();

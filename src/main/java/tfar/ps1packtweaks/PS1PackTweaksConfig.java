@@ -4,11 +4,9 @@ import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.random.SimpleWeightedRandomList;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import org.apache.commons.lang3.tuple.Pair;
-import tfar.ps1packtweaks.entity.HerobrineEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,6 +69,13 @@ public class PS1PackTweaksConfig {
         public final ForgeConfigSpec.DoubleValue break_glass_looked_at_chance;
         public final ForgeConfigSpec.DoubleValue invisible_entity_chance;
 
+        public final ForgeConfigSpec.DoubleValue mobsFollowPlayerChance;
+        public final ForgeConfigSpec.IntValue mobsFollowPlayerDuration;
+
+        public final ForgeConfigSpec.DoubleValue blackAndWhiteKillChance;
+
+        public final ForgeConfigSpec.DoubleValue wakeupSurpriseChance;
+
         Server(ForgeConfigSpec.Builder builder) {
             builder.push("tweaks");
             builder.push("barnacle");
@@ -110,6 +115,15 @@ public class PS1PackTweaksConfig {
             invisible_entity_chance = builder.comment("Chance to spawn invisible entity near player")
                     .defineInRange("invisible_entity_chance",1/1024d,0,1);
 
+            mobsFollowPlayerChance = builder.comment("Chance every tick of mobs following player")
+                    .defineInRange("mobs_follow_player_chance",1/65536d,0,1);
+
+            mobsFollowPlayerDuration = builder.comment("Length of time in ticks that mobs follow player")
+                    .defineInRange("mobs_follow_player_duration",400,0,1000000000);
+
+            blackAndWhiteKillChance = builder.comment("Chance to turn world black and white after killing a mob")
+                    .defineInRange("black_and_white_kill_chance",1/256d,0,1);
+
             builder.push("herobrine");
             herobrineChance = builder.defineInRange("chance",.5,0,1);
             minHerobrineDelay = builder.defineInRange("min_delay",10000,1,100000000000000L);
@@ -124,6 +138,9 @@ public class PS1PackTweaksConfig {
             randomItemsInChestChance = builder.comment("Chance to put random items in chest when randomly ticked")
                     .defineInRange("random_items_in_chest",1/64d,0,1);
 
+            wakeupSurpriseChance = builder.comment("Chance to put randomly spawn a skeleton or zombie after player wakes up")
+                    .defineInRange("wakeup_surprise_chance",1/256d,0,1);
+
             builder.pop();
 
             //duplicateWorldChance = builder.defineInRange("duplicate_world_chance",.5,0,1);
@@ -135,13 +152,13 @@ public class PS1PackTweaksConfig {
         }
     }
 
-    public static SimpleWeightedRandomList<HerobrineEntity.Event> herobrineEventList;
-
     public static void configUpdate(ModConfigEvent event) {
         if (event.getConfig().getSpec() == SERVER_SPEC) {
 
         }
     }
+
+    //Upon joining the world, all blocks are visually rendered as dirt and all water is rendered as lava for 2 seconds before returning to normal
 
     public static class Client {
 
@@ -173,6 +190,11 @@ public class PS1PackTweaksConfig {
         public final ForgeConfigSpec.DoubleValue randomPitchChance;
 
         public final ForgeConfigSpec.DoubleValue pauseChance;
+
+        public final ForgeConfigSpec.DoubleValue replaceBlocksChance;
+        public final ForgeConfigSpec.IntValue replaceBlocksTime;
+
+        public final ForgeConfigSpec.DoubleValue jumpScareChance;
 
 
         Client(ForgeConfigSpec.Builder builder) {
@@ -212,7 +234,13 @@ public class PS1PackTweaksConfig {
 
             builder.pop();
 
-            pauseChance = builder.defineInRange("pause_chance",1/1024d,0,1);
+            pauseChance = builder.comment("Chance every tick of game pausing").defineInRange("pause_chance",1/1024d,0,1);
+            replaceBlocksChance = builder.comment("Chance to replace blocks with dirt and lava when joining the world")
+                    .defineInRange("replace_blocks_chance",1/128d,0,1);
+            replaceBlocksTime = builder.comment("Length of time before reloading the world").defineInRange("replace_blocks_time",150,0,100000000);
+
+            jumpScareChance = builder.comment("Chance every second for jumpscare")
+                    .defineInRange("jump_scare_chance",1/4096d,0,1);
 
             builder.pop();
         }
