@@ -27,7 +27,7 @@ public class ChunkRenderRebuildTaskMixin {
 
     @ModifyVariable(method = "performBuild", at = @At(
             value = "INVOKE_ASSIGN", target = "Lnet/minecraft/core/BlockPos$MutableBlockPos;set(III)Lnet/minecraft/core/BlockPos$MutableBlockPos;",ordinal = 0
-    ,shift = At.Shift.AFTER),remap = false)
+    ,shift = At.Shift.AFTER))
     private BlockState hackEmbeddiumRender(BlockState original) {
         return PS1PackTweaksClient.replaceBlockRender(original);
     }

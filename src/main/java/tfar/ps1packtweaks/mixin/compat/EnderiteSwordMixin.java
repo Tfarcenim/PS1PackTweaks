@@ -20,6 +20,10 @@ import java.util.List;
 public class EnderiteSwordMixin {
 
 
+    /**
+     * @author
+     * @reason
+     */
     @Overwrite
     public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pUsedHand) {
         ItemStack itemstack = pPlayer.getItemInHand(pUsedHand);
@@ -35,6 +39,10 @@ public class EnderiteSwordMixin {
         }
     }
 
+    /**
+     * @author
+     * @reason
+     */
     @Overwrite
     public void appendHoverText(ItemStack itemStack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
     }

@@ -18,6 +18,11 @@ plugins {
 }
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
+apply plugin: 'org.spongepowered.mixin'
+
+mixin {
+    add sourceSets.main, "${modid}.refmap.json"
+}
 
 version = "${mc_version}-${mod_version}"
 group = 'com.yourname.modid' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
@@ -273,9 +278,4 @@ publishing {
             url "file://${project.projectDir}/mcmodsrepo"
         }
     }
-}
-apply plugin: 'org.spongepowered.mixin'
-
-mixin {
-    add sourceSets.main, "${modid}.refmap.json"
 }

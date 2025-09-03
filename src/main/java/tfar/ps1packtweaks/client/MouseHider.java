@@ -1,11 +1,6 @@
 package tfar.ps1packtweaks.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import com.nyfaria.nightmare.config.CommonConfig;
-import com.nyfaria.nightmare.init.SoundInit;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.world.level.levelgen.RandomSource;
 import tfar.ps1packtweaks.AbstractClientPlayerDuck;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.InBedChatScreen;
@@ -17,11 +12,8 @@ import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraftforge.client.event.ScreenOpenEvent;
-import net.minecraftforge.event.TickEvent;
 import org.lwjgl.glfw.GLFW;
 import tfar.ps1packtweaks.PS1PackTweaksConfig;
-
-import java.util.Random;
 
 public class MouseHider {
 

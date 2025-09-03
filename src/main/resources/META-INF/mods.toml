@@ -57,6 +57,15 @@ Custom tweaks for ps1 modpack
     ordering="NONE"
     side="BOTH"
 
+
+[[dependencies.ps1packtweaks]]
+modId="geckolib3"
+mandatory=true
+# This version range declares a minimum of the current minecraft version up to but not including the next major version
+versionRange="*"
+ordering="NONE"
+side="BOTH"
+
 [[dependencies.ps1packtweaks]]
 modId="enderitemod"
 mandatory=false

@@ -1,6 +1,5 @@
 package tfar.ps1packtweaks.entity.goals;
 
-import com.nyfaria.nightmare.cap.ExampleHolderAttacher;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.goal.Goal;

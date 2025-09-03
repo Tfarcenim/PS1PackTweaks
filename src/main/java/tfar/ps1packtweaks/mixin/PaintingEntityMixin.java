@@ -1,6 +1,5 @@
 package tfar.ps1packtweaks.mixin;
 
-import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
@@ -14,19 +13,20 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import tfar.ps1packtweaks.Init;
+import tfar.ps1packtweaks.PS1PackTweaksConfig;
 import tfar.ps1packtweaks.PaintingEntityDuck;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
 @Mixin(Painting.class)
+
 public abstract class PaintingEntityMixin extends Entity implements PaintingEntityDuck {
 
     @Shadow public Motive motive;
-
-
-
+    
     @Unique
     boolean rendering;
     @Unique @Nullable Motive original;
@@ -39,8 +39,9 @@ public abstract class PaintingEntityMixin extends Entity implements PaintingEnti
         super(pEntityType, pLevel);
     }
 
-    @Inject(method = "<init>(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;)V",at = @At("RETURN"))
-    private void noCursed(Level pLevel, BlockPos pPos, Direction pFacingDirection, CallbackInfo ci, @Local(ordinal = 0) List<Motive> list) {
+    @Inject(method = "<init>(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;)V",at = @At("RETURN")
+    ,locals = LocalCapture.CAPTURE_FAILHARD)
+    private void noCursed(Level pLevel, BlockPos pPos, Direction pFacingDirection, CallbackInfo ci, List<Motive> list) {
         if (motive == Init.ModPaintings.CURSED_COURBET) {
             list.remove(motive);
             this.motive = list.get(this.random.nextInt(list.size()));
@@ -62,7 +63,7 @@ public abstract class PaintingEntityMixin extends Entity implements PaintingEnti
         super.tick();
         if (level.isClientSide) {
             if (rendering && !wasRendering) {
-                if (this.motive == Motive.COURBET && random.nextBoolean()) {
+                if (this.motive == Motive.COURBET && random.nextDouble() < PS1PackTweaksConfig.SERVER.courbetReplaceChance.get()) {
                     original = motive;
                     motive = Init.ModPaintings.CURSED_COURBET;
                     displayTime = 12;

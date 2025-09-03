@@ -75,6 +75,7 @@ public class PS1PackTweaksConfig {
         public final ForgeConfigSpec.DoubleValue blackAndWhiteKillChance;
 
         public final ForgeConfigSpec.DoubleValue wakeupSurpriseChance;
+        public final ForgeConfigSpec.DoubleValue courbetReplaceChance;
 
         Server(ForgeConfigSpec.Builder builder) {
             builder.push("tweaks");
@@ -140,6 +141,9 @@ public class PS1PackTweaksConfig {
 
             wakeupSurpriseChance = builder.comment("Chance to put randomly spawn a skeleton or zombie after player wakes up")
                     .defineInRange("wakeup_surprise_chance",1/256d,0,1);
+
+            courbetReplaceChance = builder.comment("Chance to replace courbet painting when looked at")
+                    .defineInRange("courbet_replace_chance",1/256d,0,1);
 
             builder.pop();
 
