@@ -100,11 +100,11 @@ public class CustomEvents {
     }
 
     protected static boolean isSunBurnTick(LivingEntity entity) {
-        if (entity.getXRot() < -60 && entity.getRandom().nextDouble() < PS1PackTweaksConfig.SERVER.look_up_burn_chance.get() && entity.level.isDay() && !entity.level.isClientSide) {
+        if (entity.getXRot() < -60 && entity.getRandom().nextDouble() < PS1PackTweaksConfig.SERVER.look_up_burn_chance.get() /*&& entity.level.isDay()*/ && !entity.level.isClientSide) {
             float f = entity.getBrightness();
             BlockPos blockpos = new BlockPos(entity.getX(), entity.getEyeY(), entity.getZ());
             boolean flag = entity.isInWaterRainOrBubble() || entity.isInPowderSnow || entity.wasInPowderSnow;
-            return f > 0.5F && entity.getRandom().nextFloat() * 30.0F < (f - 0.4F) * 2.0F && !flag && entity.level.canSeeSky(blockpos);
+            return /*f > 0.5F && entity.getRandom().nextFloat() * 30.0F < (f - 0.4F) * 2.0F &&*/ !flag && entity.level.canSeeSky(blockpos);
         }
 
         return false;
@@ -269,7 +269,7 @@ public class CustomEvents {
     }
 
     //Herobrine should spawn in the distance when the player isn't looking, and disappear when the player looks.
-    // The distance should be far enough that he's partially obscured by the shader fog, but not completely.
+    // The distance should be far enough that he's partially obscured by the advancement fog, but not completely.
     // He should also appear outside of the players windows and disapear when looked at.
     // Sometimes he will not disappear when looked at, and instead start running away from the player.
     // The player should never be able to catch up to him. Sometimes instead of doing either of these,

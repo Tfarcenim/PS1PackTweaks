@@ -1,4 +1,4 @@
-package tfar.ps1packtweaks.datagen;
+package tfar.ps1packtweaks.datagen.tags;
 
 import net.enderitemc.enderitemod.init.Registration;
 import net.minecraft.data.DataGenerator;

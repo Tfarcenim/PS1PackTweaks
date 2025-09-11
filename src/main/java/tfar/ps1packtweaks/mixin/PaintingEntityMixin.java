@@ -26,7 +26,7 @@ import java.util.List;
 public abstract class PaintingEntityMixin extends Entity implements PaintingEntityDuck {
 
     @Shadow public Motive motive;
-    
+
     @Unique
     boolean rendering;
     @Unique @Nullable Motive original;

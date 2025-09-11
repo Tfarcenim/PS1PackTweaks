@@ -4,6 +4,7 @@ import com.Apothic0n.StarryEnd.core.objects.StarryEndBlocks;
 import com.google.common.collect.ImmutableList;
 import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import net.minecraft.advancements.Advancement;
 import net.minecraft.core.*;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -53,10 +54,7 @@ import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LootingLevelEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
-import net.minecraftforge.event.entity.player.SleepingTimeCheckEvent;
+import net.minecraftforge.event.entity.player.*;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.Event;
@@ -89,6 +87,7 @@ import tfar.ps1packtweaks.mixin.BlockStateAccess;
 import tfar.ps1packtweaks.mixin.PoiAccess;
 import tfar.ps1packtweaks.network.ForgePacketHandler;
 import tfar.ps1packtweaks.network.PacketHandler;
+import tfar.ps1packtweaks.network.client.S2CAdvancementPacket;
 import tfar.ps1packtweaks.network.client.S2CShaderPacket;
 import tfar.ps1packtweaks.network.client.S2CTargetDimensionPacket;
 import tfar.ps1packtweaks.worldgen.ModConfiguredFeatures;
@@ -141,6 +140,13 @@ public class PS1PackTweaks {
         MinecraftForge.EVENT_BUS.addListener(this::onKill);
         MinecraftForge.EVENT_BUS.addListener(this::adjustLooting);
         MinecraftForge.EVENT_BUS.addListener(this::afterSleep);
+        MinecraftForge.EVENT_BUS.addListener(this::advancementGet);
+    }
+
+    void advancementGet(AdvancementEvent e) {
+        Advancement advancement = e.getAdvancement();
+        Player player = e.getPlayer();
+        ForgePacketHandler.sendToClient(new S2CAdvancementPacket(advancement.getId()),(ServerPlayer) player);
     }
 
     void afterSleep(PlayerWakeUpEvent event) {
@@ -164,8 +170,8 @@ public class PS1PackTweaks {
     //Killing a mob will turn the whole screen black and white
     void onKill(LivingDeathEvent event) {
         DamageSource source = event.getSource();
-        if (source.getEntity() instanceof ServerPlayer player) {
-            ForgePacketHandler.sendToClient(new S2CShaderPacket(id("shaders/post/noir.json")),player);
+        if (source.getEntity() instanceof ServerPlayer player &&  player.getRandom().nextDouble() < PS1PackTweaksConfig.SERVER.blackAndWhiteKillChance.get()) {
+            ForgePacketHandler.sendToClient(new S2CShaderPacket(id("shaders/post/noir.json"),PS1PackTweaksConfig.SERVER.blackAndWhiteKillTime.get()),player);
         }
     }
 
@@ -461,38 +467,4 @@ public class PS1PackTweaks {
     public static ResourceLocation id(String path) {
         return new ResourceLocation(MOD_ID, path);
     }
-
 }
-//[Leaves disappearing from trees] - All leaves will disappear from trees in a biome.
-// This should happen far away enough or when the player has their back turned so that they never see it happen.
-// It should only happen to naturally generated leaves.
-//
-//[Logs disappearing from trees] - Same thing, just with the logs instead of the leaves.
-//
-//[Tunnels forming] - 2x2 tunnels should form in the side of mountains and underground when the player is mining. There should occasionally be a redstone torch in these tunnels.
-//
-//[Herobrine appearances] - Herobrine should spawn in the distance when the player isn't looking, and disappear when the player looks. The distance should be far enough that he's partially obscured by the shader fog, but not completely. He should also appear outside of the players windows and disapear when looked at. Sometimes he will not disappear when looked at, and instead start running away from the player. The player should never be able to catch up to him. Sometimes instead of doing either of these, he will teleport to the block directly in front of the player and give the player the blindness effect and then disappear. Sometimes instead of appearing standing still, he should be running away from an invisible entity. The invisible entity should make randomly selected cave sounds and warden noises.
-//
-//[Items appearing in chests] - Redstone torch, leaves, logs, rotten flesh. These items should randomly appear in player placed chests.
-//
-//[Sand pyramids] - Small sand pyramids should appear on top of bodies of water.
-//
-//[Randomly placed cobblestone] - Clusters of cobblestone blocks should randomly appear in the world.
-//
-//[Signs] - Signs with warning messages written on them should randomly appear in the world. The type of sign should vary based on the biome.
-//	- STOP
-//	- LEAVE
-//	- Can you see me?
-//	- I see you
-//	- RUN
-//	- You shouldn't be here
-//	- Do you hear it?
-//	- I'm not dead
-//	- Se upp på ryggen
-//	- Bakom dig
-//	- Du är inte säker
-//	- Titta inte
-//
-//[Random noises] - Doors opening, player taking damage, player falling, item pickup, footsteps, block breaking.
-// These noises should not play in situations that don't make sense, such as a door opening when the player isn't near any doors,
-// footsteps when the player isn't near land.

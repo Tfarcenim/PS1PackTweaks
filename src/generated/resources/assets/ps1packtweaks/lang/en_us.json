@@ -1,4 +1,12 @@
 {
+  "advancements.ps1packtweaks.unlock.eat_cookie.description": "Eat Cookie",
+  "advancements.ps1packtweaks.unlock.eat_cookie.title": "Eat Cookie",
+  "advancements.ps1packtweaks.unlock.place_cake.description": "Place Cake",
+  "advancements.ps1packtweaks.unlock.place_cake.title": "Place Cake",
+  "advancements.ps1packtweaks.unlock.play_record.description": "Play Record Description",
+  "advancements.ps1packtweaks.unlock.play_record.title": "Play Record Title",
+  "advancements.ps1packtweaks.unlock.snow_golem.description": "Summon Snow Golem",
+  "advancements.ps1packtweaks.unlock.snow_golem.title": "Summon Snow Golem",
   "chat.inventorypause.copyClassName.action": "Copied internal name of the current screen to clipboard,%s",
   "entity.ps1packtweaks.barnacle": "Barnacle",
   "entity.ps1packtweaks.herobrine": "Herobrine",

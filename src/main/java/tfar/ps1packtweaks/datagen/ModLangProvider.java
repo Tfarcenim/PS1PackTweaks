@@ -4,6 +4,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.core.Holder;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -13,6 +14,7 @@ import net.minecraftforge.common.data.LanguageProvider;
 import org.codehaus.plexus.util.StringUtils;
 import tfar.ps1packtweaks.Init;
 import tfar.ps1packtweaks.PS1PackTweaks;
+import tfar.ps1packtweaks.util.TextComponents;
 
 import java.util.function.Supplier;
 
@@ -96,7 +98,38 @@ public class ModLangProvider extends LanguageProvider {
         add("key.inventorypause.openSettings", "Open Settings");
         add("key.inventorypause.copyClassName", "Copy Class Name");
 
+        addTextComponent(TextComponents.ADVANCEMENT_EAT_COOKIE_TITLE,"Eat Cookie");
+        addTextComponent(TextComponents.ADVANCEMENT_EAT_COOKIE_DESC,"Eat Cookie");
 
+        addTextComponent(TextComponents.ADVANCEMENT_PLACE_CAKE_TITLE,"Place Cake");
+        addTextComponent(TextComponents.ADVANCEMENT_PLACE_CAKE_DESC,"Place Cake");
+
+        addTextComponent(TextComponents.ADVANCEMENT_SUMMON_SNOW_GOLEM_TITLE,"Summon Snow Golem");
+        addTextComponent(TextComponents.ADVANCEMENT_SUMMON_SNOW_GOLEM_DESC,"Summon Snow Golem");
+
+        addTextComponent(TextComponents.ADVANCEMENT_PLAY_RECORD_TITLE,"Play Record Title");
+        addTextComponent(TextComponents.ADVANCEMENT_PLAY_RECORD_DESC,"Play Record Description");
+
+        addTextComponent(TextComponents.ADVANCEMENT_DRINK_POTION_TITLE,"Drink Potion");
+        addTextComponent(TextComponents.ADVANCEMENT_DRINK_POTION_DESC,"Drink Potion");
+
+        addTextComponent(TextComponents.ADVANCEMENT_CRAFT_JACK_O_LANTERN_TITLE,"Craft Jack o Lantern");
+        addTextComponent(TextComponents.ADVANCEMENT_CRAFT_JACK_O_LANTERN_DESC,"Craft Jack o Lantern");
+
+        addTextComponent(TextComponents.ADVANCEMENT_CRAFT_ANYTHING_TITLE,"Crafting");
+        addTextComponent(TextComponents.ADVANCEMENT_CRAFT_ANYTHING_DESC,"Crafting");
+
+        addTextComponent(TextComponents.ADVANCEMENT_KILL_SPIDER_TITLE,"Kill Spider");
+        addTextComponent(TextComponents.ADVANCEMENT_KILL_SPIDER_DESC,"Kill Spider");
+
+        addTextComponent(TextComponents.ADVANCEMENT_FIND_LURKER_TITLE,"Kill Spider");
+        addTextComponent(TextComponents.ADVANCEMENT_FIND_LURKER_DESC,"Kill Spider");
+
+        addTextComponent(TextComponents.ADVANCEMENT_PLAYER_PET_DIED_TITLE,"Player Pet Died");
+        addTextComponent(TextComponents.ADVANCEMENT_PLAYER_PET_DIED_DESC,"Player Pet Died");
+
+        addTextComponent(TextComponents.ADVANCEMENT_PLAY_ENDERMOSH_TITLE,"Play Endermosh");
+        addTextComponent(TextComponents.ADVANCEMENT_PLAY_ENDERMOSH_DESC,"Play Endermosh");
     }
 
     void addKey(KeyMapping mapping, String translation) {
@@ -143,12 +176,7 @@ public class ModLangProvider extends LanguageProvider {
         return StringUtils.capitaliseAllWords(entity.getDescriptionId().split("\\.")[2].replace("_", " "));
     }
 
-    protected void addTextComponent(MutableComponent component, String text) {
-        //    ComponentContents contents = component.getContents();
-        //   if (contents instanceof TranslatableContents translatableContents) {
-        //        add(translatableContents.getKey(),text);
-        //    } else {
-        throw new UnsupportedOperationException(component + " is not translatable");
-        //      }
+    protected void addTextComponent(TranslatableComponent component, String text) {
+        add(component.getKey(),text);
     }
 }

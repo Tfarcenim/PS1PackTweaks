@@ -238,6 +238,12 @@ public class PS1PackTweaksClient {
             }
         } else {
             Minecraft minecraft = Minecraft.getInstance();
+            if (shaderTimer > 0) {
+                shaderTimer--;
+                if (shaderTimer==0) {
+                    minecraft.gameRenderer.shutdownEffect();
+                }
+            }
             if (!minecraft.isPaused() && PS1PackTweaksConfig.CLIENT.take_random_screenshots.get()) {
                 Level level = minecraft.level;
                 if (level != null && level.getGameTime() % PS1PackTweaksConfig.CLIENT.screenshot_interval.get() == 0) {
@@ -268,7 +274,6 @@ public class PS1PackTweaksClient {
                 if (jumpscareTimer>0) {
                     jumpscareTimer--;
                 }
-
             }
         }
     }
@@ -471,9 +476,11 @@ public class PS1PackTweaksClient {
         }
     }
 
-    //The courbet painting will change to a different image for a second when looked at
-    public static void handleShader(ResourceLocation location) {
+    static int shaderTimer;
+
+    public static void handleShader(ResourceLocation location, int ticks) {
         Minecraft.getInstance().gameRenderer.loadEffect(location);
+        shaderTimer = ticks;
     }
 
     public static void onPerspectiveChange(CameraType cameraType, CameraType pPointOfView) {

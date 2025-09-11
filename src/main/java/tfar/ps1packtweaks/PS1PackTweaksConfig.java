@@ -73,6 +73,7 @@ public class PS1PackTweaksConfig {
         public final ForgeConfigSpec.IntValue mobsFollowPlayerDuration;
 
         public final ForgeConfigSpec.DoubleValue blackAndWhiteKillChance;
+        public final ForgeConfigSpec.IntValue blackAndWhiteKillTime;
 
         public final ForgeConfigSpec.DoubleValue wakeupSurpriseChance;
         public final ForgeConfigSpec.DoubleValue courbetReplaceChance;
@@ -124,6 +125,9 @@ public class PS1PackTweaksConfig {
 
             blackAndWhiteKillChance = builder.comment("Chance to turn world black and white after killing a mob")
                     .defineInRange("black_and_white_kill_chance",1/256d,0,1);
+
+            blackAndWhiteKillTime = builder.comment("Time before reverting black and white after kill")
+                    .defineInRange("black_and_white_kill_time",20,1,1000000000);
 
             builder.push("herobrine");
             herobrineChance = builder.defineInRange("chance",.5,0,1);

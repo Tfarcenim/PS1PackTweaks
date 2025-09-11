@@ -33,6 +33,7 @@ public class MouseHider {
         }
         if (screen instanceof SelectWorldScreen) {
             unhide();
+            WorldLocker.updateLocks();
         }
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
