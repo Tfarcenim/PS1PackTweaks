@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "midnightlurker:midnight_lurker_aggressive",
+    "midnightlurker:midnight_lurker_runaway",
+    "midnightlurker:midnight_lurker_stalking",
+    "midnightlurker:midnight_lurker_stare",
+    "midnightlurker:midnight_lurker_unprovoked",
+    "midnightlurker:midnightlurker_ne"
+  ]
+}

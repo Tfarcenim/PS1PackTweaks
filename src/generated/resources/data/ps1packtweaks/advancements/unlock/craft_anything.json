@@ -1,13 +1,13 @@
 {
   "display": {
     "icon": {
-      "item": "minecraft:cake"
+      "item": "minecraft:crafting_table"
     },
     "title": {
-      "translate": "advancements.ps1packtweaks.unlock.place_cake.title"
+      "translate": "advancements.ps1packtweaks.unlock.craft_anything.title"
     },
     "description": {
-      "translate": "advancements.ps1packtweaks.unlock.place_cake.description"
+      "translate": "advancements.ps1packtweaks.unlock.craft_anything.description"
     },
     "frame": "task",
     "show_toast": true,
@@ -16,16 +16,14 @@
     "background": "minecraft:textures/gui/advancements/backgrounds/end.png"
   },
   "criteria": {
-    "place_cake": {
-      "trigger": "minecraft:placed_block",
-      "conditions": {
-        "block": "minecraft:cake"
-      }
+    "craft_anything": {
+      "trigger": "ps1packtweaks:craft_item",
+      "conditions": {}
     }
   },
   "requirements": [
     [
-      "place_cake"
+      "craft_anything"
     ]
   ]
 }

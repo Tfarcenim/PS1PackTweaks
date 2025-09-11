@@ -14,6 +14,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
+import net.minecraft.world.Container;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -24,6 +25,7 @@ import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.entity.decoration.Motive;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -70,6 +72,7 @@ import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.items.CapabilityItemHandler;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import tfar.ps1packtweaks.advancement.PetKilledTrigger;
 import tfar.ps1packtweaks.client.PS1PackTweaksClient;
 import tfar.ps1packtweaks.compat.BrewingCauldronCompat;
 import tfar.ps1packtweaks.compat.EnderiteModCompat;
@@ -141,6 +144,20 @@ public class PS1PackTweaks {
         MinecraftForge.EVENT_BUS.addListener(this::adjustLooting);
         MinecraftForge.EVENT_BUS.addListener(this::afterSleep);
         MinecraftForge.EVENT_BUS.addListener(this::advancementGet);
+        MinecraftForge.EVENT_BUS.addListener(this::itemCrafted);
+    }
+
+    void itemCrafted(PlayerEvent.ItemCraftedEvent event) {
+        Player player = event.getPlayer();
+        if (player instanceof ServerPlayer serverPlayer) {
+            ItemStack stack = event.getCrafting();
+            Container container = event.getInventory();
+            if (container instanceof CraftingContainer craftingContainer) {
+                if (craftingContainer.getContainerSize() == 9){
+                    Init.ITEM_CRAFTED.trigger(serverPlayer,stack);
+                }
+            }
+        }
     }
 
     void advancementGet(AdvancementEvent e) {
@@ -170,8 +187,17 @@ public class PS1PackTweaks {
     //Killing a mob will turn the whole screen black and white
     void onKill(LivingDeathEvent event) {
         DamageSource source = event.getSource();
-        if (source.getEntity() instanceof ServerPlayer player &&  player.getRandom().nextDouble() < PS1PackTweaksConfig.SERVER.blackAndWhiteKillChance.get()) {
+        Entity attacker = source.getEntity();
+        if (attacker instanceof ServerPlayer player &&  player.getRandom().nextDouble() < PS1PackTweaksConfig.SERVER.blackAndWhiteKillChance.get()) {
             ForgePacketHandler.sendToClient(new S2CShaderPacket(id("shaders/post/noir.json"),PS1PackTweaksConfig.SERVER.blackAndWhiteKillTime.get()),player);
+        }
+
+        LivingEntity entity = event.getEntityLiving();
+        if (entity instanceof TamableAnimal tamableAnimal) {
+            LivingEntity owner = tamableAnimal.getOwner();
+            if (owner instanceof ServerPlayer serverPlayerOwner) {
+                Init.PLAYER_FOUND_ENTITY.trigger(serverPlayerOwner,attacker instanceof LivingEntity living ? living : null);
+            }
         }
     }
 

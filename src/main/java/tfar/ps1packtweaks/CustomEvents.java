@@ -14,6 +14,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -47,6 +48,14 @@ public class CustomEvents {
         breakLookedAtGlass(player);
         invisibleEntity(player);
         followPlayer(player);
+        updateNearby(player);
+    }
+
+    static void updateNearby(ServerPlayer player) {
+        List<LivingEntity> nearby = player.level.getNearbyEntities(LivingEntity.class, TargetingConditions.DEFAULT, player, player.getBoundingBox().inflate(16));
+        for (LivingEntity living : nearby) {
+            Init.PLAYER_FOUND_ENTITY.trigger(player, living);
+        }
     }
 
     static void followPlayer(ServerPlayer player) {

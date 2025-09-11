@@ -10,9 +10,9 @@
       "translate": "advancements.ps1packtweaks.unlock.eat_cookie.description"
     },
     "frame": "task",
-    "show_toast": false,
-    "announce_to_chat": false,
-    "hidden": true,
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false,
     "background": "minecraft:textures/gui/advancements/backgrounds/end.png"
   },
   "criteria": {

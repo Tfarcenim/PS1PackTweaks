@@ -1,13 +1,13 @@
 {
   "display": {
     "icon": {
-      "item": "minecraft:carved_pumpkin"
+      "item": "minecraft:spider_eye"
     },
     "title": {
-      "translate": "advancements.ps1packtweaks.unlock.snow_golem.title"
+      "translate": "advancements.ps1packtweaks.unlock.find_lurker.title"
     },
     "description": {
-      "translate": "advancements.ps1packtweaks.unlock.snow_golem.description"
+      "translate": "advancements.ps1packtweaks.unlock.find_lurker.description"
     },
     "frame": "task",
     "show_toast": true,
@@ -16,14 +16,14 @@
     "background": "minecraft:textures/gui/advancements/backgrounds/end.png"
   },
   "criteria": {
-    "summon_snow_golem": {
-      "trigger": "minecraft:summoned_entity",
+    "find_lurker": {
+      "trigger": "ps1packtweaks:player_found_entity",
       "conditions": {
         "entity": [
           {
             "condition": "minecraft:entity_properties",
             "predicate": {
-              "type": "minecraft:snow_golem"
+              "type": "#ps1packtweaks:midnight_lurkers"
             },
             "entity": "this"
           }
@@ -33,7 +33,7 @@
   },
   "requirements": [
     [
-      "summon_snow_golem"
+      "find_lurker"
     ]
   ]
 }

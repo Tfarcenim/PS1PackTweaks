@@ -1,13 +1,13 @@
 {
   "display": {
     "icon": {
-      "item": "minecraft:music_disc_11"
+      "item": "quark:music_disc_endermosh"
     },
     "title": {
-      "translate": "advancements.ps1packtweaks.unlock.play_record.title"
+      "translate": "advancements.ps1packtweaks.unlock.play_endermosh.title"
     },
     "description": {
-      "translate": "advancements.ps1packtweaks.unlock.play_record.description"
+      "translate": "advancements.ps1packtweaks.unlock.play_endermosh.description"
     },
     "frame": "task",
     "show_toast": true,
@@ -16,7 +16,7 @@
     "background": "minecraft:textures/gui/advancements/backgrounds/end.png"
   },
   "criteria": {
-    "play_disc_11": {
+    "play_endermosh": {
       "trigger": "minecraft:item_used_on_block",
       "conditions": {
         "location": {
@@ -28,7 +28,7 @@
         },
         "item": {
           "items": [
-            "minecraft:music_disc_11"
+            "quark:music_disc_endermosh"
           ]
         }
       }
@@ -36,7 +36,7 @@
   },
   "requirements": [
     [
-      "play_disc_11"
+      "play_endermosh"
     ]
   ]
 }

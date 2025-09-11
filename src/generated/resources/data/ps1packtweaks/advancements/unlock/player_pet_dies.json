@@ -1,13 +1,13 @@
 {
   "display": {
     "icon": {
-      "item": "minecraft:cake"
+      "item": "minecraft:skeleton_skull"
     },
     "title": {
-      "translate": "advancements.ps1packtweaks.unlock.place_cake.title"
+      "translate": "advancements.ps1packtweaks.unlock.player_pet_died.title"
     },
     "description": {
-      "translate": "advancements.ps1packtweaks.unlock.place_cake.description"
+      "translate": "advancements.ps1packtweaks.unlock.player_pet_died.description"
     },
     "frame": "task",
     "show_toast": true,
@@ -16,16 +16,14 @@
     "background": "minecraft:textures/gui/advancements/backgrounds/end.png"
   },
   "criteria": {
-    "place_cake": {
-      "trigger": "minecraft:placed_block",
-      "conditions": {
-        "block": "minecraft:cake"
-      }
+    "kill_spider": {
+      "trigger": "ps1packtweaks:pet_killed",
+      "conditions": {}
     }
   },
   "requirements": [
     [
-      "place_cake"
+      "kill_spider"
     ]
   ]
 }

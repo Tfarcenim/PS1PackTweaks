@@ -11,6 +11,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraftforge.common.data.GlobalLootModifierProvider;
 import net.minecraftforge.common.loot.GlobalLootModifierSerializer;
+import tfar.ps1packtweaks.advancement.ItemCraftedTrigger;
+import tfar.ps1packtweaks.advancement.PetKilledTrigger;
 import tfar.ps1packtweaks.advancement.PlayerFoundEntityTrigger;
 import tfar.ps1packtweaks.entity.Barnacle;
 import tfar.ps1packtweaks.entity.HerobrineEntity;
@@ -21,6 +23,8 @@ import tfar.ps1packtweaks.worldgen.*;
 public class Init {
 
     public static final PlayerFoundEntityTrigger PLAYER_FOUND_ENTITY = CriteriaTriggers.register(new PlayerFoundEntityTrigger());
+    public static final ItemCraftedTrigger ITEM_CRAFTED = CriteriaTriggers.register(new ItemCraftedTrigger());
+    public static final PetKilledTrigger PLAYER_PET_KILLED = CriteriaTriggers.register(new PetKilledTrigger());
 
     public static class ModItems{
         public static final Item BARNACLE_TOOTH = new Item(new Item.Properties().tab(CreativeModeTab.TAB_MATERIALS));
