@@ -122,8 +122,8 @@ public class ModLangProvider extends LanguageProvider {
         addTextComponent(TextComponents.ADVANCEMENT_KILL_SPIDER_TITLE,"Kill Spider");
         addTextComponent(TextComponents.ADVANCEMENT_KILL_SPIDER_DESC,"Kill Spider");
 
-        addTextComponent(TextComponents.ADVANCEMENT_FIND_LURKER_TITLE,"Kill Spider");
-        addTextComponent(TextComponents.ADVANCEMENT_FIND_LURKER_DESC,"Kill Spider");
+        addTextComponent(TextComponents.ADVANCEMENT_FIND_LURKER_TITLE,"Find Midnight Lurker");
+        addTextComponent(TextComponents.ADVANCEMENT_FIND_LURKER_DESC,"Find Midnight Lurker");
 
         addTextComponent(TextComponents.ADVANCEMENT_PLAYER_PET_DIED_TITLE,"Player Pet Died");
         addTextComponent(TextComponents.ADVANCEMENT_PLAYER_PET_DIED_DESC,"Player Pet Died");

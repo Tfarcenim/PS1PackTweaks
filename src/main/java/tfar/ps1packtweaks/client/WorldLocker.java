@@ -5,13 +5,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import net.minecraft.core.Holder;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.LevelSummary;
 import org.apache.commons.io.IOUtils;
@@ -47,7 +42,7 @@ public class WorldLocker {
     public static final ResourceLocation PLAY_ENDERMOSH = new ResourceLocation("unlock/endermosh");
 
     public static final File LOCKED_SCREENSHOT = new File("screenshots/1999-05-17_10.30.43.png.mcr");
-
+    public static final File UNLOCKED_SCREENSHOT = new File("screenshots/1999-05-17_10.30.43.png");
 
     static {
         LOCKED_WORLDS.put("1977-09-26",EAT_COOKIE);
@@ -82,6 +77,9 @@ public class WorldLocker {
     }
 
     public static void unlock(ResourceLocation location) {
+        if (location.equals(PLAY_ENDERMOSH) && LOCKED_SCREENSHOT.exists()) {
+            LOCKED_SCREENSHOT.renameTo(UNLOCKED_SCREENSHOT);
+        }
         KEYS.add(location);
         write();
     }
@@ -107,8 +105,6 @@ public class WorldLocker {
             IOUtils.closeQuietly(reader);
         }
     }
-
-    public static final Map<Item, Map<Holder<Attribute>, Map<EquipmentSlot, AttributeModifier>>> MAP = new HashMap<>();
 
     public static void load(JsonArray jsonArray) {
         for (JsonElement element : jsonArray) {
@@ -137,14 +133,3 @@ public class WorldLocker {
         return jsonArray;
     }
 }
-//[Worlds]
-//1986-08-22 - Drinking any potion
-//1995-10-31 - Making a jackolantern
-//1996-06-19 - Crafting any item in a crafting table
-//1997-07-07 - Killing a spider
-//1998-03-12 - Encounter any Midnight Lurker variant
-//1998-10-13 - Players pet dies
-//1999-05-16 - Beating the game
-//
-//[Screenshot]
-//1999-05-17_10.30.43.png - Playing quark:music_disc_endermosh in a jukebox

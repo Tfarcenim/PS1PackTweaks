@@ -26,6 +26,10 @@ public class Init {
     public static final ItemCraftedTrigger ITEM_CRAFTED = CriteriaTriggers.register(new ItemCraftedTrigger());
     public static final PetKilledTrigger PLAYER_PET_KILLED = CriteriaTriggers.register(new PetKilledTrigger());
 
+    public static void init() {
+
+    }
+
     public static class ModItems{
         public static final Item BARNACLE_TOOTH = new Item(new Item.Properties().tab(CreativeModeTab.TAB_MATERIALS));
         public static final Item PRISMARINE_ROD = new Item(new Item.Properties().tab(CreativeModeTab.TAB_BUILDING_BLOCKS));

@@ -196,7 +196,7 @@ public class PS1PackTweaks {
         if (entity instanceof TamableAnimal tamableAnimal) {
             LivingEntity owner = tamableAnimal.getOwner();
             if (owner instanceof ServerPlayer serverPlayerOwner) {
-                Init.PLAYER_FOUND_ENTITY.trigger(serverPlayerOwner,attacker instanceof LivingEntity living ? living : null);
+                Init.PLAYER_PET_KILLED.trigger(serverPlayerOwner,tamableAnimal);
             }
         }
     }
@@ -427,6 +427,7 @@ public class PS1PackTweaks {
 
         PacketHandler.registerPackets();
         event.enqueueWork(() -> {
+            Init.init();
             PotionBrewing.addMix(Potions.AWKWARD, StarryEndBlocks.ENDER_CLOVER.get().asItem(),Potions.LUCK);
             ModConfiguredFeatures.init();
             if (ModIntegration.morehorsearmor.loaded) {
