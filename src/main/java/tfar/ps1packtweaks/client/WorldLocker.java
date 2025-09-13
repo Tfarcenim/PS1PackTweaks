@@ -5,6 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.mojang.datafixers.DataFixer;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.storage.LevelStorageSource;
@@ -19,6 +20,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.Reader;
 import java.util.*;
+import java.util.function.BiFunction;
 
 public class WorldLocker {
 
@@ -67,14 +69,21 @@ public class WorldLocker {
         LevelSummary levelSummary = cir.getReturnValue();
         if (levelSummary != null) {
             String name = levelSummary.getLevelId();
-            if (LOCKED_WORLDS.containsKey(name)) {
-                ResourceLocation key = LOCKED_WORLDS.get(name);
-                if (!KEYS.contains(key)) {
-                    cir.setReturnValue(null);
-                }
-            }
+
         }
     }
+
+    public static boolean isWorldLocked(String name) {
+        if (LOCKED_WORLDS.containsKey(name)) {
+            ResourceLocation key = LOCKED_WORLDS.get(name);
+            if (!KEYS.contains(key)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static final BiFunction<File, DataFixer, LevelSummary> returnNothing = (file, dataFixer) -> null;
 
     public static void unlock(ResourceLocation location) {
         if (location.equals(PLAY_ENDERMOSH) && LOCKED_SCREENSHOT.exists()) {

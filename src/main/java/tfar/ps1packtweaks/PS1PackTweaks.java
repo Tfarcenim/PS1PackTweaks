@@ -1,8 +1,10 @@
 package tfar.ps1packtweaks;
 
 import com.Apothic0n.StarryEnd.core.objects.StarryEndBlocks;
+import com.github.alexthe666.alexsmobs.misc.EmeraldsForItemsTrade;
 import com.google.common.collect.ImmutableList;
 import com.mojang.logging.LogUtils;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.core.*;
@@ -24,6 +26,8 @@ import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.entity.decoration.Motive;
 import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.npc.VillagerProfession;
+import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.Item;
@@ -31,9 +35,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.alchemy.Potions;
-import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.*;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.block.*;
@@ -42,10 +44,15 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.level.chunk.ProtoChunk;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
+import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.loot.GlobalLootModifierSerializer;
@@ -57,6 +64,7 @@ import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LootingLevelEvent;
 import net.minecraftforge.event.entity.player.*;
+import net.minecraftforge.event.village.VillagerTradesEvent;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.Event;
@@ -72,7 +80,6 @@ import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.items.CapabilityItemHandler;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import tfar.ps1packtweaks.advancement.PetKilledTrigger;
 import tfar.ps1packtweaks.client.PS1PackTweaksClient;
 import tfar.ps1packtweaks.compat.BrewingCauldronCompat;
 import tfar.ps1packtweaks.compat.EnderiteModCompat;
@@ -145,6 +152,46 @@ public class PS1PackTweaks {
         MinecraftForge.EVENT_BUS.addListener(this::afterSleep);
         MinecraftForge.EVENT_BUS.addListener(this::advancementGet);
         MinecraftForge.EVENT_BUS.addListener(this::itemCrafted);
+        MinecraftForge.EVENT_BUS.addListener(this::manageVillagerTrades);
+    }
+
+    public void manageVillagerTrades(VillagerTradesEvent event) {
+        VillagerProfession type = event.getType();
+        if (type == VillagerProfession.LIBRARIAN) {
+            Int2ObjectMap<List<VillagerTrades.ItemListing>> trades = event.getTrades();
+            List<VillagerTrades.ItemListing> itemListings = trades.get(4);
+            itemListings.removeIf(this::shouldRemove);
+        }
+    }
+
+    public boolean shouldRemove(VillagerTrades.ItemListing trade) {
+        if (trade instanceof VillagerTrades.EmeraldForItems emeraldForItems) {
+            Item item = emeraldForItems.item;
+            if (item == Items.WRITABLE_BOOK) {
+                return true;
+            }
+        }
+        return true;
+    }
+
+    public static void preventStructures(ConfiguredStructureFeature<?, ?> configuredStructureFeature, RegistryAccess pRegistryAcess, ChunkPos pChunkPos,
+                                         LevelHeightAccessor pLevel, CallbackInfoReturnable<StructureStart> cir) {
+        Registry<ConfiguredStructureFeature<?,?>> registry = pRegistryAcess.registryOrThrow(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY);
+        ResourceLocation location = registry.getKey(configuredStructureFeature);
+        if (location.getNamespace().equals(ModIntegration.kazs_end_village.name())) {
+            ProtoChunk level = (ProtoChunk) pLevel;//note: can be protochunk
+            boolean allAir = true;
+            for (int i = 0; i < 5;i++) {
+                LevelChunkSection chunk = level.getSection(i);
+                if (!chunk.hasOnlyAir()) {
+                    allAir  =false;break;
+                }
+            }
+            if (allAir) {
+                cir.setReturnValue(StructureStart.INVALID_START);
+            }
+
+        }
     }
 
     void itemCrafted(PlayerEvent.ItemCraftedEvent event) {
@@ -292,6 +339,12 @@ public class PS1PackTweaks {
     }
 
     void registerBlocks(RegistryEvent.Register<Block> event) {
+        event.getRegistry().registerAll(
+                Init.ModBlocks.EBONY_SIGN.setRegistryName("ebony_sign"),
+                Init.ModBlocks.EBONY_WALL_SIGN.setRegistryName("ebony_wall_sign"),
+                Init.ModBlocks.ENDERVIOLET_SIGN.setRegistryName("enderviolet_sign"),
+                Init.ModBlocks.ENDERVIOLET_WALL_SIGN.setRegistryName("enderviolet_wall_sign")
+        );
     }
 
     void registerBlockEntities(RegistryEvent.Register<BlockEntityType<?>> event) {
@@ -301,7 +354,10 @@ public class PS1PackTweaks {
     void registerItems(RegistryEvent.Register<Item> event) {
         event.getRegistry().registerAll(
                 Init.ModItems.BARNACLE_TOOTH.setRegistryName("barnacle_tooth"),
-                Init.ModItems.PRISMARINE_ROD.setRegistryName("prismarine_rod")
+                Init.ModItems.PRISMARINE_ROD.setRegistryName("prismarine_rod"),
+                Init.ModItems.EBONY_SIGN.setRegistryName("ebony_sign"),
+                Init.ModItems.ENDERVIOLET_SIGN.setRegistryName("enderviolet_sign")
+
         );
     }
 

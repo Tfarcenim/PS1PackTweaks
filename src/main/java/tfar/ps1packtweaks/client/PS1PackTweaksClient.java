@@ -15,10 +15,12 @@ import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.client.event.ColorHandlerEvent;
+import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.registries.IRegistryDelegate;
 import tfar.ps1packtweaks.AbstractClientPlayerDuck;
 import net.minecraft.Util;
@@ -70,6 +72,7 @@ import tfar.ps1packtweaks.ChatSettings;
 import tfar.ps1packtweaks.Init;
 import tfar.ps1packtweaks.PS1PackTweaks;
 import tfar.ps1packtweaks.PS1PackTweaksConfig;
+import tfar.ps1packtweaks.block.CustomWoodTypes;
 import tfar.ps1packtweaks.compat.BetterGuiCompassHUD;
 import tfar.ps1packtweaks.compat.ModIntegration;
 import tfar.ps1packtweaks.mixin.BlockColorsAccess;
@@ -119,12 +122,11 @@ public class PS1PackTweaksClient {
     };
 
 
-
     public static final ResourceLocation JUMP_SCARE = PS1PackTweaks.id("textures/screen.png");
 
     public static final IIngameOverlay jump_scare = (gui, poseStack, partialTick, width, height) -> {
-        if (PS1PackTweaksClient.jumpscareTimer> 0) {
-            gui.renderTextureOverlay(JUMP_SCARE,1);
+        if (PS1PackTweaksClient.jumpscareTimer > 0) {
+            gui.renderTextureOverlay(JUMP_SCARE, 1);
         }
     };
 
@@ -167,7 +169,6 @@ public class PS1PackTweaksClient {
             }
         }
     }
-
 
 
     public static BlockState replaceBlockRender(BlockState original) {
@@ -240,7 +241,7 @@ public class PS1PackTweaksClient {
             Minecraft minecraft = Minecraft.getInstance();
             if (shaderTimer > 0) {
                 shaderTimer--;
-                if (shaderTimer==0) {
+                if (shaderTimer == 0) {
                     minecraft.gameRenderer.shutdownEffect();
                 }
             }
@@ -267,11 +268,11 @@ public class PS1PackTweaksClient {
                     }
                     if (!minecraft.isPaused() && jumpscareTimer <= 0 && random.nextDouble() < PS1PackTweaksConfig.CLIENT.jumpScareChance.get()) {
                         jumpscareTimer = 30;
-                        minecraft.getSoundManager().play(SimpleSoundInstance.forUI(Init.ModSounds.SCREEN,1,1));
+                        minecraft.getSoundManager().play(SimpleSoundInstance.forUI(Init.ModSounds.SCREEN, 1, 1));
                     }
                 }
 
-                if (jumpscareTimer>0) {
+                if (jumpscareTimer > 0) {
                     jumpscareTimer--;
                 }
             }
@@ -280,8 +281,10 @@ public class PS1PackTweaksClient {
 
     static void message(ScreenshotEvent event) {
         if (!isAutoScreenshot) {
-            Minecraft.getInstance().player.displayClientMessage(new TextComponent(PS1PackTweaksConfig.CLIENT.screenshot_message.get()), true);
-            //event.setResultMessage(new TextComponent(PS1PackTweaksConfig.CLIENT.screenshot_message.get()));
+            if (Minecraft.getInstance().player != null) {
+                Minecraft.getInstance().player.displayClientMessage(new TextComponent(PS1PackTweaksConfig.CLIENT.screenshot_message.get()), true);
+                //event.setResultMessage(new TextComponent(PS1PackTweaksConfig.CLIENT.screenshot_message.get()));
+            }
         }
     }
 
@@ -324,26 +327,27 @@ public class PS1PackTweaksClient {
 
     static void setup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
+            CustomWoodTypes.LIST.forEach(Sheets::addWoodType);
             EntityRenderers.register(Init.ModEntityTypes.BARNACLE, BarnacleRenderer::new);
-        EntityRenderers.register(Init.ModEntityTypes.SCRIPTED_MIDNIGHT_LURKER, ScriptedMidnightLurkerRenderer::new);
+            EntityRenderers.register(Init.ModEntityTypes.SCRIPTED_MIDNIGHT_LURKER, ScriptedMidnightLurkerRenderer::new);
 
-        EntityRenderers.register(Init.ModEntityTypes.HEROBRINE, (EntityRendererProvider.Context context) -> new SimplePlayerRenderer<>(context,
-                false, PS1PackTweaks.id("textures/entity/herobrine.png")));
+            EntityRenderers.register(Init.ModEntityTypes.HEROBRINE, (EntityRendererProvider.Context context) -> new SimplePlayerRenderer<>(context,
+                    false, PS1PackTweaks.id("textures/entity/herobrine.png")));
 
-        EntityRenderers.register(Init.ModEntityTypes.INVISIBLE_ENTITY, (EntityRendererProvider.Context context) -> new InvisibleEntityRenderer<>(context,
-                false, PS1PackTweaks.id("textures/entity/herobrine.png")));
+            EntityRenderers.register(Init.ModEntityTypes.INVISIBLE_ENTITY, (EntityRendererProvider.Context context) -> new InvisibleEntityRenderer<>(context,
+                    false, PS1PackTweaks.id("textures/entity/herobrine.png")));
 
-        if (ModIntegration.guicompass.loaded) {
-            BetterGuiCompassHUD.setup();
-        }
-        MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::playSoundEvent);
-        if (PS1PackTweaks.TRIGGER_BANNER_CRASH) {
-            OverlayRegistry.registerOverlayTop("banner_crash", banner_overlay);
-        }
+            if (ModIntegration.guicompass.loaded) {
+                BetterGuiCompassHUD.setup();
+            }
+            MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::playSoundEvent);
+            if (PS1PackTweaks.TRIGGER_BANNER_CRASH) {
+                OverlayRegistry.registerOverlayTop("banner_crash", banner_overlay);
+            }
 
-        OverlayRegistry.registerOverlayTop("jump_scare", jump_scare);
+            OverlayRegistry.registerOverlayTop("jump_scare", jump_scare);
 
-        ClientRegistry.registerKeyBinding(COPY_CLASS_NAME.get());
+            ClientRegistry.registerKeyBinding(COPY_CLASS_NAME.get());
 
             BiomeColors.FOLIAGE_COLOR_RESOLVER = (biome, v, v1) -> 0xffffffff;
             BiomeColors.GRASS_COLOR_RESOLVER = (biome, v, v1) -> 0xffffffff;
@@ -363,7 +367,7 @@ public class PS1PackTweaksClient {
     }
 
     public static boolean shouldRemoveColor(Block[] blocks) {
-        if (blocks.length== 0) return false;
+        if (blocks.length == 0) return false;
         Block firstBlock = blocks[0];
         return firstBlock instanceof LeavesBlock || firstBlock instanceof LiquidBlock || firstBlock instanceof GrassBlock ||
                 firstBlock instanceof BushBlock || firstBlock instanceof VineBlock || firstBlock instanceof WaterlilyBlock;

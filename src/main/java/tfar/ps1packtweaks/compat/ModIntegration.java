@@ -1,5 +1,6 @@
 package tfar.ps1packtweaks.compat;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.ModList;
 
 public enum ModIntegration {
@@ -9,8 +10,15 @@ public enum ModIntegration {
     morehorsearmor,
     netherite_shulkers,
     shinyhorses,
-    enderitemod;
+    enderitemod,
+    kazsend,
+    kazs_end_village;
     public final boolean loaded;
+
+    public ResourceLocation id(String path) {
+        return new ResourceLocation(name(),path);
+    }
+
     ModIntegration() {
         loaded = ModList.get().isLoaded(name());
     }

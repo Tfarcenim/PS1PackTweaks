@@ -20,6 +20,7 @@ public class ModItemModelProvider extends ItemModelProvider {
     protected void registerModels() {
         generatedItem(Init.ModItems.BARNACLE_TOOTH.getRegistryName().getPath());
         generatedItem(Init.ModItems.PRISMARINE_ROD.getRegistryName().getPath());
+        generatedItem("ebony_sign");
     }
 
     private void generatedItem(String path) {

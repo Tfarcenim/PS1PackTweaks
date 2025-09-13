@@ -144,7 +144,8 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
 
             // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
-            args '--mod', "ps1packtweaks", '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+            args '--mod', "ps1packtweaks", '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/'),
+            '--existing-mod', 'kazsend'
 
             mods {
                 ps1packtweaks {
@@ -212,12 +213,15 @@ dependencies {
     implementation fg.deobf("curse.maven:gui-compass-347595:4852707")
     implementation fg.deobf("curse.maven:nostalgic-tweaks-592465:4622266")
 
+    implementation fg.deobf("curse.maven:ps1-world-select-screen-1293522:6993322")
+    //implementation fg.deobf("local:ps1worldselectscreen:1.18.2-6")
+
     implementation fg.deobf("curse.maven:architectury-api-419699:5137931")
 
     implementation fg.deobf("curse.maven:citadel-331936:3783096")
     implementation fg.deobf("curse.maven:alexs-mobs-426558:3853078")
 
-    implementation fg.deobf("curse.maven:brewing-cauldron-1203449:6423999")
+    implementation fg.deobf("curse.maven:brewing-cauldron-1203449:6987274")
 
     implementation fg.deobf("curse.maven:more-babies-590517:4121063")
     implementation fg.deobf("curse.maven:tyrannotitan-library-forge-425570:3711889")

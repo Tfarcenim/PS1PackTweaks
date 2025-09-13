@@ -3,6 +3,7 @@ package tfar.ps1packtweaks.datagen;
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 import net.enderitemc.enderitemod.init.Registration;
+import net.minecraft.core.Registry;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.loot.BlockLoot;
 import net.minecraft.data.loot.EntityLoot;
@@ -23,6 +24,7 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemKilledByPlayerC
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import tfar.ps1packtweaks.Init;
+import tfar.ps1packtweaks.PS1PackTweaks;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,6 +76,9 @@ public class LootTables extends LootTableProvider {
             List<Block> list = new ArrayList<>();
             list.add(Registration.ENDERITE_ORE.get());
             list.add(Registration.ENDERITE_SHULKER_BOX.get());
+
+            Registry.BLOCK.stream().filter(block -> Registry.BLOCK.getKey(block).getNamespace().equals(PS1PackTweaks.MOD_ID)).forEach(list::add);
+
             return list;
         }
 
@@ -81,6 +86,8 @@ public class LootTables extends LootTableProvider {
         protected void addTables() {
             dropWhenSilkTouch(Registration.ENDERITE_ORE.get());
             this.add(Registration.ENDERITE_SHULKER_BOX.get(), BlockLoot::createShulkerBoxDrop);
+            dropSelf(Init.ModBlocks.EBONY_SIGN);
+            dropSelf(Init.ModBlocks.ENDERVIOLET_SIGN);
         }
     }
 }
