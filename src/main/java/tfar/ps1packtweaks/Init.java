@@ -6,30 +6,25 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.decoration.Motive;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.SignItem;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.StandingSignBlock;
-import net.minecraft.world.level.block.WallSignBlock;
+import net.minecraft.world.item.*;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.configurations.HugeMushroomFeatureConfiguration;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.material.MaterialColor;
-import net.minecraftforge.common.data.GlobalLootModifierProvider;
-import net.minecraftforge.common.loot.GlobalLootModifierSerializer;
 import tfar.ps1packtweaks.advancement.ItemCraftedTrigger;
 import tfar.ps1packtweaks.advancement.PetKilledTrigger;
 import tfar.ps1packtweaks.advancement.PlayerFoundEntityTrigger;
+import tfar.ps1packtweaks.block.CustomBoatTypes;
 import tfar.ps1packtweaks.block.CustomWoodTypes;
+import tfar.ps1packtweaks.block.EndershroomBlock;
 import tfar.ps1packtweaks.entity.Barnacle;
 import tfar.ps1packtweaks.entity.HerobrineEntity;
 import tfar.ps1packtweaks.entity.InvisibleEntity;
 import tfar.ps1packtweaks.entity.ScriptedMidnightLurker;
+import tfar.ps1packtweaks.item.FloatingBlockItem;
 import tfar.ps1packtweaks.worldgen.*;
-import vazkii.quark.base.item.QuarkSignItem;
 
 public class Init {
 
@@ -50,6 +45,17 @@ public class Init {
 
         public static final Item BARNACLE_TOOTH = new Item(new Item.Properties().tab(CreativeModeTab.TAB_MATERIALS));
         public static final Item PRISMARINE_ROD = new Item(new Item.Properties().tab(CreativeModeTab.TAB_BUILDING_BLOCKS));
+
+        public static final Item EBONY_BOAT = new BoatItem(CustomBoatTypes.EBONY,
+                new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_TRANSPORTATION));
+        public static final Item ENDERVIOLET_BOAT = new
+                BoatItem(CustomBoatTypes.ENDERVIOLET,new Item.Properties().stacksTo(1).tab(CreativeModeTab.TAB_TRANSPORTATION));
+
+
+        public static final BlockItem ENDERSHROOM = new FloatingBlockItem(ModBlocks.ENDERSHROOM,new Item.Properties().tab(CreativeModeTab.TAB_DECORATIONS));
+
+        public static final BlockItem ENDERSHROOM_BLOCK = new BlockItem(ModBlocks.ENDERSHROOM_BLOCK,
+                new Item.Properties().tab(CreativeModeTab.TAB_BUILDING_BLOCKS));
     }
 
     public static class ModEntityTypes {
@@ -61,7 +67,8 @@ public class Init {
         public static final EntityType<HerobrineEntity> HEROBRINE = EntityType.Builder.of(HerobrineEntity::new, MobCategory.MONSTER)
                 .sized(0.6F, 1.95F).clientTrackingRange(8).build("");
 
-        public static final EntityType<ScriptedMidnightLurker> SCRIPTED_MIDNIGHT_LURKER =  EntityType.Builder.of(ScriptedMidnightLurker::new, MobCategory.MONSTER)
+        public static final EntityType<ScriptedMidnightLurker> SCRIPTED_MIDNIGHT_LURKER =
+                EntityType.Builder.of(ScriptedMidnightLurker::new, MobCategory.MONSTER)
                 .setTrackingRange(8)
                 .setUpdateInterval(3).fireImmune().sized(0.7F, 2.5F).build("");
 
@@ -105,6 +112,13 @@ public class Init {
                 new WallSignBlock(BlockBehaviour.Properties
                         .of(Material.WOOD,MaterialColor.COLOR_PURPLE).noCollission().strength(1.0F)
                         .sound(SoundType.WOOD).dropsLike(ENDERVIOLET_SIGN),CustomWoodTypes.ENDERVIOLET);
+
+        public static final Block ENDERSHROOM = new EndershroomBlock(BlockBehaviour.Properties.of(Material.PLANT,
+                        MaterialColor.COLOR_PURPLE).noCollission().randomTicks()
+                .instabreak().sound(SoundType.GRASS).hasPostProcess(Blocks::always), () -> ModTreeFeatures.HUGE_ENDERSHROOM);
+
+        public static final Block ENDERSHROOM_BLOCK = new HugeMushroomBlock(BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.COLOR_PURPLE)
+                .strength(0.2F).sound(SoundType.WOOD));
     }
 
     public static class ModPaintings {
@@ -115,6 +129,7 @@ public class Init {
         public static final Feature<TunnelConfiguration> TUNNEL = new TunnelFeature(TunnelConfiguration.CODEC);
         public static final Feature<SignFeatureConfig> SIGN = new SignFeature(SignFeatureConfig.CODEC);
         public static final Feature<PyramidConfig> PYRAMID = new SandPyramidFeature(PyramidConfig.CODEC);
+        public static final Feature<HugeMushroomFeatureConfiguration> HUGE_ENDERSHROOM = new HugeEndershroomFeature(HugeMushroomFeatureConfiguration.CODEC);
     }
 
     public static class GlobalLootModifiers {

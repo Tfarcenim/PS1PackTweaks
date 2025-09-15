@@ -328,6 +328,7 @@ public class PS1PackTweaksClient {
     static void setup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             CustomWoodTypes.LIST.forEach(Sheets::addWoodType);
+            ItemBlockRenderTypes.setRenderLayer(Init.ModBlocks.ENDERSHROOM,RenderType.cutoutMipped());
             EntityRenderers.register(Init.ModEntityTypes.BARNACLE, BarnacleRenderer::new);
             EntityRenderers.register(Init.ModEntityTypes.SCRIPTED_MIDNIGHT_LURKER, ScriptedMidnightLurkerRenderer::new);
 

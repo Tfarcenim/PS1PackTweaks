@@ -1,0 +1,115 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "north": "true"
+      },
+      "apply": {
+        "model": "ps1packtweaks:block/endershroom_block"
+      }
+    },
+    {
+      "when": {
+        "east": "true"
+      },
+      "apply": {
+        "model": "ps1packtweaks:block/endershroom_block",
+        "y": 90,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "south": "true"
+      },
+      "apply": {
+        "model": "ps1packtweaks:block/endershroom_block",
+        "y": 180,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "west": "true"
+      },
+      "apply": {
+        "model": "ps1packtweaks:block/endershroom_block",
+        "y": 270,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "up": "true"
+      },
+      "apply": {
+        "model": "ps1packtweaks:block/endershroom_block",
+        "x": 270,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "down": "true"
+      },
+      "apply": {
+        "model": "ps1packtweaks:block/endershroom_block",
+        "x": 90,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "north": "false"
+      },
+      "apply": {
+        "model": "minecraft:block/mushroom_block_inside"
+      }
+    },
+    {
+      "when": {
+        "east": "false"
+      },
+      "apply": {
+        "model": "minecraft:block/mushroom_block_inside",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "south": "false"
+      },
+      "apply": {
+        "model": "minecraft:block/mushroom_block_inside",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "west": "false"
+      },
+      "apply": {
+        "model": "minecraft:block/mushroom_block_inside",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "up": "false"
+      },
+      "apply": {
+        "model": "minecraft:block/mushroom_block_inside",
+        "x": 270
+      }
+    },
+    {
+      "when": {
+        "down": "false"
+      },
+      "apply": {
+        "model": "minecraft:block/mushroom_block_inside",
+        "x": 90
+      }
+    }
+  ]
+}

@@ -85,6 +85,7 @@ public class CustomEvents {
                     InvisibleEntity entity = (InvisibleEntity) Init.ModEntityTypes.INVISIBLE_ENTITY.spawn(player.getLevel(), null, null,
                             mutableBlockPos,MobSpawnType.EVENT,false,false);
                     //entity.setInvisible(true);
+                    entity.setInvulnerable(true);
                     break;
                 }
             }

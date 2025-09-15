@@ -37,6 +37,10 @@ public class InvisibleEntity extends PathfinderMob {
     }
 
     @Override
+    protected void pushEntities() {
+    }
+
+    @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putLong("age", age);

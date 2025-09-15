@@ -21,6 +21,9 @@ public class ModItemModelProvider extends ItemModelProvider {
         generatedItem(Init.ModItems.BARNACLE_TOOTH.getRegistryName().getPath());
         generatedItem(Init.ModItems.PRISMARINE_ROD.getRegistryName().getPath());
         generatedItem("ebony_sign");
+        generatedItem("enderviolet_sign");
+        generatedItem("ebony_boat");
+        generatedItem("enderviolet_boat");
     }
 
     private void generatedItem(String path) {

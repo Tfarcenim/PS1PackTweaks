@@ -88,6 +88,8 @@ public class LootTables extends LootTableProvider {
             this.add(Registration.ENDERITE_SHULKER_BOX.get(), BlockLoot::createShulkerBoxDrop);
             dropSelf(Init.ModBlocks.EBONY_SIGN);
             dropSelf(Init.ModBlocks.ENDERVIOLET_SIGN);
+            dropSelf(Init.ModBlocks.ENDERSHROOM);
+            add(Init.ModBlocks.ENDERSHROOM_BLOCK, block -> createMushroomBlockDrop(block, Init.ModBlocks.ENDERSHROOM));
         }
     }
 }

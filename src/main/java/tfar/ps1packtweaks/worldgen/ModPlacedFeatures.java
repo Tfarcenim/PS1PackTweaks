@@ -35,6 +35,9 @@ public class ModPlacedFeatures {
 
     public static final Holder<PlacedFeature> COBBLE_ROCK = PlacementUtils.register(PS1PackTweaks.MOD_ID+":cobble_rock", ModConfiguredFeatures.COBBLE_ROCK, RarityFilter.onAverageOnceEvery(100), InSquarePlacement.spread(), PlacementUtils.HEIGHTMAP, BiomeFilter.biome());
 
+    public static final Holder<PlacedFeature> HUGE_ENDERSHROOM = PlacementUtils.register(
+            PS1PackTweaks.MOD_ID+":huge_endershroom",ModTreeFeatures.HUGE_ENDERSHROOM,
+            RarityFilter.onAverageOnceEvery(50),InSquarePlacement.spread());
 
 
     private static List<PlacementModifier> tunnelPlacement(PlacementModifier heightPlacement) {

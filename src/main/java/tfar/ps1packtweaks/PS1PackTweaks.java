@@ -1,7 +1,6 @@
 package tfar.ps1packtweaks;
 
 import com.Apothic0n.StarryEnd.core.objects.StarryEndBlocks;
-import com.github.alexthe666.alexsmobs.misc.EmeraldsForItemsTrade;
 import com.google.common.collect.ImmutableList;
 import com.mojang.logging.LogUtils;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -44,7 +43,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.ProtoChunk;
 import net.minecraft.world.level.levelgen.GenerationStep;
@@ -102,6 +100,7 @@ import tfar.ps1packtweaks.network.client.S2CShaderPacket;
 import tfar.ps1packtweaks.network.client.S2CTargetDimensionPacket;
 import tfar.ps1packtweaks.worldgen.ModConfiguredFeatures;
 import tfar.ps1packtweaks.worldgen.ModPlacedFeatures;
+import tfar.ps1packtweaks.worldgen.ModTreeFeatures;
 
 import java.util.List;
 import java.util.Random;
@@ -343,7 +342,9 @@ public class PS1PackTweaks {
                 Init.ModBlocks.EBONY_SIGN.setRegistryName("ebony_sign"),
                 Init.ModBlocks.EBONY_WALL_SIGN.setRegistryName("ebony_wall_sign"),
                 Init.ModBlocks.ENDERVIOLET_SIGN.setRegistryName("enderviolet_sign"),
-                Init.ModBlocks.ENDERVIOLET_WALL_SIGN.setRegistryName("enderviolet_wall_sign")
+                Init.ModBlocks.ENDERVIOLET_WALL_SIGN.setRegistryName("enderviolet_wall_sign"),
+                Init.ModBlocks.ENDERSHROOM.setRegistryName("endershroom"),
+                Init.ModBlocks.ENDERSHROOM_BLOCK.setRegistryName("endershroom_block")
         );
     }
 
@@ -356,8 +357,11 @@ public class PS1PackTweaks {
                 Init.ModItems.BARNACLE_TOOTH.setRegistryName("barnacle_tooth"),
                 Init.ModItems.PRISMARINE_ROD.setRegistryName("prismarine_rod"),
                 Init.ModItems.EBONY_SIGN.setRegistryName("ebony_sign"),
-                Init.ModItems.ENDERVIOLET_SIGN.setRegistryName("enderviolet_sign")
-
+                Init.ModItems.ENDERVIOLET_SIGN.setRegistryName("enderviolet_sign"),
+                Init.ModItems.EBONY_BOAT.setRegistryName("ebony_boat"),
+                Init.ModItems.ENDERVIOLET_BOAT.setRegistryName("enderviolet_boat"),
+                Init.ModItems.ENDERSHROOM.setRegistryName("endershroom"),
+                Init.ModItems.ENDERSHROOM_BLOCK.setRegistryName("endershroom_block")
         );
     }
 
@@ -377,7 +381,7 @@ public class PS1PackTweaks {
 
     void registerFeatures(RegistryEvent.Register<Feature<?>> event) {
         event.getRegistry().registerAll(Init.ModFeatures.TUNNEL.setRegistryName("tunnel"),Init.ModFeatures.SIGN.setRegistryName("sign"),
-                Init.ModFeatures.PYRAMID.setRegistryName("pyramid"));
+                Init.ModFeatures.PYRAMID.setRegistryName("pyramid"),Init.ModFeatures.HUGE_ENDERSHROOM.setRegistryName("huge_endershroom"));
     }
 
     void registerMotives(RegistryEvent.Register<Motive> event) {
@@ -443,6 +447,10 @@ public class PS1PackTweaks {
                 event.getSpawns().getSpawner(MobCategory.MONSTER).add(new MobSpawnSettings.SpawnerData(Init.ModEntityTypes.BARNACLE,
                         1000, 2, 3));
             }
+            case THEEND -> {
+                generation.addFeature(GenerationStep.Decoration.SURFACE_STRUCTURES,ModPlacedFeatures.HUGE_ENDERSHROOM);
+
+            }
         }
     }
 
@@ -483,6 +491,7 @@ public class PS1PackTweaks {
 
         PacketHandler.registerPackets();
         event.enqueueWork(() -> {
+            ModTreeFeatures.init();
             Init.init();
             PotionBrewing.addMix(Potions.AWKWARD, StarryEndBlocks.ENDER_CLOVER.get().asItem(),Potions.LUCK);
             ModConfiguredFeatures.init();

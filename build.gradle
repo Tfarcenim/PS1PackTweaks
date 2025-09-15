@@ -234,14 +234,14 @@ dependencies {
     implementation fg.deobf("curse.maven:music-plays-when-paused-1202121:6201626")
     implementation fg.deobf("curse.maven:default-skin-695442:4059339")
 
-    implementation fg.deobf("curse.maven:the-midnight-lurker-923133:5775470")
-
     implementation fg.deobf("curse.maven:embeddium-908741:5322305")
 
     implementation fg.deobf("local:kazsend:1.18.2-1.0.1")
 
     implementation fg.deobf("curse.maven:autoreglib-250363:3642382")
     implementation fg.deobf("curse.maven:quark-243121:3840125")
+
+    implementation fg.deobf("curse.maven:the-midnight-lurker-923133:6991066")
     //crashes datagen
     //implementation fg.deobf("curse.maven:spiffy-hud-forge-483885:3785712")
     //implementation fg.deobf("curse.maven:konkrete-410295:5028407")
