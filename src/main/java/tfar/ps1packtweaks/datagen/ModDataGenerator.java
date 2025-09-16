@@ -25,6 +25,7 @@ public class ModDataGenerator {
             generator.addProvider(new ModGlobalLootModifierProvider(generator));
             generator.addProvider(new ModAdvancementProvider(generator,existingFileHelper));
             generator.addProvider(new ModEntityTypeTagProvider(generator,existingFileHelper));
+            generator.addProvider(new ModRecipeProvider(generator));
         }
         if (event.includeClient()) {
             generator.addProvider(new ModBlockStateProvider(generator, existingFileHelper));

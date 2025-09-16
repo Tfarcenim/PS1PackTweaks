@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "boat",
+  "pattern": [
+    "# #",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "kazsend:enderviolet_planks"
+    }
+  },
+  "result": {
+    "item": "ps1packtweaks:enderviolet_boat"
+  }
+}

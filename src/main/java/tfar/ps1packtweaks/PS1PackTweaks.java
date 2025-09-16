@@ -36,6 +36,7 @@ import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -103,6 +104,7 @@ import tfar.ps1packtweaks.worldgen.ModPlacedFeatures;
 import tfar.ps1packtweaks.worldgen.ModTreeFeatures;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -448,9 +450,14 @@ public class PS1PackTweaks {
                         1000, 2, 3));
             }
             case THEEND -> {
-                generation.addFeature(GenerationStep.Decoration.SURFACE_STRUCTURES,ModPlacedFeatures.HUGE_ENDERSHROOM);
 
             }
+        }
+
+        ResourceLocation name = event.getName();
+
+        if (Objects.equals(Biomes.END_BARRENS.location(),name) || Objects.equals(Biomes.END_HIGHLANDS.location(),name)){
+            generation.addFeature(GenerationStep.Decoration.SURFACE_STRUCTURES,ModPlacedFeatures.HUGE_ENDERSHROOM);
         }
     }
 

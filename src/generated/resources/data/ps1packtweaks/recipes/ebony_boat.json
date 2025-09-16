@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "boat",
+  "pattern": [
+    "# #",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "kazsend:ebony_planks"
+    }
+  },
+  "result": {
+    "item": "ps1packtweaks:ebony_boat"
+  }
+}

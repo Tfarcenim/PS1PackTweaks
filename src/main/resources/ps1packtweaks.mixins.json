@@ -13,6 +13,7 @@
     "BlockBehaviourMixin",
     "BlockColorsMixin",
     "BlockStateAccess",
+    "BoatMixin",
     "BoatTypeMixin",
     "ChestBlockMixin",
     "FoliageColorMixin",

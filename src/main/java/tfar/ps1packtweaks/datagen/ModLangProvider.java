@@ -28,8 +28,20 @@ public class ModLangProvider extends LanguageProvider {
         addDefaultItem(() -> Init.ModItems.PRISMARINE_ROD);
         addDefaultItem(() -> Init.ModItems.BARNACLE_TOOTH);
 
+        addDefaultBlock(() -> Init.ModBlocks.ENDERSHROOM);
+        addDefaultBlock(() -> Init.ModBlocks.ENDERSHROOM_BLOCK);
+
+        addDefaultBlock(() -> Init.ModBlocks.EBONY_SIGN);
+        addDefaultBlock(() -> Init.ModBlocks.ENDERVIOLET_SIGN);
+
+        addDefaultItem(() -> Init.ModItems.EBONY_BOAT);
+        addDefaultItem(() -> Init.ModItems.ENDERVIOLET_BOAT);
+
         addDefaultEntityType(() -> Init.ModEntityTypes.BARNACLE);
         addDefaultEntityType(() -> Init.ModEntityTypes.HEROBRINE);
+
+        addDefaultEntityType(() -> Init.ModEntityTypes.INVISIBLE_ENTITY);
+        addDefaultEntityType(() -> Init.ModEntityTypes.SCRIPTED_MIDNIGHT_LURKER);
 
         add("text.autoconfig.inventorypause.title", "Inventory Pause Config");
 

@@ -1,0 +1,34 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "ps1packtweaks:enderviolet_sign"
+    ]
+  },
+  "criteria": {
+    "has_enderviolet_planks": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "kazsend:enderviolet_planks"
+            ]
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "ps1packtweaks:enderviolet_sign"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_enderviolet_planks",
+      "has_the_recipe"
+    ]
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "ps1packtweaks:ebony_sign"
+    ]
+  },
+  "criteria": {
+    "has_ebony_planks": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "kazsend:ebony_planks"
+            ]
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "ps1packtweaks:ebony_sign"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_ebony_planks",
+      "has_the_recipe"
+    ]
+  ]
+}
