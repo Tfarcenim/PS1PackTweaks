@@ -53,8 +53,8 @@ import java.util.*;
 
 //see https://github.com/How-Bout-No/Outvoted/blob/forge1.18/src/main/java/io/github/how_bout_no/outvoted/entity/Barnacle.java
 public class Barnacle extends Monster implements IAnimatable {
-    private static final EntityDataAccessor<Integer> ATTACKING;
-    private static final EntityDataAccessor<Integer> TARGET_ENTITY;
+    private static final EntityDataAccessor<Integer> ATTACKING = SynchedEntityData.defineId(Barnacle.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> TARGET_ENTITY = SynchedEntityData.defineId(Barnacle.class, EntityDataSerializers.INT);
     private LivingEntity targetedEntity;
     private static final Map<Integer, UUID> targetedEntities = new HashMap<>();
     private int clientSideAttackTime;
@@ -120,11 +120,6 @@ public class Barnacle extends Monster implements IAnimatable {
 
     protected PathNavigation createNavigation(Level worldIn) {
         return new WaterBoundPathNavigation(this, worldIn);
-    }
-
-    static {
-        ATTACKING = SynchedEntityData.defineId(Barnacle.class, EntityDataSerializers.INT);
-        TARGET_ENTITY = SynchedEntityData.defineId(Barnacle.class, EntityDataSerializers.INT);
     }
 
     @Override
@@ -492,7 +487,7 @@ public class Barnacle extends Monster implements IAnimatable {
                         if (this.tickCounter >= 600) {
                             this.mob.setAttacking(2);
                             if (this.tickCounter % 5 == 0) livingentity.hurt(DamageSource.mobAttack(this.mob), 2.0F);
-                        } else if (this.tickCounter % 40 == 0 && this.mob.getAttackPhase() == 1) {
+                        } else if (this.tickCounter % 20 == 0 && this.mob.getAttackPhase() == 1) {
                             this.mob.setAttacking(3);
                         } else if (this.mob.getAttackPhase() == 3 && this.tickCounter % 6 == 0) {
                             if (!this.hasAttacked) {

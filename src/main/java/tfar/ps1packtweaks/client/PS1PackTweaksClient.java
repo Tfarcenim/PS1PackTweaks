@@ -10,10 +10,17 @@ import com.mojang.blaze3d.Blaze3D;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.client.sounds.SoundManager;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.RecordItem;
 import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.entity.JukeboxBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.FlowingFluid;
@@ -22,6 +29,7 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.registries.IRegistryDelegate;
+import org.apache.commons.lang3.tuple.MutablePair;
 import tfar.ps1packtweaks.AbstractClientPlayerDuck;
 import net.minecraft.Util;
 import net.minecraft.client.CameraType;
@@ -77,14 +85,13 @@ import tfar.ps1packtweaks.compat.BetterGuiCompassHUD;
 import tfar.ps1packtweaks.compat.ModIntegration;
 import tfar.ps1packtweaks.mixin.BlockColorsAccess;
 import tyrannotitanlib.core.content.init.TyrannoBanners;
+import vazkii.quark.base.item.QuarkMusicDiscItem;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.Reader;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class PS1PackTweaksClient {
 
@@ -237,6 +244,19 @@ public class PS1PackTweaksClient {
                     }
                 }
             }
+
+            for (Iterator<MutablePair<Runnable, Integer>> iterator = scheduledTasks.iterator(); iterator.hasNext(); ) {
+                MutablePair<Runnable, Integer> task = iterator.next();
+                int tick = task.getRight();
+                if (tick == 0) {
+                    task.getLeft().run();
+                    iterator.remove();
+                } else {
+                    tick--;
+                    task.setRight(tick);
+                }
+            }
+
         } else {
             Minecraft minecraft = Minecraft.getInstance();
             if (shaderTimer > 0) {
@@ -328,7 +348,7 @@ public class PS1PackTweaksClient {
     static void setup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             CustomWoodTypes.LIST.forEach(Sheets::addWoodType);
-            ItemBlockRenderTypes.setRenderLayer(Init.ModBlocks.ENDERSHROOM,RenderType.cutoutMipped());
+            ItemBlockRenderTypes.setRenderLayer(Init.ModBlocks.ENDERSHROOM, RenderType.cutoutMipped());
             EntityRenderers.register(Init.ModEntityTypes.BARNACLE, BarnacleRenderer::new);
             EntityRenderers.register(Init.ModEntityTypes.SCRIPTED_MIDNIGHT_LURKER, ScriptedMidnightLurkerRenderer::new);
 
@@ -509,5 +529,28 @@ public class PS1PackTweaksClient {
             }
         }
         return false;
+    }
+
+    private static final List<MutablePair<Runnable,Integer>> scheduledTasks = new ArrayList<>();
+
+    public static void schedule(Runnable runnable,int ticks) {
+        scheduledTasks.add(MutablePair.of(runnable,ticks));
+    }
+
+
+    public static void onJukeboxLoad(JukeboxBlockEntity tile) {
+        Runnable runnable = () -> {
+            Minecraft mc = Minecraft.getInstance();
+            LevelRenderer render = mc.levelRenderer;
+            BlockPos pos = tile.getBlockPos();
+
+            ItemStack stack = tile.getRecord();
+            Item var8 = stack.getItem();
+            if (var8 instanceof RecordItem recordItem && !(var8 instanceof QuarkMusicDiscItem)) {
+                render.playStreamingMusic(recordItem.getSound(), pos, recordItem);
+                //render.levelEvent(mc.player,LevelEvent.SOUND_PLAY_RECORDING,pos,0);
+            }
+        };
+        schedule(runnable,40);
     }
 }
