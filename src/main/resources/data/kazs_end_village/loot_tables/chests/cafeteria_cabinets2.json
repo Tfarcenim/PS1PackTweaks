@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "rolls": {
+        "min": 1,
+        "max": 2,
+        "type": "minecraft:uniform"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "weight": 3,
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": {
+                "min": 3,
+                "max": 13,
+                "type": "minecraft:uniform"
+              }
+            }
+          ],
+          "name": "minecraft:heavy_weighted_pressure_plate"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "name": "kazs_end_village:town_center",
+  "fallback": "minecraft:empty",
+  "elements": [
+	{	
+      "weight": 1,
+      "element": {
+        "location": "kazs_end_village:village/end_village_cross_well",
+        "processors": "minecraft:empty",
+		"projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    }
+
+  ]
+}

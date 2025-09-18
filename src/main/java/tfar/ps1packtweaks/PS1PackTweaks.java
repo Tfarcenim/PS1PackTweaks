@@ -50,6 +50,7 @@ import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.material.FluidState;
@@ -101,6 +102,7 @@ import tfar.ps1packtweaks.network.client.S2CShaderPacket;
 import tfar.ps1packtweaks.network.client.S2CTargetDimensionPacket;
 import tfar.ps1packtweaks.worldgen.ModConfiguredFeatures;
 import tfar.ps1packtweaks.worldgen.ModPlacedFeatures;
+import tfar.ps1packtweaks.worldgen.ModStructureFeatures;
 import tfar.ps1packtweaks.worldgen.ModTreeFeatures;
 
 import java.util.List;
@@ -136,6 +138,7 @@ public class PS1PackTweaks {
         bus.addGenericListener(SoundEvent.class, this::registerSounds);
         bus.addGenericListener(Feature.class, this::registerFeatures);
         bus.addGenericListener(Motive.class, this::registerMotives);
+        bus.addGenericListener(StructureFeature.class, this::registerStructures);
         bus.addGenericListener(GlobalLootModifierSerializer.class, this::registerGLMs);
 
         bus.addListener(ModDataGenerator::gatherData);
@@ -384,6 +387,10 @@ public class PS1PackTweaks {
     void registerFeatures(RegistryEvent.Register<Feature<?>> event) {
         event.getRegistry().registerAll(Init.ModFeatures.TUNNEL.setRegistryName("tunnel"),Init.ModFeatures.SIGN.setRegistryName("sign"),
                 Init.ModFeatures.PYRAMID.setRegistryName("pyramid"),Init.ModFeatures.HUGE_ENDERSHROOM.setRegistryName("huge_endershroom"));
+    }
+
+    void registerStructures(RegistryEvent.Register<StructureFeature<?>> event) {
+        event.getRegistry().registerAll(ModStructureFeatures.END_VILLAGE.setRegistryName("end_village"));
     }
 
     void registerMotives(RegistryEvent.Register<Motive> event) {

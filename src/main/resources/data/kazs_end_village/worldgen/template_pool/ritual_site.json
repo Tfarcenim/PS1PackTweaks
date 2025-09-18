@@ -1,0 +1,16 @@
+{
+  "name": "kazs_end_village:ritual_site",
+  "fallback": "minecraft:empty",
+  "elements": [
+	{	
+      "weight": 1,
+      "element": {
+        "location": "kazs_end_village:ebony/minecraftend_ritual_site",
+        "processors": "minecraft:empty",
+		"projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    }
+
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "name": "kazs_end_village:buildings",
+  "fallback": "minecraft:empty",
+  "elements": [
+	{	
+      "weight": 2,
+      "element": {
+        "location": "kazs_end_village:village/end_library",
+        "processors": "minecraft:empty",
+		"projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+
+    {	
+      "weight": 2,
+      "element": {
+        "location": "kazs_end_village:village/end_bathhouse",
+        "processors": "minecraft:empty",
+		"projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+
+    {	
+      "weight": 1,
+      "element": {
+        "location": "kazs_end_village:village/end_blacksmith",
+        "processors": "minecraft:empty",
+		"projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+
+     {	
+      "weight": 1,
+      "element": {
+        "location": "kazs_end_village:village/end_farm",
+        "processors": "minecraft:empty",
+		"projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+
+     {	
+      "weight": 2,
+      "element": {
+        "location": "kazs_end_village:village/end_hospital",
+        "processors": "minecraft:empty",
+		"projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+
+    {	
+      "weight": 4,
+      "element": {
+        "location": "kazs_end_village:village/end_house",
+        "processors": "minecraft:empty",
+		"projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+
+    {	
+      "weight": 1,
+      "element": {
+        "location": "kazs_end_village:village/end_lab",
+        "processors": "minecraft:empty",
+		"projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+
+    {	
+      "weight": 2,
+      "element": {
+        "location": "kazs_end_village:village/end_archery_tower",
+        "processors": "minecraft:empty",
+		"projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+
+     {	
+      "weight": 1,
+      "element": {
+        "location": "kazs_end_village:village/end_village_well",
+        "processors": "minecraft:empty",
+		"projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    },
+
+    {	
+      "weight": 1,
+      "element": {
+        "location": "kazs_end_village:village/end_graveyard",
+        "processors": "minecraft:empty",
+		"projection": "rigid",
+        "element_type": "minecraft:single_pool_element"
+      }
+    }
+  ]
+}
