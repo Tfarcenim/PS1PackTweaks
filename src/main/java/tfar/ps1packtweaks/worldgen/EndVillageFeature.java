@@ -1,20 +1,40 @@
 package tfar.ps1packtweaks.worldgen;
 
 import com.mojang.serialization.Codec;
+import net.minecraft.core.BlockPos;
+import net.minecraft.data.worldgen.Pools;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelHeightAccessor;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.levelgen.feature.JigsawFeature;
+import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.JigsawConfiguration;
+import net.minecraft.world.level.levelgen.structure.PoolElementStructurePiece;
 import net.minecraft.world.level.levelgen.structure.pieces.PieceGeneratorSupplier;
+import net.minecraft.world.level.levelgen.structure.pools.JigsawPlacement;
 
+import java.util.Optional;
 import java.util.Random;
+import java.util.function.Predicate;
 
-public class EndVillageFeature extends JigsawFeature {
+public class EndVillageFeature extends StructureFeature<JigsawConfiguration> {
+   public EndVillageFeature(Codec<JigsawConfiguration> pCodec, int pStartY, boolean pDoExpansionHack, boolean pProjectStartToHeightmap,
+                            Predicate<PieceGeneratorSupplier.Context<JigsawConfiguration>> pPredicate) {
+        super(pCodec, (context) -> {
+            if (!pPredicate.test(context)) {
+                return Optional.empty();
+            } else {
+                BlockPos blockpos = new BlockPos(context.chunkPos().getMinBlockX(), pStartY, context.chunkPos().getMinBlockZ());
+                Pools.bootstrap();
+                return TweakedJigsawPlacement.addPieces(context, PoolElementStructurePiece::new, blockpos,
+                        pDoExpansionHack, pProjectStartToHeightmap);
+            }
+        });
+    }
+
     public EndVillageFeature(Codec<JigsawConfiguration> pCodec) {
-        super(pCodec, 0, true, true, EndVillageFeature::test);
+        this(pCodec, 0, true, true, EndVillageFeature::test);
     }
 
     private static boolean test(PieceGeneratorSupplier.Context<JigsawConfiguration> jigsawConfigurationContext) {
