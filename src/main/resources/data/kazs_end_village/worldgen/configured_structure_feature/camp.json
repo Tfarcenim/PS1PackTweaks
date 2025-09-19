@@ -3,7 +3,7 @@
     "start_pool": "kazs_end_village:end_camp",
     "size": 1
   },
-  "biomes": "#minecraft:has_structure/end_city",
+  "biomes": "#ps1packtweaks:has_structure/camp",
   "adapt_noise": true,
   "spawn_overrides": {},
   "type": "ps1packtweaks:end_village"
