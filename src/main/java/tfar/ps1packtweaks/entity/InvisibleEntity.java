@@ -28,6 +28,11 @@ public class InvisibleEntity extends PathfinderMob {
     }
 
     @Override
+    public boolean isPickable() {
+        return false;
+    }
+
+    @Override
     protected void customServerAiStep() {
         super.customServerAiStep();
         age++;

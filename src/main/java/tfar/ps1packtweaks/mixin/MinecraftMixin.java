@@ -15,7 +15,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Coerce;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import tfar.ps1packtweaks.PS1PackTweaksConfig;
 import tfar.ps1packtweaks.client.PS1PackTweaksClient;
 
 import javax.annotation.Nullable;
@@ -46,7 +45,7 @@ public abstract class MinecraftMixin {
 
     @Inject(at = @At("TAIL"), method = "setScreen")
     public void openScreen(@Nullable Screen screen, CallbackInfo ci) {
-        if (PS1PackTweaksConfig.CLIENT.inventorypause_enabled.get() && PS1PackTweaksConfig.CLIENT.inventorypause_pause_sounds.get() && PS1PackTweaksClient.isPauseScreen(screen)) {
+        if (PS1PackTweaksClient.CLIENT.inventorypause_enabled.get() && PS1PackTweaksClient.CLIENT.inventorypause_pause_sounds.get() && PS1PackTweaksClient.isPauseScreen(screen)) {
             boolean canPauseGame = isLocalServer() && !this.singleplayerServer.isPublished();
             if(canPauseGame) {
                 this.getSoundManager().pause();
@@ -56,7 +55,7 @@ public abstract class MinecraftMixin {
 
     @WrapOperation(method = "runTick(Z)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;isPauseScreen()Z"))
     private boolean pauseGame(Screen instance, Operation<Boolean> original) {
-        if (PS1PackTweaksConfig.CLIENT.inventorypause_enabled.get() && PS1PackTweaksClient.isPauseScreen(instance)) {
+        if (PS1PackTweaksClient.CLIENT.inventorypause_enabled.get() && PS1PackTweaksClient.isPauseScreen(instance)) {
             return true;
         }
         return original.call(instance);

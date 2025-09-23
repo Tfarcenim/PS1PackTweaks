@@ -1,0 +1,9 @@
+{
+  "conditions": [
+    {
+      "condition": "forge:loot_table_id",
+      "loot_table_id": "kazs_end_village:chests/cartographer"
+    }
+  ],
+  "type": "ps1packtweaks:add_item"
+}

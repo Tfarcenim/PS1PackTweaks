@@ -5,7 +5,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraftforge.common.data.GlobalLootModifierProvider;
-import tfar.ps1packtweaks.DuplicateOutputsLootModifier;
+import net.minecraftforge.common.loot.LootTableIdCondition;
+import tfar.ps1packtweaks.compat.ModIntegration;
+import tfar.ps1packtweaks.loot.AddItemLootModifier;
+import tfar.ps1packtweaks.loot.DuplicateOutputsLootModifier;
 import tfar.ps1packtweaks.Init;
 import tfar.ps1packtweaks.PS1PackTweaks;
 import tfar.ps1packtweaks.compat.DatapackLootTables;
@@ -22,6 +25,10 @@ public class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
     protected void start() {
         add("duplicate_outputs", Init.GlobalLootModifiers.DUPLICATE_OUTPUTS,new DuplicateOutputsLootModifier(new LootItemCondition[]{
                 new OrLootTableCondition(whitelist())
+        }));
+
+        add("add_map_to_village",Init.GlobalLootModifiers.ADD_ITEM,new AddItemLootModifier(new LootItemCondition[]{
+                new LootTableIdCondition.Builder(ModIntegration.kazs_end_village.id("chests/cartographer")).build()
         }));
     }
 

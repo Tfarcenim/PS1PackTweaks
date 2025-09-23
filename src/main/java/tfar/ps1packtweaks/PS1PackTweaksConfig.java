@@ -1,14 +1,12 @@
 package tfar.ps1packtweaks;
 
-import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
-import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import org.apache.commons.lang3.tuple.Pair;
+import tfar.ps1packtweaks.client.PS1PackTweaksClient;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class PS1PackTweaksConfig {
@@ -16,17 +14,10 @@ public class PS1PackTweaksConfig {
     public static final Server SERVER;
     public static final ForgeConfigSpec SERVER_SPEC;
 
-    public static final Client CLIENT;
-    public static final ForgeConfigSpec CLIENT_SPEC;
-
     static {
         final Pair<Server, ForgeConfigSpec> specPair2 = new ForgeConfigSpec.Builder().configure(Server::new);
         SERVER_SPEC = specPair2.getRight();
         SERVER = specPair2.getLeft();
-
-        final Pair<Client, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Client::new);
-        CLIENT_SPEC = specPair.getRight();
-        CLIENT = specPair.getLeft();
     }
 
     public static class Server {
@@ -77,6 +68,8 @@ public class PS1PackTweaksConfig {
 
         public final ForgeConfigSpec.DoubleValue wakeupSurpriseChance;
         public final ForgeConfigSpec.DoubleValue courbetReplaceChance;
+        public final ForgeConfigSpec.DoubleValue randomTotemUseChance;
+        public final ForgeConfigSpec.DoubleValue randomArrowChance;
 
         Server(ForgeConfigSpec.Builder builder) {
             builder.push("tweaks");
@@ -128,6 +121,12 @@ public class PS1PackTweaksConfig {
 
             blackAndWhiteKillTime = builder.comment("Time before reverting black and white after kill")
                     .defineInRange("black_and_white_kill_time",20,1,1000000000);
+
+            randomTotemUseChance = builder.comment("Chance to randomly use a totem every tick when held")
+                    .defineInRange("random_totem_use_chance",1/65536d,0,1);
+
+            randomArrowChance = builder.comment("Chance to randomly shoot an arrow at player every tick")
+                    .defineInRange("random_arrow_chance",1/65536d,0,1);
 
             builder.push("herobrine");
             herobrineChance = builder.defineInRange("chance",.5,0,1);
@@ -203,9 +202,10 @@ public class PS1PackTweaksConfig {
         public final ForgeConfigSpec.IntValue replaceBlocksTime;
 
         public final ForgeConfigSpec.DoubleValue jumpScareChance;
+        public final ForgeConfigSpec.IntValue delaySongTime;
 
 
-        Client(ForgeConfigSpec.Builder builder) {
+        public Client(ForgeConfigSpec.Builder builder) {
             builder.push("tweaks");
             singleplayer_chat_settings = ConfigHelper.defineObject(builder.comment("FULL,SYSTEM,HIDDEN"),"singleplayer_chat_settings",
                     ChatSettings.CODEC,ChatSettings.DEFAULT_SINGLEPLAYER);
@@ -226,7 +226,7 @@ public class PS1PackTweaksConfig {
             inventorypause_pause_sounds = builder.define("pause_sounds",false);
             inventorypause_debug = builder.define("debug",false);
 
-            inventorypause_screens = builder.defineList("screens",defaultClasses(), o -> o instanceof String);
+            inventorypause_screens = builder.defineList("screens", PS1PackTweaksClient.defaultClasses(), o -> o instanceof String);
             herobrine_skin_chance = builder.defineInRange("herobrine_skin_chance",1/64d,0,1);
 
            // disableColorMaps = builder.comment("Disables colormaps for leaves, grass and water").define("disable_color_maps",true);
@@ -250,15 +250,9 @@ public class PS1PackTweaksConfig {
             jumpScareChance = builder.comment("Chance every second for jumpscare")
                     .defineInRange("jump_scare_chance",1/4096d,0,1);
 
+            delaySongTime = builder.comment("Time to delay first song at start").defineInRange("delay_song_time",300,1,1000000000);
+
             builder.pop();
         }
-
-        static List<? extends String> defaultClasses() {
-            List<String> strings = new ArrayList<>();
-            strings.add(CreativeModeInventoryScreen.class.getName());
-            strings.add(InventoryScreen.class.getName());
-            return strings;
-        }
     }
-
 }

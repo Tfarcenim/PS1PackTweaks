@@ -13,42 +13,98 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.entity.projectile.Arrow;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec2;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.*;
 import tfar.ps1packtweaks.entity.HerobrineEntity;
 import tfar.ps1packtweaks.entity.InvisibleEntity;
 import tfar.ps1packtweaks.util.TreeScanner;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 public class CustomEvents {
 
     public static final String FOLLOW = PS1PackTweaks.id("follow").toString();
 
     public static void handleEvents(ServerPlayer player) {
-        tickHerobrineSpawn(player);
-        tickFallingAnimalSpawn(player);
-        tickVanishingLeaves(player);
-        tickVanishingLogs(player);
-        tickTunnels(player);
-        playRandomSound(player);
-        burnWhenLookingUp(player);
-        breakLookedAtGlass(player);
-        invisibleEntity(player);
-        followPlayer(player);
+        if (player.level.getGameRules().getBoolean(PS1PackTweaks.RULE_CREEPY_EVENTS)) {
+            randomUseTotem(player);
+            tickHerobrineSpawn(player);
+            tickFallingAnimalSpawn(player);
+            tickVanishingLeaves(player);
+            tickVanishingLogs(player);
+            tickTunnels(player);
+            playRandomSound(player);
+            burnWhenLookingUp(player);
+            breakLookedAtGlass(player);
+            invisibleEntity(player);
+            followPlayer(player);
+            randomArrow(player);
+        }
         updateNearby(player);
+    }
+
+    static void randomArrow(ServerPlayer player) {
+        if (player.getRandom().nextDouble() < PS1PackTweaksConfig.SERVER.randomArrowChance.get()) {
+            player.checkTotemDeathProtection(new DamageSource("generic"));
+            BlockPos pos = player.blockPosition();
+            int attempt = 0;
+            BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
+            while (attempt <128){
+                attempt++;
+                int x = pos.getX() + pickNumber(player.getRandom(),6);
+                int y = pos.getY() + pickNumber(player.getRandom(),4);
+                int z = pos.getZ() + pickNumber(player.getRandom(),6);
+                mutableBlockPos.set(x,y,z);
+                Vec3 centerPos = Vec3.atCenterOf(mutableBlockPos);
+                Arrow arrow = new Arrow(player.level,centerPos.x,centerPos.y,centerPos.z);
+                Vec3 dist = player.position().add(0,1,0).subtract(centerPos);
+                if (dist.lengthSqr() < 4)continue;
+                arrow.setDeltaMovement(dist.normalize());
+                HitResult hitResult = getHitResult(arrow, entity -> entity == player);
+                if (hitResult instanceof EntityHitResult entityHitResult) {
+                    player.level.addFreshEntity(arrow);
+                    arrow.hurtMarked = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    public static HitResult getHitResult(Entity pProjectile, Predicate<Entity> pFilter) {
+        Vec3 vec3 = pProjectile.getDeltaMovement().scale(10);
+        Level level = pProjectile.level;
+        Vec3 vec31 = pProjectile.position();
+        Vec3 vec32 = vec31.add(vec3);
+        HitResult hitresult = level.clip(new ClipContext(vec31, vec32, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, pProjectile));
+        if (hitresult.getType() != HitResult.Type.MISS) {
+            vec32 = hitresult.getLocation();
+        }
+
+        HitResult hitresult1 = ProjectileUtil.getEntityHitResult(level, pProjectile, vec31, vec32, pProjectile.getBoundingBox().expandTowards(vec3).inflate(1.0D), pFilter);
+        if (hitresult1 != null) {
+            hitresult = hitresult1;
+        }
+
+        return hitresult;
+    }
+
+    static void randomUseTotem(ServerPlayer player) {
+        if (player.getRandom().nextDouble() < PS1PackTweaksConfig.SERVER.randomTotemUseChance.get()) {
+            player.checkTotemDeathProtection(new DamageSource("generic"));
+        }
     }
 
     static void updateNearby(ServerPlayer player) {
@@ -90,7 +146,6 @@ public class CustomEvents {
                 }
             }
         }
-
     }
 
     static void breakLookedAtGlass(ServerPlayer player) {

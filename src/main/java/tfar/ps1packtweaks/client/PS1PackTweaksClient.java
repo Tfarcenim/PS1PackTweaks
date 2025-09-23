@@ -10,11 +10,11 @@ import com.mojang.blaze3d.Blaze3D;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.color.block.BlockColors;
+import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -22,14 +22,14 @@ import net.minecraft.world.item.RecordItem;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.JukeboxBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.client.event.ColorHandlerEvent;
-import net.minecraftforge.fml.loading.FMLLoader;
+import net.minecraftforge.client.event.*;
+import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.registries.IRegistryDelegate;
 import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import tfar.ps1packtweaks.AbstractClientPlayerDuck;
 import net.minecraft.Util;
 import net.minecraft.client.CameraType;
@@ -58,9 +58,6 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BannerPattern;
 import net.minecraftforge.client.ClientRegistry;
-import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
-import net.minecraftforge.client.event.ScreenEvent;
-import net.minecraftforge.client.event.ScreenshotEvent;
 import net.minecraftforge.client.event.sound.PlaySoundEvent;
 import net.minecraftforge.client.gui.IIngameOverlay;
 import net.minecraftforge.client.gui.OverlayRegistry;
@@ -102,6 +99,15 @@ public class PS1PackTweaksClient {
             GLFW.GLFW_KEY_UNKNOWN, // No default mapping
             "key.categories.inventorypause.main" // Category localisation
     ));
+    public static final PS1PackTweaksConfig.Client CLIENT;
+    public static final ForgeConfigSpec CLIENT_SPEC;
+
+    static {
+        final Pair<PS1PackTweaksConfig.Client, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder()
+                .configure(PS1PackTweaksConfig.Client::new);
+        CLIENT_SPEC = specPair.getRight();
+        CLIENT = specPair.getLeft();
+    }
 
     static final File file = FMLPaths.GAMEDIR.get().resolve("last_seen_disc.json").toFile();
 
@@ -149,9 +155,18 @@ public class PS1PackTweaksClient {
         pFlagPart.render(pPoseStack, material.buffer(pBufferSource, RenderType::entityNoOutline), pPackedLight, pPackedOverlay, afloat[0], afloat[1], afloat[2], 1.0F);
     }
 
+    public static void onKeyInput(InputEvent.KeyInputEvent event) {
+        if (PS1PackTweaksKeybinds.TURN_AROUND.matches(event.getKey(), event.getScanCode()) &&
+                PS1PackTweaksKeybinds.TURN_AROUND.getKeyConflictContext().isActive() &&
+                Minecraft.getInstance().player != null && event.getAction() == GLFW.GLFW_PRESS) {
+            Minecraft.getInstance().player.turn(3600.0, 0.0);
+        }
+    }
+
+
     //lowest
     public static void onOpenGUI(ScreenEvent.DrawScreenEvent.InitScreenEvent.Pre event) {
-        if (PS1PackTweaksConfig.CLIENT.inventorypause_debug.get()) {
+        if (CLIENT.inventorypause_debug.get()) {
             PS1PackTweaks.LOGGER.info(event.getScreen().getClass().getName());
         }
     }
@@ -168,7 +183,7 @@ public class PS1PackTweaksClient {
             Minecraft.getInstance().keyboardHandler.setClipboard(name);
             Minecraft.getInstance().player.sendMessage(new TranslatableComponent("chat.inventorypause.copyClassName.action", name), Util.NIL_UUID);
         }
-        if (PS1PackTweaksConfig.CLIENT.inventorypause_debug.get()) {
+        if (CLIENT.inventorypause_debug.get()) {
             int line = 0;
             for (Class<?> cl = screen.getClass(); cl.getSuperclass() != null && line < maxDepth; cl = cl.getSuperclass()) {
                 Minecraft.getInstance().font.drawShadow(new PoseStack(), cl.getName(), x, y + 10 * line, 0xffffffff);
@@ -201,9 +216,10 @@ public class PS1PackTweaksClient {
     }
 
     public static void init(IEventBus bus) {
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, PS1PackTweaksConfig.CLIENT_SPEC);
+        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, CLIENT_SPEC);
         bus.addListener(PS1PackTweaksClient::setup);
         bus.addListener(EventPriority.LOWEST, PS1PackTweaksClient::removeBlockColors);
+        bus.addListener(PS1PackTweaksClient::particleProviders);
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::joinServer);
         MinecraftForge.EVENT_BUS.addListener(MouseHider::startupScreen);
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::replaceBackground);
@@ -214,6 +230,7 @@ public class PS1PackTweaksClient {
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::onOpenGUI);
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::onGUIDrawPost);
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::loadWorld);
+        MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::onKeyInput);
     }
 
     //So water, foliage, grass, and leaves
@@ -230,6 +247,10 @@ public class PS1PackTweaksClient {
             }
             return b;
         });
+    }
+
+    static void particleProviders(ParticleFactoryRegisterEvent e) {
+        Minecraft.getInstance().particleEngine.register(Init.ModParticleTypes.ENDERMAN, EndermanParticle.Provider::new);
     }
 
 
@@ -265,9 +286,9 @@ public class PS1PackTweaksClient {
                     minecraft.gameRenderer.shutdownEffect();
                 }
             }
-            if (!minecraft.isPaused() && PS1PackTweaksConfig.CLIENT.take_random_screenshots.get()) {
+            if (!minecraft.isPaused() && CLIENT.take_random_screenshots.get()) {
                 Level level = minecraft.level;
-                if (level != null && level.getGameTime() % PS1PackTweaksConfig.CLIENT.screenshot_interval.get() == 0) {
+                if (level != null && level.getGameTime() % CLIENT.screenshot_interval.get() == 0) {
                     isAutoScreenshot = true;
                     Screenshot.grab(minecraft.gameDirectory, minecraft.getMainRenderTarget(), component -> {
                         PS1PackTweaks.LOGGER.info("Took automatic screenshot: {}", component);
@@ -283,10 +304,10 @@ public class PS1PackTweaksClient {
                 }
                 Random random = player.getRandom();
                 if (player.tickCount % 20 == 0) {
-                    if (random.nextDouble() < PS1PackTweaksConfig.CLIENT.pauseChance.get()) {
+                    if (random.nextDouble() < CLIENT.pauseChance.get()) {
                         Minecraft.getInstance().pauseGame(false);
                     }
-                    if (!minecraft.isPaused() && jumpscareTimer <= 0 && random.nextDouble() < PS1PackTweaksConfig.CLIENT.jumpScareChance.get()) {
+                    if (!minecraft.isPaused() && jumpscareTimer <= 0 && random.nextDouble() < CLIENT.jumpScareChance.get()) {
                         jumpscareTimer = 30;
                         minecraft.getSoundManager().play(SimpleSoundInstance.forUI(Init.ModSounds.SCREEN, 1, 1));
                     }
@@ -302,7 +323,7 @@ public class PS1PackTweaksClient {
     static void message(ScreenshotEvent event) {
         if (!isAutoScreenshot) {
             if (Minecraft.getInstance().player != null) {
-                Minecraft.getInstance().player.displayClientMessage(new TextComponent(PS1PackTweaksConfig.CLIENT.screenshot_message.get()), true);
+                Minecraft.getInstance().player.displayClientMessage(new TextComponent(CLIENT.screenshot_message.get()), true);
                 //event.setResultMessage(new TextComponent(PS1PackTweaksConfig.CLIENT.screenshot_message.get()));
             }
         }
@@ -347,6 +368,7 @@ public class PS1PackTweaksClient {
 
     static void setup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
+            ClientRegistry.registerKeyBinding(PS1PackTweaksKeybinds.TURN_AROUND);
             CustomWoodTypes.LIST.forEach(Sheets::addWoodType);
             ItemBlockRenderTypes.setRenderLayer(Init.ModBlocks.ENDERSHROOM, RenderType.cutoutMipped());
             EntityRenderers.register(Init.ModEntityTypes.BARNACLE, BarnacleRenderer::new);
@@ -379,10 +401,10 @@ public class PS1PackTweaksClient {
     static void joinServer(ClientPlayerNetworkEvent.LoggedInEvent event) {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.hasSingleplayerServer()) {
-            ChatSettings chatSettings = PS1PackTweaksConfig.CLIENT.singleplayer_chat_settings.get();
+            ChatSettings chatSettings = CLIENT.singleplayer_chat_settings.get();
             minecraft.options.chatVisibility = chatSettings.chatVisiblity();
         } else {
-            ChatSettings chatSettings = PS1PackTweaksConfig.CLIENT.multiplayer_chat_settings.get();
+            ChatSettings chatSettings = CLIENT.multiplayer_chat_settings.get();
             minecraft.options.chatVisibility = chatSettings.chatVisiblity();
         }
     }
@@ -511,8 +533,8 @@ public class PS1PackTweaksClient {
     public static void onPerspectiveChange(CameraType cameraType, CameraType pPointOfView) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
-            if (cameraType.isFirstPerson() && !pPointOfView.isFirstPerson()) {
-                if (PS1PackTweaksConfig.CLIENT.herobrine_skin_chance.get() > player.getRandom().nextDouble()) {
+            if (cameraType.isFirstPerson() && !pPointOfView.isFirstPerson() && player.level.getGameRules().getBoolean(PS1PackTweaks.RULE_CREEPY_EVENTS)) {
+                if (CLIENT.herobrine_skin_chance.get() > player.getRandom().nextDouble()) {
                     ((AbstractClientPlayerDuck) player).setHerobrine(true);
                 }
             } else if (!cameraType.isFirstPerson() && pPointOfView.isFirstPerson()) {
@@ -523,7 +545,7 @@ public class PS1PackTweaksClient {
 
     public static boolean isPauseScreen(Screen caller) {
 
-        for (String s : PS1PackTweaksConfig.CLIENT.inventorypause_screens.get()) {
+        for (String s : CLIENT.inventorypause_screens.get()) {
             if (caller.getClass().getName().equals(s)) {
                 return true;
             }
@@ -531,10 +553,10 @@ public class PS1PackTweaksClient {
         return false;
     }
 
-    private static final List<MutablePair<Runnable,Integer>> scheduledTasks = new ArrayList<>();
+    private static final List<MutablePair<Runnable, Integer>> scheduledTasks = new ArrayList<>();
 
-    public static void schedule(Runnable runnable,int ticks) {
-        scheduledTasks.add(MutablePair.of(runnable,ticks));
+    public static void schedule(Runnable runnable, int ticks) {
+        scheduledTasks.add(MutablePair.of(runnable, ticks));
     }
 
 
@@ -551,6 +573,14 @@ public class PS1PackTweaksClient {
                 //render.levelEvent(mc.player,LevelEvent.SOUND_PLAY_RECORDING,pos,0);
             }
         };
-        schedule(runnable,40);
+        schedule(runnable, 40);
+    }
+
+    //this is here so the server doesn't crash
+    public static List<? extends String> defaultClasses() {
+        List<String> strings = new ArrayList<>();
+        strings.add(CreativeModeInventoryScreen.class.getName());
+        strings.add(InventoryScreen.class.getName());
+        return strings;
     }
 }

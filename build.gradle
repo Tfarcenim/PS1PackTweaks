@@ -213,7 +213,7 @@ dependencies {
     implementation fg.deobf("curse.maven:gui-compass-347595:4852707")
     implementation fg.deobf("curse.maven:nostalgic-tweaks-592465:4622266")
 
-    implementation fg.deobf("curse.maven:ps1-world-select-screen-1293522:6993322")
+    implementation fg.deobf("curse.maven:ps1-world-select-screen-1293522:7023175")
     //implementation fg.deobf("local:ps1worldselectscreen:1.18.2-6")
 
     implementation fg.deobf("curse.maven:architectury-api-419699:5137931")
@@ -242,6 +242,10 @@ dependencies {
     implementation fg.deobf("curse.maven:quark-243121:3840125")
 
     implementation fg.deobf("curse.maven:the-midnight-lurker-923133:6991066")
+
+    implementation fg.deobf("curse.maven:ydms-coppergolem-537561:3571177")
+
+    implementation fg.deobf("curse.maven:friends-and-foes-forge-602059:4754561")
     //crashes datagen
     //implementation fg.deobf("curse.maven:spiffy-hud-forge-483885:3785712")
     //implementation fg.deobf("curse.maven:konkrete-410295:5028407")

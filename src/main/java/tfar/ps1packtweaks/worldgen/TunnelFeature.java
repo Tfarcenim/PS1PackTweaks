@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import tfar.ps1packtweaks.PS1PackTweaks;
 
 import java.util.Random;
 import java.util.function.Predicate;
@@ -21,11 +22,14 @@ public class TunnelFeature extends Feature<TunnelConfiguration> {
 
     @Override
     public boolean place(FeaturePlaceContext<TunnelConfiguration> pContext) {
+        WorldGenLevel level = pContext.level();
+        if (PS1PackTweaks.isWorldPure(level)) {
+            return false;
+        }
         Random random = pContext.random();
         BlockPos blockpos = pContext.origin();
         blockpos = blockpos.offset(7,0,7);
 
-        WorldGenLevel level = pContext.level();
         TunnelConfiguration config = pContext.config();
         Predicate<BlockState> predicate = isReplaceable(BlockTags.FEATURES_CANNOT_REPLACE);
         int blockCount = 0;

@@ -1,7 +1,7 @@
 {
   "required": true,
   "package": "tfar.ps1packtweaks.mixin",
-  "compatibilityLevel": "JAVA_16",
+  "compatibilityLevel": "JAVA_17",
   "refmap": "ps1packtweaks.refmap.json",
   "plugin": "tfar.ps1packtweaks.mixin.MixinPlugin",
   "mixins": [
@@ -16,6 +16,7 @@
     "BoatMixin",
     "BoatTypeMixin",
     "ChestBlockMixin",
+    "EnderManMixin",
     "FoliageColorMixin",
     "GlassyMixin",
     "ItemAccess",
@@ -29,10 +30,10 @@
     "SmithingTableMenuMixin",
     "StructureMixin",
     "ZombieHorseMixin",
+    "compat.CopperGolemEntityMixin",
     "compat.EnderiteSwordMixin",
     "compat.ModuleLoaderMixin",
     "compat.MoreBabiesMixin",
-    "compat.NetheriteShulkerBoxBlockEntityMixin",
     "compat.ShinyHorsesModMixin",
     "compat.SkeletonHorseEventMixin",
     "compat.ZombieHorseEventMixin",
@@ -65,6 +66,9 @@
     "compat.ForgeGuiEventMixin",
     "compat.ScreenShotScreenMixin",
     "compat.embeddium.ChunkRenderRebuildTaskMixin"
+  ],
+  "server": [
+    "compat.FixNetheriteShulkersCrash"
   ],
   "injectors": {
     "defaultRequire": 1

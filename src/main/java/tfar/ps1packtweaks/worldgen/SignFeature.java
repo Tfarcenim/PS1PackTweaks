@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import tfar.ps1packtweaks.PS1PackTweaks;
 
 import java.util.List;
 import java.util.Random;
@@ -31,6 +32,9 @@ public class SignFeature extends Feature<SignFeatureConfig> {
     public boolean place(FeaturePlaceContext<SignFeatureConfig> pContext) {
         SignFeatureConfig config = pContext.config();
         WorldGenLevel level = pContext.level();
+        if (PS1PackTweaks.isWorldPure(level)) {
+            return false;
+        }
         BlockPos pos = pContext.origin();
         BlockState state = config.block().defaultBlockState();
 

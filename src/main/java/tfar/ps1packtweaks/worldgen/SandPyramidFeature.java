@@ -2,12 +2,15 @@ package tfar.ps1packtweaks.worldgen;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import tfar.ps1packtweaks.PS1PackTweaks;
 
 import java.util.function.Predicate;
 
@@ -18,8 +21,12 @@ public class SandPyramidFeature extends Feature<PyramidConfig> {
 
     @Override
     public boolean place(FeaturePlaceContext<PyramidConfig> pContext) {
-        BlockPos origin = pContext.origin();
         WorldGenLevel level = pContext.level();
+        if (PS1PackTweaks.isWorldPure(level)) {
+            return false;
+        }
+
+        BlockPos origin = pContext.origin();
         Predicate<BlockState> predicate = isReplaceable(BlockTags.FEATURES_CANNOT_REPLACE);
 
         safeSetBlock(level,origin, Blocks.SAND.defaultBlockState(),predicate);

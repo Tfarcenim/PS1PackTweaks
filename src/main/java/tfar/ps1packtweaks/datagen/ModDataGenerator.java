@@ -4,10 +4,7 @@ import net.minecraft.data.DataGenerator;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 import tfar.ps1packtweaks.compat.EnderiteModCompat;
-import tfar.ps1packtweaks.datagen.tags.ModBiomeTagsProvider;
-import tfar.ps1packtweaks.datagen.tags.ModBlockTagProvider;
-import tfar.ps1packtweaks.datagen.tags.ModEntityTypeTagProvider;
-import tfar.ps1packtweaks.datagen.tags.ModItemTagProvider;
+import tfar.ps1packtweaks.datagen.tags.*;
 
 public class ModDataGenerator {
     public static void gatherData(GatherDataEvent event) {
@@ -29,6 +26,7 @@ public class ModDataGenerator {
             generator.addProvider(new ModAdvancementProvider(generator,existingFileHelper));
             generator.addProvider(new ModEntityTypeTagProvider(generator,existingFileHelper));
             generator.addProvider(new ModRecipeProvider(generator));
+            generator.addProvider(new ModStructureTagsProvider(generator,existingFileHelper));
         }
         if (event.includeClient()) {
             generator.addProvider(new ModBlockStateProvider(generator, existingFileHelper));

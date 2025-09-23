@@ -1,6 +1,7 @@
 package tfar.ps1packtweaks;
 
 import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EntityType;
@@ -24,6 +25,8 @@ import tfar.ps1packtweaks.entity.HerobrineEntity;
 import tfar.ps1packtweaks.entity.InvisibleEntity;
 import tfar.ps1packtweaks.entity.ScriptedMidnightLurker;
 import tfar.ps1packtweaks.item.FloatingBlockItem;
+import tfar.ps1packtweaks.loot.AddItemLootModifier;
+import tfar.ps1packtweaks.loot.DuplicateOutputsLootModifier;
 import tfar.ps1packtweaks.worldgen.*;
 
 public class Init {
@@ -132,8 +135,14 @@ public class Init {
         public static final Feature<HugeMushroomFeatureConfiguration> HUGE_ENDERSHROOM = new HugeEndershroomFeature(HugeMushroomFeatureConfiguration.CODEC);
     }
 
+    public static class ModParticleTypes {
+        public static final SimpleParticleType ENDERMAN = new SimpleParticleType(false);
+    }
+
     public static class GlobalLootModifiers {
         public static final DuplicateOutputsLootModifier.Serializer DUPLICATE_OUTPUTS = new DuplicateOutputsLootModifier.Serializer();
+        public static final AddItemLootModifier.Serializer ADD_ITEM = new AddItemLootModifier.Serializer();
+
     }
 
 }

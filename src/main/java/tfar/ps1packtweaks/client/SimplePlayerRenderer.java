@@ -5,11 +5,13 @@ import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.client.renderer.entity.layers.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 
-public class SimplePlayerRenderer<T extends LivingEntity> extends LivingEntityRenderer<T, PlayerModel<T>> {
+public class SimplePlayerRenderer<T extends Mob> extends MobRenderer<T, PlayerModel<T>> {
     private final ResourceLocation texture;
 
     public SimplePlayerRenderer(EntityRendererProvider.Context context, boolean slim, ResourceLocation texture) {

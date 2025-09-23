@@ -14,6 +14,7 @@ import net.minecraftforge.common.data.LanguageProvider;
 import org.codehaus.plexus.util.StringUtils;
 import tfar.ps1packtweaks.Init;
 import tfar.ps1packtweaks.PS1PackTweaks;
+import tfar.ps1packtweaks.client.PS1PackTweaksKeybinds;
 import tfar.ps1packtweaks.util.TextComponents;
 
 import java.util.function.Supplier;
@@ -142,6 +143,9 @@ public class ModLangProvider extends LanguageProvider {
 
         addTextComponent(TextComponents.ADVANCEMENT_PLAY_ENDERMOSH_TITLE,"Play Endermosh");
         addTextComponent(TextComponents.ADVANCEMENT_PLAY_ENDERMOSH_DESC,"Play Endermosh");
+
+        add(PS1PackTweaksKeybinds.CATEGORY,"PS1 Pack Tweaks");
+        addKey(PS1PackTweaksKeybinds.TURN_AROUND,"Turn Around");
     }
 
     void addKey(KeyMapping mapping, String translation) {

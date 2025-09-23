@@ -1,6 +1,7 @@
 {
   "replace": false,
   "entries": [
-    "ps1packtweaks:duplicate_outputs"
+    "ps1packtweaks:duplicate_outputs",
+    "ps1packtweaks:add_map_to_village"
   ]
 }

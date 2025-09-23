@@ -7,10 +7,12 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.core.*;
+import net.minecraft.core.particles.ParticleType;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
@@ -40,7 +42,6 @@ import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -122,6 +123,9 @@ public class PS1PackTweaks {
 
     public static final boolean DEV = !FMLLoader.isProduction();
 
+    public static final GameRules.Key<GameRules.BooleanValue> RULE_CREEPY_EVENTS = GameRules.register
+            ("doCreepyEvents", GameRules.Category.UPDATES, GameRules.BooleanValue.create(true));
+
     public PS1PackTweaks() {
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, PS1PackTweaksConfig.SERVER_SPEC);
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -132,7 +136,7 @@ public class PS1PackTweaks {
         }
 
         bus.addGenericListener(Block.class, this::registerBlocks);
-        bus.addGenericListener(BlockEntityType.class, this::registerBlockEntities);
+        bus.addGenericListener(ParticleType.class, this::registerParticleTypes);
         bus.addGenericListener(Item.class, this::registerItems);
         bus.addGenericListener(EntityType.class, this::registerEntities);
         bus.addGenericListener(SoundEvent.class, this::registerSounds);
@@ -178,6 +182,15 @@ public class PS1PackTweaks {
         return true;
     }
 
+    public static boolean isWorldPure(WorldGenLevel level) {
+        if (level instanceof WorldGenRegion worldGenRegion) {
+            return !worldGenRegion.getLevel().getGameRules().getBoolean(RULE_CREEPY_EVENTS);
+        } else if (level instanceof ServerLevel serverLevel) {
+            return !serverLevel.getGameRules().getBoolean(RULE_CREEPY_EVENTS);
+        }
+        return false;
+    }
+
     public static void preventStructures(ConfiguredStructureFeature<?, ?> configuredStructureFeature, RegistryAccess pRegistryAcess, ChunkPos pChunkPos,
                                          LevelHeightAccessor pLevel, CallbackInfoReturnable<StructureStart> cir) {
         Registry<ConfiguredStructureFeature<?,?>> registry = pRegistryAcess.registryOrThrow(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY);
@@ -219,7 +232,7 @@ public class PS1PackTweaks {
 
     void afterSleep(PlayerWakeUpEvent event) {
         Player player = event.getPlayer();
-        if (player instanceof ServerPlayer && player.getRandom().nextDouble() < PS1PackTweaksConfig.SERVER.wakeupSurpriseChance.get()) {
+        if (player.level.getGameRules().getBoolean(RULE_CREEPY_EVENTS) && player instanceof ServerPlayer && player.getRandom().nextDouble() < PS1PackTweaksConfig.SERVER.wakeupSurpriseChance.get()) {
             EntityType<? extends Monster> type = player.getRandom().nextBoolean() ? EntityType.ZOMBIE : EntityType.SKELETON;
             type.spawn((ServerLevel) player.level, null, null, player.blockPosition(), MobSpawnType.EVENT, false, false);
         }
@@ -239,7 +252,7 @@ public class PS1PackTweaks {
     void onKill(LivingDeathEvent event) {
         DamageSource source = event.getSource();
         Entity attacker = source.getEntity();
-        if (attacker instanceof ServerPlayer player &&  player.getRandom().nextDouble() < PS1PackTweaksConfig.SERVER.blackAndWhiteKillChance.get()) {
+        if (attacker instanceof ServerPlayer player && player.level.getGameRules().getBoolean(RULE_CREEPY_EVENTS) && player.getRandom().nextDouble() < PS1PackTweaksConfig.SERVER.blackAndWhiteKillChance.get()) {
             ForgePacketHandler.sendToClient(new S2CShaderPacket(id("shaders/post/noir.json"),PS1PackTweaksConfig.SERVER.blackAndWhiteKillTime.get()),player);
         }
 
@@ -353,8 +366,8 @@ public class PS1PackTweaks {
         );
     }
 
-    void registerBlockEntities(RegistryEvent.Register<BlockEntityType<?>> event) {
-
+    void registerParticleTypes(RegistryEvent.Register<ParticleType<?>> event) {
+        event.getRegistry().registerAll(Init.ModParticleTypes.ENDERMAN.setRegistryName("enderman"));
     }
 
     void registerItems(RegistryEvent.Register<Item> event) {
@@ -399,7 +412,9 @@ public class PS1PackTweaks {
 
     void registerGLMs(RegistryEvent.Register<GlobalLootModifierSerializer<?>> event) {
         Registry.register(Registry.LOOT_CONDITION_TYPE,id("or_loot_table_id"), OrLootTableCondition.OR_LOOT_TABLE_ID);
-        event.getRegistry().registerAll(Init.GlobalLootModifiers.DUPLICATE_OUTPUTS.setRegistryName("duplicate_outputs"));
+        event.getRegistry().registerAll(Init.GlobalLootModifiers.DUPLICATE_OUTPUTS.setRegistryName("duplicate_outputs"),
+                Init.GlobalLootModifiers.ADD_ITEM.setRegistryName("add_item")
+                );
     }
 
 

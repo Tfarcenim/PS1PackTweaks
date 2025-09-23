@@ -7,7 +7,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.levelgen.RandomSource;
 import net.minecraft.world.level.levelgen.SingleThreadedRandomSource;
 import org.apache.commons.lang3.RandomUtils;
-import tfar.ps1packtweaks.PS1PackTweaksConfig;
 
 public class DynamicSoundInstance extends AbstractTickableSoundInstance {
 
@@ -33,14 +32,14 @@ public class DynamicSoundInstance extends AbstractTickableSoundInstance {
     //Music changing pitch
     @Override
     public void tick() {
-        if (!modified && randomSource.nextDouble() < PS1PackTweaksConfig.CLIENT.randomPitchChance.get()) {
+        if (!modified && randomSource.nextDouble() < PS1PackTweaksClient.CLIENT.randomPitchChance.get()) {
             modified = true;
             originalPitch = pitch;
-            pitch *= (float) RandomUtils.nextDouble(PS1PackTweaksConfig.CLIENT.minMusicPitch.get(), PS1PackTweaksConfig.CLIENT.maxMusicPitch.get());
+            pitch *= (float) RandomUtils.nextDouble(PS1PackTweaksClient.CLIENT.minMusicPitch.get(), PS1PackTweaksClient.CLIENT.maxMusicPitch.get());
         }
         if (modified) {
             elapsed++;
-            if (elapsed > PS1PackTweaksConfig.CLIENT.ticksMusicPitch.get()) {
+            if (elapsed > PS1PackTweaksClient.CLIENT.ticksMusicPitch.get()) {
                 modified = false;
                 elapsed = 0;
                 pitch = originalPitch;

@@ -13,7 +13,6 @@ import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraftforge.client.event.ScreenOpenEvent;
 import org.lwjgl.glfw.GLFW;
-import tfar.ps1packtweaks.PS1PackTweaksConfig;
 
 public class MouseHider {
 
@@ -27,8 +26,8 @@ public class MouseHider {
         Screen screen = event.getScreen();
         Screen oldScreen = Minecraft.getInstance().screen;
         if (first && screen instanceof TitleScreen) {
-            PS1PackTweaksClient.DIRT_TIME = PS1PackTweaksConfig.CLIENT.replaceBlocksTime.get();
-            hide(PS1PackTweaksConfig.CLIENT.hideTitleMouseTimer.get());
+            PS1PackTweaksClient.DIRT_TIME = PS1PackTweaksClient.CLIENT.replaceBlocksTime.get();
+            hide(PS1PackTweaksClient.CLIENT.hideTitleMouseTimer.get());
             first = false;
         }
         if (screen instanceof SelectWorldScreen) {
@@ -38,7 +37,7 @@ public class MouseHider {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
             if (screen instanceof InventoryScreen || screen instanceof CreativeModeInventoryScreen) {
-                if (PS1PackTweaksConfig.CLIENT.herobrine_skin_chance.get() > player.getRandom().nextDouble()) {
+                if (PS1PackTweaksClient.CLIENT.herobrine_skin_chance.get() > player.getRandom().nextDouble()) {
                     ((AbstractClientPlayerDuck) player).setHerobrine(true);
                 }
             } else if (oldScreen instanceof InventoryScreen || oldScreen instanceof CreativeModeInventoryScreen) {
