@@ -115,7 +115,7 @@ public class PS1PackTweaksClient {
 
     public static Map<String, ResourceKey<Level>> discMap;
 
-    public static ResourceKey<Level> DISC = Level.OVERWORLD;
+    private static ResourceKey<Level> CURRENT_DISC = Level.OVERWORLD;
     public static boolean showDisc;
 
     public static boolean isAutoScreenshot;
@@ -346,7 +346,7 @@ public class PS1PackTweaksClient {
             RenderSystem.defaultBlendFunc();
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1);
-            String s = DISC.location().getPath();
+            String s = CURRENT_DISC.location().getPath();
             RenderSystem.setShaderTexture(0, PS1PackTweaks.id("textures/gui/background/" + s + ".png"));
             Tesselator tesselator = Tesselator.getInstance();
             BufferBuilder bufferbuilder = tesselator.getBuilder();
@@ -434,14 +434,72 @@ public class PS1PackTweaksClient {
 
     static Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    public static void changeDisc(String levelName) {
-
-
-    }
 
     static void loadWorld(WorldEvent.Load event) {
 
-        if (!(event.getWorld() instanceof ClientLevel clientLevel)) return;
+    }
+
+    static String getLevelName() {
+        if (Minecraft.getInstance().hasSingleplayerServer()) {
+            return Minecraft.getInstance().getSingleplayerServer().getWorldData().getLevelName();
+            //   ResourceKey<Level> lastSeen = player.level.dimension();
+        }
+        return "Server";
+    }
+
+    public static void write() {
+        Gson gson = new Gson();
+        JsonWriter writer = null;
+        try {
+            writer = gson.newJsonWriter(new FileWriter(file));
+            writer.setIndent("    ");
+
+
+            JsonObject jsonObject = new JsonObject();
+            for (Map.Entry<String, ResourceKey<Level>> entry : discMap.entrySet()) {
+                jsonObject.addProperty(entry.getKey(), entry.getValue().location().toString());
+            }
+
+            gson.toJson(jsonObject, writer);
+        } catch (Exception e) {
+            PS1PackTweaks.LOGGER.error("Couldn't save config");
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } finally {
+            IOUtils.closeQuietly(writer);
+        }
+    }
+
+
+    public static void setDisc(ResourceKey<Level> key) {
+        if (CURRENT_DISC != key) {
+            CURRENT_DISC = key;
+            showDisc = true;
+        }
+    }
+
+    static int shaderTimer;
+
+    public static void handleShader(ResourceLocation location, int ticks) {
+        Minecraft.getInstance().gameRenderer.loadEffect(location);
+        shaderTimer = ticks;
+    }
+
+    public static void onPerspectiveChange(CameraType cameraType, CameraType pPointOfView) {
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player != null) {
+            if (cameraType.isFirstPerson() && !pPointOfView.isFirstPerson() && player.level.getGameRules().getBoolean(PS1PackTweaks.RULE_CREEPY_EVENTS)) {
+                if (CLIENT.herobrine_skin_chance.get() > player.getRandom().nextDouble()) {
+                    ((AbstractClientPlayerDuck) player).setHerobrine(true);
+                }
+            } else if (!cameraType.isFirstPerson() && pPointOfView.isFirstPerson()) {
+                ((AbstractClientPlayerDuck) player).setHerobrine(false);
+            }
+        }
+    }
+
+    public static void onChangeLevel(ClientLevel clientLevel) {
+
 
         //this is first load, always show custom screen and load in map
         if (discMap == null) {
@@ -478,73 +536,11 @@ public class PS1PackTweaksClient {
         if (lastSeen == null) {
             showDisc = true;
         } else {
-            if (lastSeen != DISC) {
-                DISC = lastSeen;
-                showDisc = true;
-            }
+            setDisc(clientLevel.dimension());
         }
 
         PS1PackTweaksClient.discMap.put(levelName, clientLevel.dimension());
         PS1PackTweaksClient.write();
-    }
-
-    static String getLevelName() {
-        if (Minecraft.getInstance().hasSingleplayerServer()) {
-            return Minecraft.getInstance().getSingleplayerServer().getWorldData().getLevelName();
-            //   ResourceKey<Level> lastSeen = player.level.dimension();
-        }
-        return "Server";
-    }
-
-    public static void write() {
-        Gson gson = new Gson();
-        JsonWriter writer = null;
-        try {
-            writer = gson.newJsonWriter(new FileWriter(file));
-            writer.setIndent("    ");
-
-
-            JsonObject jsonObject = new JsonObject();
-            for (Map.Entry<String, ResourceKey<Level>> entry : discMap.entrySet()) {
-                jsonObject.addProperty(entry.getKey(), entry.getValue().location().toString());
-            }
-
-            gson.toJson(jsonObject, writer);
-        } catch (Exception e) {
-            PS1PackTweaks.LOGGER.error("Couldn't save config");
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } finally {
-            IOUtils.closeQuietly(writer);
-        }
-    }
-
-
-    public static void handle(ResourceKey<Level> key) {
-        if (DISC != key) {
-            DISC = key;
-            showDisc = true;
-        }
-    }
-
-    static int shaderTimer;
-
-    public static void handleShader(ResourceLocation location, int ticks) {
-        Minecraft.getInstance().gameRenderer.loadEffect(location);
-        shaderTimer = ticks;
-    }
-
-    public static void onPerspectiveChange(CameraType cameraType, CameraType pPointOfView) {
-        LocalPlayer player = Minecraft.getInstance().player;
-        if (player != null) {
-            if (cameraType.isFirstPerson() && !pPointOfView.isFirstPerson() && player.level.getGameRules().getBoolean(PS1PackTweaks.RULE_CREEPY_EVENTS)) {
-                if (CLIENT.herobrine_skin_chance.get() > player.getRandom().nextDouble()) {
-                    ((AbstractClientPlayerDuck) player).setHerobrine(true);
-                }
-            } else if (!cameraType.isFirstPerson() && pPointOfView.isFirstPerson()) {
-                ((AbstractClientPlayerDuck) player).setHerobrine(false);
-            }
-        }
     }
 
     public static boolean isPauseScreen(Screen caller) {

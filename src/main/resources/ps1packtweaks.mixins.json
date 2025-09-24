@@ -47,7 +47,6 @@
     "AbstractClientPlayerMixin",
     "BlockColorsAccess",
     "BlockRenderDispatcherMixin",
-    "ClientPacketListenerMixin",
     "IntegratedServerMixin",
     "InventoryScreenMixin",
     "JukeboxBlockEntityMixin",

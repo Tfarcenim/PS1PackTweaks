@@ -14,7 +14,7 @@ public record S2CTargetDimensionPacket(ResourceKey<Level> key) implements S2CMod
 
     @Override
     public void handleClient() {
-        PS1PackTweaksClient.handle(key);
+        PS1PackTweaksClient.setDisc(key);
     }
 
     @Override
