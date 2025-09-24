@@ -422,6 +422,8 @@ public class CustomEvents {
     //[Tunnels forming] - 2x2 tunnels should form in the side of mountains and underground when the player is mining.
     // There should occasionally be a redstone torch in these tunnels.
 
+    static BlockPos lastTunnel;
+
     public static void tickTunnels(ServerPlayer player) {
         ServerLevel serverLevel = player.getLevel();
 
@@ -477,13 +479,14 @@ public class CustomEvents {
             int y = minTunnelHeight + random.nextInt(maxTunnelHeight - minTunnelHeight+1);
             int z = zOrigin + pickNumber(random,r);
             pos.set(x,y,z);
-            if (pos.distSqr(playerPos) < 1024) continue;
+            if (pos.distSqr(playerPos) < 1024 || lastTunnel != null && lastTunnel.distSqr(pos) < 1024) continue;
 
             if (!level.getBlockState(pos).is(ModTags.CAN_TUNNEL_THROUGH)) continue;
 
             for (Direction direction : h_directions) {
                 boolean adjacent = level.getBlockState(pos.relative(direction)).isAir();
                 if (!adjacent)continue;
+                lastTunnel = pos.immutable();
                 return Pair.of(pos,direction);
             }
 

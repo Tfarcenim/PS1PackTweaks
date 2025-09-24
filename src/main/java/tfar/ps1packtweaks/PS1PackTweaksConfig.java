@@ -94,7 +94,7 @@ public class PS1PackTweaksConfig {
             disappearingLogsDelay = builder.defineInRange("disappearing_logs_delay",10000,1,1000000000);
 
             tunnelChance = builder.defineInRange("tunnel_chance",1/4d,0,1);
-            tunnelDelay = builder.defineInRange("tunnel_delay",50000,0,1);
+            tunnelDelay = builder.defineInRange("tunnel_delay",50000,0,1000000000);
             tunnelSizeMin = builder.defineInRange("tunnel_size_min",16,1,200);
             tunnelSizeMax = builder.defineInRange("tunnel_size_max",32,1,200);
             tunnelTorchChance = builder.defineInRange("tunnel_torch_chance",.25,0,1);

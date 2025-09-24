@@ -1,9 +1,6 @@
 package tfar.ps1packtweaks.mixin;
 
-import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.datafixers.DataFixer;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.LevelSummary;
 import org.spongepowered.asm.mixin.Debug;
@@ -11,7 +8,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import tfar.ps1packtweaks.client.WorldLocker;
 
 import java.io.File;

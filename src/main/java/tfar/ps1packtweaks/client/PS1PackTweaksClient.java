@@ -371,6 +371,10 @@ public class PS1PackTweaksClient {
             ClientRegistry.registerKeyBinding(PS1PackTweaksKeybinds.TURN_AROUND);
             CustomWoodTypes.LIST.forEach(Sheets::addWoodType);
             ItemBlockRenderTypes.setRenderLayer(Init.ModBlocks.ENDERSHROOM, RenderType.cutoutMipped());
+            ItemBlockRenderTypes.setRenderLayer(Blocks.ICE,RenderType.solid());
+            ItemBlockRenderTypes.setRenderLayer(Blocks.FROSTED_ICE,RenderType.solid());
+            ItemBlockRenderTypes.setRenderLayer(Blocks.SLIME_BLOCK,RenderType.solid());
+            ItemBlockRenderTypes.setRenderLayer(Blocks.HONEY_BLOCK,RenderType.solid());
             EntityRenderers.register(Init.ModEntityTypes.BARNACLE, BarnacleRenderer::new);
             EntityRenderers.register(Init.ModEntityTypes.SCRIPTED_MIDNIGHT_LURKER, ScriptedMidnightLurkerRenderer::new);
 

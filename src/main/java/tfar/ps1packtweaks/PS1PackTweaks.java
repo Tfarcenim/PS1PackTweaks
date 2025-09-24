@@ -55,6 +55,7 @@ import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Material;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.loot.GlobalLootModifierSerializer;
 import net.minecraftforge.common.world.BiomeGenerationSettingsBuilder;
@@ -268,7 +269,7 @@ public class PS1PackTweaks {
     ////[Items appearing in chests] - Redstone torch, leaves, logs, rotten flesh. These items should randomly appear in player placed chests.
     public static final List<Item> items = List.of(Items.REDSTONE_TORCH,Items.OAK_LEAVES,Items.OAK_LOG,Items.ROTTEN_FLESH);
     public static void onRandomTick(BlockBehaviour block, BlockState pState, ServerLevel pLevel, BlockPos pPos, Random pRandom) {
-        if (block == Blocks.TRAPPED_CHEST || block == Blocks.CHEST) {
+        if (pLevel.getGameRules().getBoolean(RULE_CREEPY_EVENTS) && (block == Blocks.TRAPPED_CHEST || block == Blocks.CHEST)) {
             BlockEntity blockEntity = pLevel.getBlockEntity(pPos);
             if (pRandom.nextDouble() < PS1PackTweaksConfig.SERVER.randomItemsInChestChance.get() &&
                     blockEntity instanceof ChestBlockEntity chestBlockEntity && blockEntity.getTileData().getBoolean("ps1packtweaks:player_placed")) {
@@ -520,6 +521,7 @@ public class PS1PackTweaks {
 
         PacketHandler.registerPackets();
         event.enqueueWork(() -> {
+            setCanOcclude(Blocks.ICE,true);
             ModTreeFeatures.init();
             Init.init();
             PotionBrewing.addMix(Potions.AWKWARD, StarryEndBlocks.ENDER_CLOVER.get().asItem(),Potions.LUCK);
@@ -539,6 +541,7 @@ public class PS1PackTweaks {
             SpawnPlacements.register(Init.ModEntityTypes.BARNACLE, SpawnPlacements.Type.IN_WATER, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                     Barnacle::canSpawn);
         });
+
     }
 
 
@@ -568,6 +571,17 @@ public class PS1PackTweaks {
         ImmutableList<BlockState> possibleStates = block.getStateDefinition().getPossibleStates();
         possibleStates.forEach(state -> ((BlockStateAccess) state).setDestroySpeed(v));
     }
+
+    public static void setMaterial(Block block, Material material) {
+        ImmutableList<BlockState> possibleStates = block.getStateDefinition().getPossibleStates();
+        possibleStates.forEach(state -> ((BlockStateAccess) state).setMaterial(material));
+    }
+
+    public static void setCanOcclude(Block block, boolean canOcclude) {
+        ImmutableList<BlockState> possibleStates = block.getStateDefinition().getPossibleStates();
+        possibleStates.forEach(state -> ((BlockStateAccess) state).setCanOcclude(canOcclude));
+    }
+
 
     public static void setRequiresCorrectToolForDrops(Block block, boolean v) {
         ImmutableList<BlockState> possibleStates = block.getStateDefinition().getPossibleStates();
