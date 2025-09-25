@@ -2,7 +2,6 @@ package tfar.ps1packtweaks.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import mod.adrenix.nostalgic.client.screen.NostalgicProgressScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -48,11 +47,7 @@ public abstract class MinecraftMixin {
             method = {"setLevel"},
             at = {@At("HEAD")}
     )
-    private void NT$onSetLevel(ClientLevel levelClient, CallbackInfo callback) {
-       // if (this.level != null) {
-       //     NostalgicProgressScreen.setPreviousDimension(this.level.dimension());
-       // }
-
+    private void onSetLevel(ClientLevel levelClient, CallbackInfo callback) {
         PS1PackTweaksClient.onChangeLevel(levelClient);
     }
 

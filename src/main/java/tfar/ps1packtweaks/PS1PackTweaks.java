@@ -8,7 +8,6 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.core.*;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -101,7 +100,6 @@ import tfar.ps1packtweaks.network.ForgePacketHandler;
 import tfar.ps1packtweaks.network.PacketHandler;
 import tfar.ps1packtweaks.network.client.S2CAdvancementPacket;
 import tfar.ps1packtweaks.network.client.S2CShaderPacket;
-import tfar.ps1packtweaks.network.client.S2CTargetDimensionPacket;
 import tfar.ps1packtweaks.worldgen.ModConfiguredFeatures;
 import tfar.ps1packtweaks.worldgen.ModPlacedFeatures;
 import tfar.ps1packtweaks.worldgen.ModStructureFeatures;
@@ -151,7 +149,6 @@ public class PS1PackTweaks {
         MinecraftForge.EVENT_BUS.addListener(this::sleepCheck);
         bus.addListener(this::onAttributeCreate);
         MinecraftForge.EVENT_BUS.addListener(this::rightClick);
-        MinecraftForge.EVENT_BUS.addListener(this::changeDims);
         MinecraftForge.EVENT_BUS.addListener(this::playerTick);
         //MinecraftForge.EVENT_BUS.addListener(this::breakBlock);
         MinecraftForge.EVENT_BUS.addListener(this::biomeLoading);
@@ -343,14 +340,6 @@ public class PS1PackTweaks {
             ServerPlayer player = (ServerPlayer) event.player;
             CustomEvents.handleEvents(player);
         }
-    }
-
-
-
-    void changeDims(PlayerEvent.PlayerChangedDimensionEvent event) {
-        ResourceKey<Level> eventTo = event.getTo();
-        ServerPlayer player = (ServerPlayer) event.getPlayer();
-        ForgePacketHandler.sendToClient(new S2CTargetDimensionPacket(eventTo), player);
     }
 
     void rightClick(PlayerInteractEvent.EntityInteract event) {

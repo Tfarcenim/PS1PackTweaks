@@ -168,6 +168,10 @@ repositories {
          dir 'libs'
      }
 
+    maven {
+        name "KosmX's maven"
+        url 'https://maven.kosmx.dev/'
+    }
 
     maven {
         url "https://cursemaven.com"
@@ -246,6 +250,9 @@ dependencies {
     implementation fg.deobf("curse.maven:ydms-coppergolem-537561:3571177")
 
     implementation fg.deobf("curse.maven:friends-and-foes-forge-602059:4754561")
+
+    implementation fg.deobf("dev.kosmx.player-anim:player-animation-lib-forge:${player_anim}")
+
     //crashes datagen
     //implementation fg.deobf("curse.maven:spiffy-hud-forge-483885:3785712")
     //implementation fg.deobf("curse.maven:konkrete-410295:5028407")
