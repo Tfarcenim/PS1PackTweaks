@@ -6,13 +6,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.mojang.datafixers.DataFixer;
-import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.storage.LevelStorageSource;
 import net.minecraft.world.level.storage.LevelSummary;
 import org.apache.commons.io.IOUtils;
-import org.jetbrains.annotations.NotNull;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import tfar.ps1packtweaks.PS1PackTweaks;
 
 import java.io.File;
@@ -64,14 +60,6 @@ public class WorldLocker {
     }
 
     public static final List<ResourceLocation> KEYS = new ArrayList<>();
-
-    public static void handle(LevelStorageSource levelStorageSource, @NotNull CallbackInfoReturnable<LevelSummary> cir, Tag root) {
-        LevelSummary levelSummary = cir.getReturnValue();
-        if (levelSummary != null) {
-            String name = levelSummary.getLevelId();
-
-        }
-    }
 
     public static boolean isWorldLocked(String name) {
         if (LOCKED_WORLDS.containsKey(name)) {

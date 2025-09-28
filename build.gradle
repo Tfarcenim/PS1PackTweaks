@@ -251,11 +251,15 @@ dependencies {
 
     implementation fg.deobf("curse.maven:friends-and-foes-forge-602059:4754561")
 
-    implementation fg.deobf("dev.kosmx.player-anim:player-animation-lib-forge:${player_anim}")
+    //implementation fg.deobf("dev.kosmx.player-anim:player-animation-lib-forge:${player_anim}")
+    implementation fg.deobf("curse.maven:the-fletching-table-mod-448876:3706609")
 
+    implementation fg.deobf("curse.maven:lavasponge-407604:3756714")
+
+    implementation fg.deobf("curse.maven:weather-detector-836440:4443964")
     //crashes datagen
-    //implementation fg.deobf("curse.maven:spiffy-hud-forge-483885:3785712")
-    //implementation fg.deobf("curse.maven:konkrete-410295:5028407")
+    implementation fg.deobf("curse.maven:spiffy-hud-forge-483885:3785712")
+    implementation fg.deobf("curse.maven:konkrete-410295:5028407")
 
     // For more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html

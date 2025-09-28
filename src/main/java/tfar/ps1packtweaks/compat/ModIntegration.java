@@ -12,7 +12,8 @@ public enum ModIntegration {
     shinyhorses,
     enderitemod,
     kazsend,
-    kazs_end_village;
+    kazs_end_village,
+    playeranimator;
     public final boolean loaded;
 
     public ResourceLocation id(String path) {

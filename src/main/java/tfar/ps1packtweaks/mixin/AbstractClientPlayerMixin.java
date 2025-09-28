@@ -1,5 +1,8 @@
 package tfar.ps1packtweaks.mixin;
 
+import com.mojang.authlib.GameProfile;
+import net.minecraft.client.multiplayer.ClientLevel;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import tfar.ps1packtweaks.AbstractClientPlayerDuck;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.resources.DefaultPlayerSkin;
@@ -13,8 +16,34 @@ import tfar.ps1packtweaks.client.PS1PackTweaksClient;
 
 import java.util.UUID;
 
-@Mixin(value = AbstractClientPlayer.class,priority = 999)//needs to be before Default Skin
+@Mixin(value = AbstractClientPlayer.class, priority = 999)//needs to be before Default Skin
 public class AbstractClientPlayerMixin implements AbstractClientPlayerDuck {
+   // @Unique
+   // private final ModifierLayer<IAnimation> ps1packtweaks$animationContainer = new ModifierLayer<>();
+
+//    @Unique
+//    private final SoundInstance homing$boostSound = new SimpleSoundInstance(HomingSounds.BOOST_2.get(), SoundSource.PLAYERS, 0.5f, 1, SoundInstance.createUnseededRandom(), blockPosition());
+
+
+    @Inject(method = "<init>", at = @At(value = "RETURN"))
+    private void init(ClientLevel level, GameProfile profile, CallbackInfo ci) {
+    //    PlayerAnimationAccess.getPlayerAnimLayer((AbstractClientPlayer) (Object) this).addAnimLayer(1000, ps1packtweaks$animationContainer); //Register the layer with a priority
+    }
+
+    @Override
+    public void startFireAnimation() {
+   //     PlayerAnimations.playAnimation(ps1packtweaks$animationContainer,PlayerAnimations.ON_FIRE_FLAIL);
+    }
+
+    @Override
+    public void stopAnimations() {
+   //     PlayerAnimations.stopAnimations(ps1packtweaks$animationContainer);
+    }
+
+    //@Override
+   // public ModifierLayer<IAnimation> getAnimationLayer() {
+   //     return ps1packtweaks$animationContainer;
+   //}
 
     @Unique
     boolean herobrine;
@@ -46,7 +75,8 @@ public class AbstractClientPlayerMixin implements AbstractClientPlayerDuck {
         if (herobrine) {
             cir.setReturnValue(PS1PackTweaksClient.HEROBRINE_SKIN);
 
-        }    }
+        }
+    }
 
     @Inject(
             at = {@At("HEAD")},

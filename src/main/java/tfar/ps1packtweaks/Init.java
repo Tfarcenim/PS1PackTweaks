@@ -7,6 +7,8 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.decoration.Motive;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -122,6 +124,9 @@ public class Init {
 
         public static final Block ENDERSHROOM_BLOCK = new HugeMushroomBlock(BlockBehaviour.Properties.of(Material.WOOD, MaterialColor.COLOR_PURPLE)
                 .strength(0.2F).sound(SoundType.WOOD));
+    }
+    public static class ModMenus {
+        public static final MenuType<FletchingTableMenu> FLETCHING_TABLE = new MenuType<>((int pType, Inventory pContainerId) -> new FletchingTableMenu(pType, pContainerId));
     }
 
     public static class ModPaintings {

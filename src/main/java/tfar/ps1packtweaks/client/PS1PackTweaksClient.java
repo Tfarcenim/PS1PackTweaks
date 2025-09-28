@@ -12,10 +12,12 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.color.block.BlockColors;
+import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.RecordItem;
@@ -26,11 +28,14 @@ import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.client.event.*;
+import net.minecraftforge.client.gui.ForgeIngameGui;
 import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.registries.IRegistryDelegate;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import tfar.ps1packtweaks.AbstractClientPlayerDuck;
+import org.lwjgl.opengl.GL11;
+import tfar.ps1packtweaks.*;
 import net.minecraft.Util;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.KeyMapping;
@@ -73,14 +78,11 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.loading.FMLPaths;
 import org.apache.commons.io.IOUtils;
 import org.lwjgl.glfw.GLFW;
-import tfar.ps1packtweaks.ChatSettings;
-import tfar.ps1packtweaks.Init;
-import tfar.ps1packtweaks.PS1PackTweaks;
-import tfar.ps1packtweaks.PS1PackTweaksConfig;
 import tfar.ps1packtweaks.block.CustomWoodTypes;
 import tfar.ps1packtweaks.compat.BetterGuiCompassHUD;
 import tfar.ps1packtweaks.compat.ModIntegration;
 import tfar.ps1packtweaks.mixin.BlockColorsAccess;
+import tfar.ps1packtweaks.mixin.ForgeIngameGuiAccess;
 import tyrannotitanlib.core.content.init.TyrannoBanners;
 import vazkii.quark.base.item.QuarkMusicDiscItem;
 
@@ -231,6 +233,12 @@ public class PS1PackTweaksClient {
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::onGUIDrawPost);
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::loadWorld);
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::onKeyInput);
+        MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::tooltips);
+    }
+
+    static void tooltips(ItemTooltipEvent event) {
+        ItemStack stack = event.getItemStack();
+        List<Component> tooltip = event.getToolTip();
     }
 
     //So water, foliage, grass, and leaves
@@ -316,9 +324,23 @@ public class PS1PackTweaksClient {
                 if (jumpscareTimer > 0) {
                     jumpscareTimer--;
                 }
+
+
+                if (player.isOnFire() && fireTimer<=0) {
+                    fireTimer = 282;
+                    //((AbstractClientPlayerDuck)player).startFireAnimation();
+                } else if (!player.isOnFire()) {
+                    fireTimer = 0;
+                }
+
+                if (fireTimer > 0) {
+                    fireTimer--;
+                }
             }
         }
     }
+
+    static int fireTimer = 0;
 
     static void message(ScreenshotEvent event) {
         if (!isAutoScreenshot) {
@@ -366,8 +388,39 @@ public class PS1PackTweaksClient {
 
     //LevelLoadingScreen -> ProgressScreen -> ReceivingLevelScreen
 
+    static final IIngameOverlay ALT_EXPERIENCE  = (gui, poseStack, partialTick, screenWidth, screenHeight) -> {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (!minecraft.options.hideGui)
+        {
+            gui.setupOverlayRenderState(true, false);
+            ((ForgeIngameGuiAccess)gui).$renderExperience(screenWidth / 2 - 91, poseStack);
+        }
+    };
+
+    static final IIngameOverlay ALT_CHAT  =  (gui, poseStack, partialTick, screenWidth, screenHeight) -> {
+
+        RenderSystem.enableBlend();
+        RenderSystem.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+
+        ((ForgeIngameGuiAccess)gui).$renderChat(screenWidth, screenHeight, poseStack);
+    };
+
     static void setup(FMLClientSetupEvent event) {
+        if (PS1PackTweaks.TRIGGER_BANNER_CRASH) {
+            OverlayRegistry.registerOverlayTop("banner_crash", banner_overlay);
+        }
+
+        OverlayRegistry.registerOverlayTop("jump_scare", jump_scare);
+        OverlayRegistry.registerOverlayAbove(ForgeIngameGui.EXPERIENCE_BAR_ELEMENT,"Alt Experience Bar",ALT_EXPERIENCE);
+        OverlayRegistry.enableOverlay(ForgeIngameGui.EXPERIENCE_BAR_ELEMENT,false);
+        OverlayRegistry.registerOverlayTop("Alt Chat History",ALT_CHAT);
+        OverlayRegistry.enableOverlay(ForgeIngameGui.CHAT_PANEL_ELEMENT,false);
+
         event.enqueueWork(() -> {
+            if (ModIntegration.playeranimator.loaded) {
+                PlayerAnimations.register();
+            }
+            MenuScreens.register(Init.ModMenus.FLETCHING_TABLE, FletchingTableScreen::new);
             ClientRegistry.registerKeyBinding(PS1PackTweaksKeybinds.TURN_AROUND);
             CustomWoodTypes.LIST.forEach(Sheets::addWoodType);
             ItemBlockRenderTypes.setRenderLayer(Init.ModBlocks.ENDERSHROOM, RenderType.cutoutMipped());
@@ -388,17 +441,14 @@ public class PS1PackTweaksClient {
                 BetterGuiCompassHUD.setup();
             }
             MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::playSoundEvent);
-            if (PS1PackTweaks.TRIGGER_BANNER_CRASH) {
-                OverlayRegistry.registerOverlayTop("banner_crash", banner_overlay);
-            }
 
-            OverlayRegistry.registerOverlayTop("jump_scare", jump_scare);
 
             ClientRegistry.registerKeyBinding(COPY_CLASS_NAME.get());
 
             BiomeColors.FOLIAGE_COLOR_RESOLVER = (biome, v, v1) -> 0xffffffff;
             BiomeColors.GRASS_COLOR_RESOLVER = (biome, v, v1) -> 0xffffffff;
             BiomeColors.WATER_COLOR_RESOLVER = (biome, v, v1) -> 0xffffffff;
+
         });
     }
 

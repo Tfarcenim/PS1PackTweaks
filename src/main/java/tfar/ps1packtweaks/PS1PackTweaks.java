@@ -8,6 +8,8 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.core.*;
 import net.minecraft.core.particles.ParticleType;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -17,6 +19,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -25,11 +28,14 @@ import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.entity.decoration.Motive;
+import net.minecraft.world.entity.monster.Evoker;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -44,15 +50,11 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunkSection;
-import net.minecraft.world.level.chunk.ProtoChunk;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
-import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Material;
 import net.minecraftforge.common.MinecraftForge;
@@ -62,6 +64,7 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
+import net.minecraftforge.event.entity.EntityMobGriefingEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LootingLevelEvent;
 import net.minecraftforge.event.entity.player.*;
@@ -140,6 +143,7 @@ public class PS1PackTweaks {
         bus.addGenericListener(EntityType.class, this::registerEntities);
         bus.addGenericListener(SoundEvent.class, this::registerSounds);
         bus.addGenericListener(Feature.class, this::registerFeatures);
+        bus.addGenericListener(MenuType.class, this::registerMenus);
         bus.addGenericListener(Motive.class, this::registerMotives);
         bus.addGenericListener(StructureFeature.class, this::registerStructures);
         bus.addGenericListener(GlobalLootModifierSerializer.class, this::registerGLMs);
@@ -148,7 +152,7 @@ public class PS1PackTweaks {
         bus.addListener(PS1PackTweaksConfig::configUpdate);
         MinecraftForge.EVENT_BUS.addListener(this::sleepCheck);
         bus.addListener(this::onAttributeCreate);
-        MinecraftForge.EVENT_BUS.addListener(this::rightClick);
+        MinecraftForge.EVENT_BUS.addListener(this::rightClickEntity);
         MinecraftForge.EVENT_BUS.addListener(this::playerTick);
         //MinecraftForge.EVENT_BUS.addListener(this::breakBlock);
         MinecraftForge.EVENT_BUS.addListener(this::biomeLoading);
@@ -159,6 +163,8 @@ public class PS1PackTweaks {
         MinecraftForge.EVENT_BUS.addListener(this::advancementGet);
         MinecraftForge.EVENT_BUS.addListener(this::itemCrafted);
         MinecraftForge.EVENT_BUS.addListener(this::manageVillagerTrades);
+        MinecraftForge.EVENT_BUS.addListener(this::rightClickBlock);
+        MinecraftForge.EVENT_BUS.addListener(this::preventColor);
     }
 
     public void manageVillagerTrades(VillagerTradesEvent event) {
@@ -187,26 +193,6 @@ public class PS1PackTweaks {
             return !serverLevel.getGameRules().getBoolean(RULE_CREEPY_EVENTS);
         }
         return false;
-    }
-
-    public static void preventStructures(ConfiguredStructureFeature<?, ?> configuredStructureFeature, RegistryAccess pRegistryAcess, ChunkPos pChunkPos,
-                                         LevelHeightAccessor pLevel, CallbackInfoReturnable<StructureStart> cir) {
-        Registry<ConfiguredStructureFeature<?,?>> registry = pRegistryAcess.registryOrThrow(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY);
-        ResourceLocation location = registry.getKey(configuredStructureFeature);
-        if (location.getNamespace().equals(ModIntegration.kazs_end_village.name())) {
-            ProtoChunk level = (ProtoChunk) pLevel;//note: can be protochunk
-            boolean allAir = true;
-            for (int i = 0; i < 5;i++) {
-                LevelChunkSection chunk = level.getSection(i);
-                if (!chunk.hasOnlyAir()) {
-                    allAir  =false;break;
-                }
-            }
-            if (allAir) {
-                cir.setReturnValue(StructureStart.INVALID_START);
-            }
-
-        }
     }
 
     void itemCrafted(PlayerEvent.ItemCraftedEvent event) {
@@ -342,7 +328,10 @@ public class PS1PackTweaks {
         }
     }
 
-    void rightClick(PlayerInteractEvent.EntityInteract event) {
+    void rightClickEntity(PlayerInteractEvent.EntityInteract event) {
+    }
+
+    void rightClickBlock(PlayerInteractEvent.RightClickBlock event) {
     }
 
     void registerBlocks(RegistryEvent.Register<Block> event) {
@@ -354,6 +343,13 @@ public class PS1PackTweaks {
                 Init.ModBlocks.ENDERSHROOM.setRegistryName("endershroom"),
                 Init.ModBlocks.ENDERSHROOM_BLOCK.setRegistryName("endershroom_block")
         );
+    }
+
+    void preventColor(EntityMobGriefingEvent event) {
+        Entity entity = event.getEntity();
+        if (entity instanceof Evoker) {
+            event.setResult(Event.Result.DENY);
+        }
     }
 
     void registerParticleTypes(RegistryEvent.Register<ParticleType<?>> event) {
@@ -394,6 +390,10 @@ public class PS1PackTweaks {
 
     void registerStructures(RegistryEvent.Register<StructureFeature<?>> event) {
         event.getRegistry().registerAll(ModStructureFeatures.END_VILLAGE.setRegistryName("end_village"));
+    }
+
+    void registerMenus(RegistryEvent.Register<MenuType<?>> event) {
+        event.getRegistry().registerAll(Init.ModMenus.FLETCHING_TABLE.setRegistryName("fletching_table"));
     }
 
     void registerMotives(RegistryEvent.Register<Motive> event) {

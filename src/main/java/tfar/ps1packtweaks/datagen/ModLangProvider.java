@@ -146,6 +146,8 @@ public class ModLangProvider extends LanguageProvider {
 
         add(PS1PackTweaksKeybinds.CATEGORY,"PS1 Pack Tweaks");
         addKey(PS1PackTweaksKeybinds.TURN_AROUND,"Turn Around");
+
+        add("container.fletching","Fletching Table");
     }
 
     void addKey(KeyMapping mapping, String translation) {
