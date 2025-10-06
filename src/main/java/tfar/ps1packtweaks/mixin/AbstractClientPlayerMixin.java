@@ -3,7 +3,7 @@ package tfar.ps1packtweaks.mixin;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.multiplayer.ClientLevel;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import tfar.ps1packtweaks.AbstractClientPlayerDuck;
+import tfar.ps1packtweaks.duck.AbstractClientPlayerDuck;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.resources.ResourceLocation;

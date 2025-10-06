@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import tfar.ps1packtweaks.Init;
 import tfar.ps1packtweaks.PS1PackTweaks;
 import tfar.ps1packtweaks.PS1PackTweaksConfig;
-import tfar.ps1packtweaks.PaintingEntityDuck;
+import tfar.ps1packtweaks.duck.PaintingEntityDuck;
 
 import javax.annotation.Nullable;
 import java.util.List;

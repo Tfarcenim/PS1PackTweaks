@@ -1,5 +1,6 @@
 package tfar.ps1packtweaks.client;
 
+import com.mojang.math.Vector3f;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
 import net.minecraft.core.particles.SimpleParticleType;
@@ -9,7 +10,7 @@ public class EndermanParticle extends TextureSheetParticle {
     private final double yStart;
     private final double zStart;
 
-    protected EndermanParticle(ClientLevel pLevel, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed) {
+    protected EndermanParticle(ClientLevel pLevel, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed, Vector3f color) {
         super(pLevel, pX, pY, pZ);
         this.xd = pXSpeed;
         this.yd = pYSpeed;
@@ -22,9 +23,9 @@ public class EndermanParticle extends TextureSheetParticle {
         this.zStart = this.z;
         this.quadSize = 0.1F * (this.random.nextFloat() * 0.2F + 0.5F);
         float f = this.random.nextFloat() * 0.6F + 0.4F;
-        this.rCol = f * .3f;
-        this.gCol = f;
-        this.bCol = f * .3f;
+        this.rCol = f * color.x();
+        this.gCol = f * color.y();
+        this.bCol = f * color.z();
         this.lifetime = (int)(Math.random() * 10.0D) + 40;
     }
 
@@ -78,13 +79,16 @@ public class EndermanParticle extends TextureSheetParticle {
 
     public static class Provider implements ParticleProvider<SimpleParticleType> {
         private final SpriteSet sprite;
+        private final Vector3f color;
 
-        public Provider(SpriteSet p_107570_) {
+        public Provider(SpriteSet p_107570_, Vector3f color) {
             this.sprite = p_107570_;
+            this.color = color;
         }
 
         public Particle createParticle(SimpleParticleType pType, ClientLevel pLevel, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed) {
-            EndermanParticle portalparticle = new EndermanParticle(pLevel, pX, pY, pZ, pXSpeed, pYSpeed, pZSpeed);
+            EndermanParticle portalparticle = new EndermanParticle(pLevel, pX, pY, pZ, pXSpeed, pYSpeed, pZSpeed,color);
+
             portalparticle.pickSprite(this.sprite);
             return portalparticle;
         }

@@ -10,6 +10,7 @@ import com.mojang.blaze3d.Blaze3D;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.gui.screens.MenuScreens;
@@ -31,6 +32,7 @@ import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.gui.ForgeIngameGui;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
+import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.registries.IRegistryDelegate;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -81,8 +83,10 @@ import org.lwjgl.glfw.GLFW;
 import tfar.ps1packtweaks.block.CustomWoodTypes;
 import tfar.ps1packtweaks.compat.BetterGuiCompassHUD;
 import tfar.ps1packtweaks.compat.ModIntegration;
+import tfar.ps1packtweaks.duck.AbstractClientPlayerDuck;
 import tfar.ps1packtweaks.mixin.BlockColorsAccess;
 import tfar.ps1packtweaks.mixin.ForgeIngameGuiAccess;
+import tfar.ps1packtweaks.mixin.OverlayRegistryAccess;
 import tyrannotitanlib.core.content.init.TyrannoBanners;
 import vazkii.quark.base.item.QuarkMusicDiscItem;
 
@@ -220,6 +224,7 @@ public class PS1PackTweaksClient {
     public static void init(IEventBus bus) {
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, CLIENT_SPEC);
         bus.addListener(PS1PackTweaksClient::setup);
+        bus.addListener(PS1PackTweaksClient::reorderOverlays);
         bus.addListener(EventPriority.LOWEST, PS1PackTweaksClient::removeBlockColors);
         bus.addListener(PS1PackTweaksClient::particleProviders);
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::joinServer);
@@ -234,6 +239,13 @@ public class PS1PackTweaksClient {
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::loadWorld);
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::onKeyInput);
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::tooltips);
+    }
+
+    static void reorderOverlays(InterModProcessEvent event) {
+        List<OverlayRegistry.OverlayEntry> orderedOverlays = OverlayRegistryAccess.getOverlaysOrdered();
+        OverlayRegistry.OverlayEntry overlayEntry = OverlayRegistry.getEntry(ALT_CHAT);
+        orderedOverlays.remove(overlayEntry);
+        orderedOverlays.add(overlayEntry);
     }
 
     static void tooltips(ItemTooltipEvent event) {
@@ -258,12 +270,14 @@ public class PS1PackTweaksClient {
     }
 
     static void particleProviders(ParticleFactoryRegisterEvent e) {
-        Minecraft.getInstance().particleEngine.register(Init.ModParticleTypes.ENDERMAN, EndermanParticle.Provider::new);
+        Minecraft.getInstance().particleEngine.register(Init.ModParticleTypes.ENDERMAN, pSprites -> new EndermanParticle.Provider(pSprites,new Vector3f(.3f,1,.3f)));
+        Minecraft.getInstance().particleEngine.register(Init.ModParticleTypes.BLUE_ENDERMAN, pSprites -> new EndermanParticle.Provider(pSprites,new Vector3f(.3f,.3f,1)));
     }
 
 
     //this runs in the main menu!
     static void clientTick(TickEvent.ClientTickEvent event) {
+        Minecraft minecraft = Minecraft.getInstance();
         if (event.phase == TickEvent.Phase.START) {
             if (MouseHider.hidden) {
                 if (MouseHider.hideTimer > 0) {
@@ -287,7 +301,6 @@ public class PS1PackTweaksClient {
             }
 
         } else {
-            Minecraft minecraft = Minecraft.getInstance();
             if (shaderTimer > 0) {
                 shaderTimer--;
                 if (shaderTimer == 0) {
@@ -313,7 +326,7 @@ public class PS1PackTweaksClient {
                 Random random = player.getRandom();
                 if (player.tickCount % 20 == 0) {
                     if (random.nextDouble() < CLIENT.pauseChance.get()) {
-                        Minecraft.getInstance().pauseGame(false);
+                        minecraft.pauseGame(false);
                     }
                     if (!minecraft.isPaused() && jumpscareTimer <= 0 && random.nextDouble() < CLIENT.jumpScareChance.get()) {
                         jumpscareTimer = 30;
@@ -402,7 +415,10 @@ public class PS1PackTweaksClient {
         RenderSystem.enableBlend();
         RenderSystem.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
 
+        float move = CLIENT.chatOffset.get();
+        poseStack.translate(0,move,0);
         ((ForgeIngameGuiAccess)gui).$renderChat(screenWidth, screenHeight, poseStack);
+        poseStack.translate(0,-move,0);
     };
 
     static void setup(FMLClientSetupEvent event) {

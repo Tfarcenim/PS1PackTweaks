@@ -41,6 +41,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
@@ -91,6 +92,7 @@ import tfar.ps1packtweaks.compat.ModIntegration;
 import tfar.ps1packtweaks.compat.MoreHorseArmorCompat;
 import tfar.ps1packtweaks.datagen.ModDataGenerator;
 import tfar.ps1packtweaks.datagen.OrLootTableCondition;
+import tfar.ps1packtweaks.duck.EnchantmentDuck;
 import tfar.ps1packtweaks.entity.Barnacle;
 import tfar.ps1packtweaks.entity.HerobrineEntity;
 import tfar.ps1packtweaks.entity.InvisibleEntity;
@@ -353,7 +355,8 @@ public class PS1PackTweaks {
     }
 
     void registerParticleTypes(RegistryEvent.Register<ParticleType<?>> event) {
-        event.getRegistry().registerAll(Init.ModParticleTypes.ENDERMAN.setRegistryName("enderman"));
+        event.getRegistry().registerAll(Init.ModParticleTypes.ENDERMAN.setRegistryName("enderman"),
+                Init.ModParticleTypes.BLUE_ENDERMAN.setRegistryName("blue_enderman"));
     }
 
     void registerItems(RegistryEvent.Register<Item> event) {
@@ -529,6 +532,13 @@ public class PS1PackTweaks {
             ((BlockAccess)Blocks.TRAPPED_CHEST).setIsRandomlyTicking(true);
             SpawnPlacements.register(Init.ModEntityTypes.BARNACLE, SpawnPlacements.Type.IN_WATER, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                     Barnacle::canSpawn);
+
+            for (Enchantment enchantment : Registry.ENCHANTMENT) {
+                if (enchantment.getRegistryName().getNamespace().equals(ModIntegration.alexsmobs.name())) {
+                    ((EnchantmentDuck)enchantment).setDiscoverable(false);
+                    ((EnchantmentDuck)enchantment).setTradeable(false);
+                }
+            }
         });
 
     }

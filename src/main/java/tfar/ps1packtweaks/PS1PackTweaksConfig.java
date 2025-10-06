@@ -204,6 +204,8 @@ public class PS1PackTweaksConfig {
         public final ForgeConfigSpec.DoubleValue jumpScareChance;
         public final ForgeConfigSpec.IntValue delaySongTime;
 
+        public final ForgeConfigSpec.IntValue chatOffset;
+
 
         public Client(ForgeConfigSpec.Builder builder) {
             builder.push("tweaks");
@@ -251,6 +253,7 @@ public class PS1PackTweaksConfig {
                     .defineInRange("jump_scare_chance",1/4096d,0,1);
 
             delaySongTime = builder.comment("Time to delay first song at start").defineInRange("delay_song_time",300,1,1000000000);
+            chatOffset = builder.defineInRange("chat_offset",-52,-1000000000,1000000000);
 
             builder.pop();
         }

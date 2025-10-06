@@ -141,6 +141,7 @@ public class Init {
     }
 
     public static class ModParticleTypes {
+        public static final SimpleParticleType BLUE_ENDERMAN = new SimpleParticleType(false);
         public static final SimpleParticleType ENDERMAN = new SimpleParticleType(false);
     }
 

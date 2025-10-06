@@ -31,7 +31,7 @@ public class FletchingTableMenu extends ItemCombinerMenu {
         stack.onCraftedBy(player.level, player, stack.getCount());
         this.resultSlots.awardUsedRecipes(player);
         inputSlots.setItem(0,ItemStack.EMPTY);
-        this.shrinkStackInSlot(1);
+        inputSlots.setItem(1,Items.GLASS_BOTTLE.getDefaultInstance());
         this.access.execute((p_40263_, p_40264_) -> {
             p_40263_.levelEvent(LevelEvent.SOUND_SMITHING_TABLE_USED, p_40264_, 0);
         });

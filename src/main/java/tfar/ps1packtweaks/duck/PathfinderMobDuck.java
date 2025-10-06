@@ -1,4 +1,4 @@
-package tfar.ps1packtweaks;
+package tfar.ps1packtweaks.duck;
 
 public interface PathfinderMobDuck {
 

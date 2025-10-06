@@ -1,7 +1,7 @@
 package tfar.ps1packtweaks.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import tfar.ps1packtweaks.AbstractClientPlayerDuck;
+import tfar.ps1packtweaks.duck.AbstractClientPlayerDuck;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.InBedChatScreen;
 import net.minecraft.client.gui.screens.ProgressScreen;
