@@ -9,6 +9,7 @@ import net.minecraft.advancements.Advancement;
 import net.minecraft.core.*;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.WorldGenRegion;
@@ -30,6 +31,7 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.raid.Raids;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
@@ -57,6 +59,7 @@ import net.minecraft.world.level.material.Material;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.loot.GlobalLootModifierSerializer;
 import net.minecraftforge.common.world.BiomeGenerationSettingsBuilder;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
@@ -65,6 +68,7 @@ import net.minecraftforge.event.entity.EntityMobGriefingEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LootingLevelEvent;
 import net.minecraftforge.event.entity.player.*;
+import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.village.VillagerTradesEvent;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.event.world.BlockEvent;
@@ -81,6 +85,7 @@ import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.items.CapabilityItemHandler;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import software.bernie.shadowed.eliotlash.mclib.math.functions.limit.Min;
 import tfar.ps1packtweaks.client.PS1PackTweaksClient;
 import tfar.ps1packtweaks.compat.BrewingCauldronCompat;
 import tfar.ps1packtweaks.compat.EnderiteModCompat;
@@ -164,6 +169,22 @@ public class PS1PackTweaks {
         MinecraftForge.EVENT_BUS.addListener(this::rightClickBlock);
         MinecraftForge.EVENT_BUS.addListener(this::preventColor);
         MinecraftForge.EVENT_BUS.addListener(FinalHerobrine::useFlintAndSteel);
+        MinecraftForge.EVENT_BUS.addListener(FinalHerobrine::levelTick);
+        MinecraftForge.EVENT_BUS.addListener(this::serverStarted);
+        MinecraftForge.EVENT_BUS.addListener(this::commands);
+    }
+
+    void commands(RegisterCommandsEvent event) {
+        ModCommands.register(event.getDispatcher());
+    }
+
+    public static FinalHerobrine finalHerobrine;
+
+    void serverStarted(ServerStartedEvent event) {
+        MinecraftServer server = event.getServer();
+        ServerLevel overworld = server.overworld();
+        finalHerobrine = overworld.getDataStorage().computeIfAbsent((p_184095_) -> FinalHerobrine.loadStatic(overworld, p_184095_),
+                () -> new FinalHerobrine(overworld), "final_herobrine");
     }
 
     public void manageVillagerTrades(VillagerTradesEvent event) {

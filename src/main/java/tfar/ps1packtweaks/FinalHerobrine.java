@@ -7,31 +7,110 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.protocol.game.DebugPackets;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.raid.Raid;
+import net.minecraft.world.entity.raid.Raids;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.AABB;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.server.ServerLifecycleHooks;
+import org.jetbrains.annotations.Nullable;
 import tfar.ps1packtweaks.entity.HerobrineEntity;
 import vazkii.quark.content.building.entity.GlassItemFrame;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
-public class FinalHerobrine {
+public class FinalHerobrine extends SavedData {
+
+    private final ServerLevel level;
+    public Stage herobrineStage = Stage.PREP;
+    @Nullable HerobrineEntity herobrine;
+
+    int tick;
 
 
+    public FinalHerobrine(ServerLevel level) {
+        this.level = level;
+    }
+
+    public void tick() {
+        if (herobrineStage != Stage.PREP) {
+            ++this.tick;
+            if (tick % 100 == 0) {
+                setDirty();
+            }
+        }
+    }
+
+    public void reset() {
+        herobrineStage = Stage.PREP;
+        if (herobrine != null) {
+            herobrine.discard();
+        }
+        herobrine = null;
+        setDirty();
+    }
+
+
+    public enum Stage {
+        PREP(-1),
+        START(400);
+        private final int length;
+
+        Stage(int length) {
+
+            this.length = length;
+        }
+    }
+
+    @Override
+    public CompoundTag save(CompoundTag pCompoundTag) {
+        pCompoundTag.putInt("Tick",tick);
+        pCompoundTag.putString("Stage",herobrineStage.name());
+        if (herobrine != null) {
+            pCompoundTag.putUUID("Herobrine",herobrine.getUUID());
+        }
+        return pCompoundTag;
+    }
+
+    public static FinalHerobrine loadStatic(ServerLevel level, CompoundTag tag) {
+        FinalHerobrine fina = new FinalHerobrine(level);
+        fina.tick = tag.getInt("Tick");
+        fina.herobrineStage = Stage.valueOf(tag.getString("Stage"));
+        if (tag.hasUUID("Herobrine")) {
+            fina.herobrine = (HerobrineEntity) level.getEntity(tag.getUUID("Herobrine"));
+        }
+
+        return fina;
+    }
+
+    ///////////////////events
+
+    public static void levelTick(TickEvent.ServerTickEvent event) {
+        PS1PackTweaks.finalHerobrine.tick();
+    }
 
     public static void useFlintAndSteel(PlayerInteractEvent.RightClickBlock event){
         Player player = event.getPlayer();
@@ -39,18 +118,37 @@ public class FinalHerobrine {
         BlockPos pos = event.getPos();
         Level level = player.level;
         if (!level.isClientSide && level.dimension() == Level.OVERWORLD) {
+            if (PS1PackTweaks.finalHerobrine.herobrineStage != Stage.PREP) {
+                player.displayClientMessage(new TextComponent("Herobrine has already been summoned!"),false);
+                return;
+            }
+
             ItemStack stack = player.getItemInHand(hand);
             BlockState state = level.getBlockState(pos);
             if (stack.is(Items.FLINT_AND_STEEL)&& state.is(Blocks.BEDROCK)) {
                 if (hasCompleteStructure(player, (ServerLevel) level,pos)) {
-                    player.displayClientMessage(new TextComponent("Correct Structure"),false);
-                    HerobrineEntity herobrine = (HerobrineEntity) Init.ModEntityTypes.HEROBRINE.spawn((ServerLevel) level,null,null,pos, MobSpawnType.EVENT,false,false);
+                    //player.displayClientMessage(new TextComponent("Correct Structure"),false);
+                    HerobrineEntity herobrine = (HerobrineEntity) Init.ModEntityTypes.HEROBRINE.spawn((ServerLevel) level,null,null,pos.above(), MobSpawnType.EVENT,false,false);
                     if (herobrine != null) {
-                        herobrine.setInvulnerable(true);
+                        PS1PackTweaks.finalHerobrine.begin(herobrine);
                     }
                 }
             }
         }
+    }
+
+    void begin(HerobrineEntity herobrine) {
+        this.herobrine = herobrine;
+        herobrineStage = Stage.START;
+
+        herobrine.setInvulnerable(true);
+        herobrine.setNoGravity(true);
+
+        LightningBolt lightningBolt = EntityType.LIGHTNING_BOLT.create(level);
+        lightningBolt.moveTo(herobrine.position());
+        lightningBolt.setVisualOnly(true);
+        level.addFreshEntity(lightningBolt);
+        setDirty();
     }
 
     public static boolean hasCompleteStructure(Player player, ServerLevel level, BlockPos bedrockPos) {
@@ -190,6 +288,9 @@ public class FinalHerobrine {
             return false;
         }
 
+        for (GlassItemFrame frame : foundFrames) {
+            frame.setItem(ItemStack.EMPTY);
+        }
 
         return true;
     }
