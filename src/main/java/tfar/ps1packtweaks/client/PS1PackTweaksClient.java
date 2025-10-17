@@ -122,7 +122,7 @@ public class PS1PackTweaksClient {
     public static Map<String, ResourceKey<Level>> discMap;
 
     private static ResourceKey<Level> CURRENT_DISC = Level.OVERWORLD;
-    public static boolean showDisc;
+    static boolean showDisc;
 
     public static boolean isAutoScreenshot;
 
@@ -599,13 +599,15 @@ public class PS1PackTweaksClient {
 
         ResourceKey<Level> lastSeen = discMap.get(levelName);
 
-        if (lastSeen == null) {
+        ResourceKey<Level> current = clientLevel.dimension();
+
+        if (lastSeen == null & current != Level.OVERWORLD) {
             showDisc = true;
         } else {
-            setDisc(clientLevel.dimension());
+            setDisc(current);
         }
 
-        PS1PackTweaksClient.discMap.put(levelName, clientLevel.dimension());
+        PS1PackTweaksClient.discMap.put(levelName, current);
         PS1PackTweaksClient.write();
     }
 

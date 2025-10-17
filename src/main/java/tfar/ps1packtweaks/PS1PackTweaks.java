@@ -8,8 +8,6 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.core.*;
 import net.minecraft.core.particles.ParticleType;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,7 +17,6 @@ import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
-import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -33,7 +30,6 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
@@ -167,6 +163,7 @@ public class PS1PackTweaks {
         MinecraftForge.EVENT_BUS.addListener(this::manageVillagerTrades);
         MinecraftForge.EVENT_BUS.addListener(this::rightClickBlock);
         MinecraftForge.EVENT_BUS.addListener(this::preventColor);
+        MinecraftForge.EVENT_BUS.addListener(FinalHerobrine::useFlintAndSteel);
     }
 
     public void manageVillagerTrades(VillagerTradesEvent event) {
