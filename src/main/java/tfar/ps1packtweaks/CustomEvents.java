@@ -27,7 +27,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.*;
-import tfar.ps1packtweaks.entity.HerobrineEntity;
+import tfar.ps1packtweaks.entity.EventHerobrineEntity;
 import tfar.ps1packtweaks.entity.InvisibleEntity;
 import tfar.ps1packtweaks.util.TreeScanner;
 
@@ -347,7 +347,7 @@ public class CustomEvents {
         ServerLevel serverLevel = player.getLevel();
 
         if (serverLevel.getGameTime() % PS1PackTweaksConfig.SERVER.minHerobrineDelay.get() == 0 && !serverLevel.isDay()) {
-            if (!serverLevel.getEntitiesOfClass(HerobrineEntity.class,player.getBoundingBox().inflate(128,100,128)).isEmpty())return;
+            if (!serverLevel.getEntitiesOfClass(EventHerobrineEntity.class,player.getBoundingBox().inflate(128,100,128)).isEmpty())return;
 
 
            // long start = Util.getNanos();
@@ -372,7 +372,7 @@ public class CustomEvents {
 
             boolean dark = Monster.isDarkEnoughToSpawn(serverLevel, spawnPos, serverLevel.random);
             if (dark) {
-                HerobrineEntity herobrine = (HerobrineEntity) Init.ModEntityTypes.HEROBRINE.spawn(serverLevel, null,
+                EventHerobrineEntity herobrine = (EventHerobrineEntity) Init.ModEntityTypes.HEROBRINE.spawn(serverLevel, null,
                         null, spawnPos, MobSpawnType.EVENT, false, false);
             }
         }
@@ -530,7 +530,7 @@ public class CustomEvents {
                             offset.getY(), offset.getZ() + 0.5D)).isEmpty();
                     if (entityColliding && level.canSeeSky(offset) && NaturalSpawner.isSpawnPositionOk(SpawnPlacements.Type.ON_GROUND, level, offset,
                             Init.ModEntityTypes.HEROBRINE)) {
-                        HerobrineEntity herobrine = (HerobrineEntity) Init.ModEntityTypes.HEROBRINE.spawn(level, null,
+                        EventHerobrineEntity herobrine = (EventHerobrineEntity) Init.ModEntityTypes.HEROBRINE.spawn(level, null,
                                 null, offset, MobSpawnType.EVENT, false, false);
                         return true;
                     }

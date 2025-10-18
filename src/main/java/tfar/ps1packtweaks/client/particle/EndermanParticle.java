@@ -1,4 +1,4 @@
-package tfar.ps1packtweaks.client;
+package tfar.ps1packtweaks.client.particle;
 
 import com.mojang.math.Vector3f;
 import net.minecraft.client.multiplayer.ClientLevel;

@@ -41,12 +41,12 @@ public class ScriptedMidnightLurker extends Monster implements IAnimatable {
         LivingEntity target = getTarget();
         if (target != null) {
             getLookControl().setLookAt(target);
-            if (tickCount == HerobrineEntity.CHASE_DELAY) {
+            if (tickCount == EventHerobrineEntity.CHASE_DELAY) {
                 playSound(WBSoundEvents.WARDEN_ROAR,4,1);
             }
-            if (tickCount > HerobrineEntity.CHASE_DELAY) {
+            if (tickCount > EventHerobrineEntity.CHASE_DELAY) {
                 getNavigation().moveTo(target,1);
-                if (!target.isAlive() || tickCount > HerobrineEntity.DESPAWN_TIME) {
+                if (!target.isAlive() || tickCount > EventHerobrineEntity.DESPAWN_TIME) {
                     discard();
                 }
             }

@@ -2,6 +2,10 @@ package tfar.ps1packtweaks;
 
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.syncher.EntityDataSerializer;
+import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EntityType;
@@ -22,14 +26,13 @@ import tfar.ps1packtweaks.advancement.PlayerFoundEntityTrigger;
 import tfar.ps1packtweaks.block.CustomBoatTypes;
 import tfar.ps1packtweaks.block.CustomWoodTypes;
 import tfar.ps1packtweaks.block.EndershroomBlock;
-import tfar.ps1packtweaks.entity.Barnacle;
-import tfar.ps1packtweaks.entity.HerobrineEntity;
-import tfar.ps1packtweaks.entity.InvisibleEntity;
-import tfar.ps1packtweaks.entity.ScriptedMidnightLurker;
+import tfar.ps1packtweaks.entity.*;
 import tfar.ps1packtweaks.item.FloatingBlockItem;
 import tfar.ps1packtweaks.loot.AddItemLootModifier;
 import tfar.ps1packtweaks.loot.DuplicateOutputsLootModifier;
 import tfar.ps1packtweaks.worldgen.*;
+
+import java.util.Optional;
 
 public class Init {
 
@@ -69,8 +72,11 @@ public class Init {
                 .sized(1.2F, 1.2F)
                 .build(new ResourceLocation(PS1PackTweaks.MOD_ID, "barnacle").toString());
 
-        public static final EntityType<HerobrineEntity> HEROBRINE = EntityType.Builder.of(HerobrineEntity::new, MobCategory.MONSTER)
-                .sized(0.6F, 1.95F).clientTrackingRange(8).build("");
+        public static final EntityType<EventHerobrineEntity> HEROBRINE = EntityType.Builder.of(EventHerobrineEntity::new, MobCategory.MONSTER)
+                .sized(0.6F, 1.95F).clientTrackingRange(8).fireImmune().build("");
+
+        public static final EntityType<FinalHerobrineEntity> FINAL_HEROBRINE = EntityType.Builder.of(FinalHerobrineEntity::new, MobCategory.MONSTER)
+                .sized(0.6F, 1.95F).clientTrackingRange(8).fireImmune().build("");
 
         public static final EntityType<ScriptedMidnightLurker> SCRIPTED_MIDNIGHT_LURKER =
                 EntityType.Builder.of(ScriptedMidnightLurker::new, MobCategory.MONSTER)
@@ -143,12 +149,37 @@ public class Init {
     public static class ModParticleTypes {
         public static final SimpleParticleType BLUE_ENDERMAN = new SimpleParticleType(false);
         public static final SimpleParticleType ENDERMAN = new SimpleParticleType(false);
+        public static final SimpleParticleType FINAL_HEROBRINE = new SimpleParticleType(false);
     }
 
     public static class GlobalLootModifiers {
         public static final DuplicateOutputsLootModifier.Serializer DUPLICATE_OUTPUTS = new DuplicateOutputsLootModifier.Serializer();
         public static final AddItemLootModifier.Serializer ADD_ITEM = new AddItemLootModifier.Serializer();
 
+    }
+
+    public static class ModEntityDataSerializers{
+
+        public static void init() {
+            EntityDataSerializers.registerSerializer(RESOURCELOCATION);
+        }
+
+        public static final EntityDataSerializer<ResourceLocation> RESOURCELOCATION = new EntityDataSerializer<>() {
+            @Override
+            public void write(FriendlyByteBuf p_135170_, ResourceLocation p_135171_) {
+                p_135170_.writeResourceLocation(p_135171_);
+            }
+
+            @Override
+            public ResourceLocation read(FriendlyByteBuf p_135173_) {
+                return p_135173_.readResourceLocation();
+            }
+
+            @Override
+            public ResourceLocation copy(ResourceLocation p_135163_) {
+                return p_135163_;
+            }
+        };
     }
 
 }

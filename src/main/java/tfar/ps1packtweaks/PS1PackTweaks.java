@@ -31,7 +31,6 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.raid.Raids;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
@@ -85,7 +84,6 @@ import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.items.CapabilityItemHandler;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import software.bernie.shadowed.eliotlash.mclib.math.functions.limit.Min;
 import tfar.ps1packtweaks.client.PS1PackTweaksClient;
 import tfar.ps1packtweaks.compat.BrewingCauldronCompat;
 import tfar.ps1packtweaks.compat.EnderiteModCompat;
@@ -95,7 +93,7 @@ import tfar.ps1packtweaks.datagen.ModDataGenerator;
 import tfar.ps1packtweaks.datagen.OrLootTableCondition;
 import tfar.ps1packtweaks.duck.EnchantmentDuck;
 import tfar.ps1packtweaks.entity.Barnacle;
-import tfar.ps1packtweaks.entity.HerobrineEntity;
+import tfar.ps1packtweaks.entity.EventHerobrineEntity;
 import tfar.ps1packtweaks.entity.InvisibleEntity;
 import tfar.ps1packtweaks.entity.ScriptedMidnightLurker;
 import tfar.ps1packtweaks.entity.goals.FollowPlayerGoal;
@@ -374,7 +372,9 @@ public class PS1PackTweaks {
 
     void registerParticleTypes(RegistryEvent.Register<ParticleType<?>> event) {
         event.getRegistry().registerAll(Init.ModParticleTypes.ENDERMAN.setRegistryName("enderman"),
-                Init.ModParticleTypes.BLUE_ENDERMAN.setRegistryName("blue_enderman"));
+                Init.ModParticleTypes.BLUE_ENDERMAN.setRegistryName("blue_enderman"),
+                Init.ModParticleTypes.FINAL_HEROBRINE.setRegistryName("final_herobrine")
+                );
     }
 
     void registerItems(RegistryEvent.Register<Item> event) {
@@ -393,6 +393,7 @@ public class PS1PackTweaks {
     void registerEntities(RegistryEvent.Register<EntityType<?>> event) {
         event.getRegistry().registerAll(Init.ModEntityTypes.BARNACLE.setRegistryName("barnacle"),
                 Init.ModEntityTypes.HEROBRINE.setRegistryName("herobrine"),
+                Init.ModEntityTypes.FINAL_HEROBRINE.setRegistryName("final_herobrine"),
                 Init.ModEntityTypes.SCRIPTED_MIDNIGHT_LURKER.setRegistryName("scripted_midnight_lurker"),
                 Init.ModEntityTypes.INVISIBLE_ENTITY.setRegistryName("invisible_entity")
         );
@@ -516,7 +517,8 @@ public class PS1PackTweaks {
     void onAttributeCreate(EntityAttributeCreationEvent event) {
         event.put(Init.ModEntityTypes.BARNACLE, Barnacle.setCustomAttributes().build());
         event.put(Init.ModEntityTypes.SCRIPTED_MIDNIGHT_LURKER, ScriptedMidnightLurker.createAttributes().build());
-        event.put(Init.ModEntityTypes.HEROBRINE, HerobrineEntity.createAttributes().build());
+        event.put(Init.ModEntityTypes.HEROBRINE, EventHerobrineEntity.createAttributes().build());
+        event.put(Init.ModEntityTypes.FINAL_HEROBRINE, EventHerobrineEntity.createAttributes().build());
         event.put(Init.ModEntityTypes.INVISIBLE_ENTITY, InvisibleEntity.createAttributes().build());
     }
 
@@ -531,6 +533,7 @@ public class PS1PackTweaks {
 
         PacketHandler.registerPackets();
         event.enqueueWork(() -> {
+            Init.ModEntityDataSerializers.init();
             setCanOcclude(Blocks.ICE,true);
             ModTreeFeatures.init();
             Init.init();

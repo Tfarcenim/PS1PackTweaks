@@ -36,8 +36,8 @@ import tfar.ps1packtweaks.entity.goals.LookforPlayerGoal;
 
 import java.util.List;
 
-public class HerobrineEntity extends PathfinderMob implements CanLookAt {
-    public HerobrineEntity(EntityType<? extends PathfinderMob> $$0, Level level) {
+public class EventHerobrineEntity extends AbstractHerobrineEntity implements CanLookAt{
+    public EventHerobrineEntity(EntityType<? extends PathfinderMob> $$0, Level level) {
         super($$0, level);
     }
 
@@ -96,7 +96,7 @@ public class HerobrineEntity extends PathfinderMob implements CanLookAt {
     @Override
     protected void registerGoals() {
         super.registerGoals();
-        this.goalSelector.addGoal(1, new HerobrineEntity.HerobrineLookatPlayerGoal());
+        this.goalSelector.addGoal(1, new EventHerobrineEntity.HerobrineLookatPlayerGoal());
         this.targetSelector.addGoal(1, new BeingLookedAtGoal<>(this, e -> true));
         this.targetSelector.addGoal(2, new LookforPlayerGoal<>(this, e -> true));
     }
@@ -268,15 +268,15 @@ public class HerobrineEntity extends PathfinderMob implements CanLookAt {
         age = tag.getLong("age");
     }
 
-    public class HerobrineLookatPlayerGoal extends LookAtPlayerGoal<HerobrineEntity> {
+    public class HerobrineLookatPlayerGoal extends LookAtPlayerGoal<EventHerobrineEntity> {
 
         public HerobrineLookatPlayerGoal() {
-            super(HerobrineEntity.this);
+            super(EventHerobrineEntity.this);
         }
 
         @Override
         public boolean canUse() {
-            return super.canUse() && !HerobrineEntity.this.isPerformingEvent;
+            return super.canUse() && !EventHerobrineEntity.this.isPerformingEvent;
         }
     }
 

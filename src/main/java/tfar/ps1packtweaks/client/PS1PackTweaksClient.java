@@ -13,7 +13,7 @@ import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.color.block.BlockColors;
-import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.gui.screens.*;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -43,9 +43,6 @@ import net.minecraft.client.CameraType;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
-import net.minecraft.client.gui.screens.ProgressScreen;
-import net.minecraft.client.gui.screens.ReceivingLevelScreen;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -81,12 +78,15 @@ import net.minecraftforge.fml.loading.FMLPaths;
 import org.apache.commons.io.IOUtils;
 import org.lwjgl.glfw.GLFW;
 import tfar.ps1packtweaks.block.CustomWoodTypes;
+import tfar.ps1packtweaks.client.particle.EndermanParticle;
+import tfar.ps1packtweaks.client.particle.FinalHerobrineParticle;
 import tfar.ps1packtweaks.compat.BetterGuiCompassHUD;
 import tfar.ps1packtweaks.compat.ModIntegration;
 import tfar.ps1packtweaks.duck.AbstractClientPlayerDuck;
 import tfar.ps1packtweaks.mixin.BlockColorsAccess;
 import tfar.ps1packtweaks.mixin.ForgeIngameGuiAccess;
 import tfar.ps1packtweaks.mixin.OverlayRegistryAccess;
+import tfar.ps1packtweaks.network.client.S2CEventPacket;
 import tyrannotitanlib.core.content.init.TyrannoBanners;
 import vazkii.quark.base.item.QuarkMusicDiscItem;
 
@@ -272,6 +272,7 @@ public class PS1PackTweaksClient {
     static void particleProviders(ParticleFactoryRegisterEvent e) {
         Minecraft.getInstance().particleEngine.register(Init.ModParticleTypes.ENDERMAN, pSprites -> new EndermanParticle.Provider(pSprites,new Vector3f(.3f,1,.3f)));
         Minecraft.getInstance().particleEngine.register(Init.ModParticleTypes.BLUE_ENDERMAN, pSprites -> new EndermanParticle.Provider(pSprites,new Vector3f(.3f,.3f,1)));
+        Minecraft.getInstance().particleEngine.register(Init.ModParticleTypes.FINAL_HEROBRINE, FinalHerobrineParticle.Provider::new);
     }
 
 
@@ -448,7 +449,11 @@ public class PS1PackTweaksClient {
             EntityRenderers.register(Init.ModEntityTypes.SCRIPTED_MIDNIGHT_LURKER, ScriptedMidnightLurkerRenderer::new);
 
             EntityRenderers.register(Init.ModEntityTypes.HEROBRINE, (EntityRendererProvider.Context context) -> new SimplePlayerRenderer<>(context,
-                    false, PS1PackTweaks.id("textures/entity/herobrine.png")));
+                    false));
+
+            EntityRenderers.register(Init.ModEntityTypes.FINAL_HEROBRINE, (EntityRendererProvider.Context context) -> new FinalHerobrineRenderer(context,
+                    false));
+
 
             EntityRenderers.register(Init.ModEntityTypes.INVISIBLE_ENTITY, (EntityRendererProvider.Context context) -> new InvisibleEntityRenderer<>(context,
                     false, PS1PackTweaks.id("textures/entity/herobrine.png")));
@@ -650,5 +655,16 @@ public class PS1PackTweaksClient {
         strings.add(CreativeModeInventoryScreen.class.getName());
         strings.add(InventoryScreen.class.getName());
         return strings;
+    }
+
+    public static void handleEvent(S2CEventPacket s2CEventPacket) {
+        switch (s2CEventPacket) {
+            case OPEN_ACCESSIBILITY_SCREEN -> {
+                Minecraft.getInstance().setScreen(new AccessibilityOptionsScreen(null,Minecraft.getInstance().options ));
+            }
+            case STOP_MUSIC -> {
+                Minecraft.getInstance().getMusicManager().stopPlaying();
+            }
+        }
     }
 }

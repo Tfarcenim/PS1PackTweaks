@@ -5,11 +5,10 @@ import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
-import tfar.ps1packtweaks.entity.CanLookAt;
 
 import java.util.EnumSet;
 
-public class LookAtPlayerGoal<T extends PathfinderMob & CanLookAt> extends Goal {
+public class LookAtPlayerGoal<T extends PathfinderMob> extends Goal {
       private final T mob;
       @Nullable
       private LivingEntity target;
