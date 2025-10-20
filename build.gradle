@@ -240,7 +240,7 @@ dependencies {
 
     implementation fg.deobf("curse.maven:embeddium-908741:5322305")
 
-    implementation fg.deobf("local:kazsend:1.18.2-1.0.1")
+    implementation fg.deobf("curse.maven:starry-end-1304251:7121080")
 
     implementation fg.deobf("curse.maven:autoreglib-250363:3642382")
     implementation fg.deobf("curse.maven:quark-243121:3840125")
@@ -260,6 +260,23 @@ dependencies {
     //crashes datagen
     implementation fg.deobf("curse.maven:spiffy-hud-forge-483885:3785712")
     implementation fg.deobf("curse.maven:konkrete-410295:5028407")
+    ////
+
+    implementation fg.deobf("curse.maven:weather-settings-539506:3851573")
+    implementation fg.deobf("curse.maven:spawner-head-522339:3934543")
+    implementation fg.deobf("curse.maven:naturally-charged-creepers-324586:4852225")
+    implementation fg.deobf("curse.maven:giant-spawn-347921:4852834")
+    implementation fg.deobf("curse.maven:true-herobrine-914926:4962514")
+
+    implementation fg.deobf("curse.maven:globalpacks-317134:4570525")
+
+    //3rd party sharing disabled :(
+    //implementation fg.deobf("curse.maven:weird-wonderous-962237:5033292")
+    implementation fg.deobf("local:WeirdAndWonderous:1.0+1.18.2")
+
+    //implementation fg.deobf("curse.maven:stairs-in-the-woods-664161:3949395")
+    implementation fg.deobf("local:StairsInTheWoods:1.18.2_v_1.0");
+
 
     // For more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html

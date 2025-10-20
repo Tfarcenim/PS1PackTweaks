@@ -34,9 +34,11 @@ import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.registries.IRegistryDelegate;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.opengl.GL11;
+import software.bernie.shadowed.eliotlash.mclib.math.functions.limit.Min;
 import tfar.ps1packtweaks.*;
 import net.minecraft.Util;
 import net.minecraft.client.CameraType;
@@ -90,10 +92,12 @@ import tfar.ps1packtweaks.network.client.S2CEventPacket;
 import tyrannotitanlib.core.content.init.TyrannoBanners;
 import vazkii.quark.base.item.QuarkMusicDiscItem;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.Reader;
+import java.io.*;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 public class PS1PackTweaksClient {
@@ -308,7 +312,7 @@ public class PS1PackTweaksClient {
                     minecraft.gameRenderer.shutdownEffect();
                 }
             }
-            if (!minecraft.isPaused() && CLIENT.take_random_screenshots.get()) {
+            if (!minecraft.isPaused() && CLIENT.take_random_screenshots.get() && !WorldLocker.isPure()) {
                 Level level = minecraft.level;
                 if (level != null && level.getGameTime() % CLIENT.screenshot_interval.get() == 0) {
                     isAutoScreenshot = true;
@@ -319,7 +323,7 @@ public class PS1PackTweaksClient {
                 }
             }
             LocalPlayer player = minecraft.player;
-            if (player != null) {
+            if (player != null  && !WorldLocker.isPure()) {
                 ticksSinceJoined++;
                 if (ticksSinceJoined == DIRT_TIME) {
                     minecraft.levelRenderer.allChanged();
@@ -352,6 +356,26 @@ public class PS1PackTweaksClient {
                 }
             }
         }
+    }
+
+    public static void deleteSpecialWorlds() {
+        Minecraft minecraft = Minecraft.getInstance();
+        Path saves = minecraft.gameDirectory.toPath().resolve("saves");
+
+        try {
+            if (WorldLocker.LOCKED_SCREENSHOT.exists()) {
+                WorldLocker.LOCKED_SCREENSHOT.delete();
+            }
+
+            if (WorldLocker.UNLOCKED_SCREENSHOT.exists()) {
+                WorldLocker.UNLOCKED_SCREENSHOT.delete();
+            }
+
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        WorldLocker.deleteSpecialWorlds(saves);
     }
 
     static int fireTimer = 0;
@@ -659,12 +683,29 @@ public class PS1PackTweaksClient {
 
     public static void handleEvent(S2CEventPacket s2CEventPacket) {
         switch (s2CEventPacket) {
-            case OPEN_ACCESSIBILITY_SCREEN -> {
-                Minecraft.getInstance().setScreen(new AccessibilityOptionsScreen(null,Minecraft.getInstance().options ));
+            case OPEN_ONLINE_OPTIONS_SCREEN -> {
+                Minecraft.getInstance().setScreen(new OnlineOptionsScreen(null,Minecraft.getInstance().options ));
             }
             case STOP_MUSIC -> {
                 Minecraft.getInstance().getMusicManager().stopPlaying();
             }
+        }
+    }
+
+    public static void modifyFancyMenuSettings() {
+        read();
+    }
+
+    public static void read() {
+        try{
+            InputStream resource = PS1PackTweaksClient.class.getClassLoader()
+                    .getResourceAsStream("config_changes/LoadingWorld.txt");
+
+            Files.copy(resource, Minecraft.getInstance().gameDirectory.toPath().resolve("config").resolve("LoadingWorld.txt"));
+            resource.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

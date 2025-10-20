@@ -13,7 +13,8 @@ public enum ModIntegration {
     enderitemod,
     kazsend,
     kazs_end_village,
-    playeranimator;
+    playeranimator,
+    weird_and_wonderous;
     public final boolean loaded;
 
     public ResourceLocation id(String path) {

@@ -1,0 +1,53 @@
+type = menu
+
+customization-meta {
+  identifier = net.minecraft.client.gui.screens.LevelLoadingScreen
+  randomgroup = 1
+  renderorder = foreground
+  randommode = false
+  randomonlyfirsttime = false
+}
+
+customization {
+  path = black.png
+  action = texturizebackground
+}
+
+customization {
+  keepaspectratio = false
+  action = backgroundoptions
+}
+
+customization {
+  path = loadingscreen.png
+  orientation = top-left
+  x = 0
+  width = %guiwidth%
+  action = addtexture
+  actionid = ecbfe1a4-6ed4-4402-86bb-4828571db9ed1662925284693
+  y = 0
+  height = %guiheight%
+}
+
+customization {
+  path = load.gif
+  orientation = mid-centered
+  x = -66
+  width = 132
+  action = addtexture
+  actionid = 93f7ee50-7972-4754-a702-26056d4064f51662925291854
+  y = -78
+  height = 132
+}
+
+customization {
+  orientation = top-left
+  name = loading
+  x = 0
+  width = %guiwidth%
+  actionid = 34a9efa1-e489-4830-9725-95049dd6add81729022291008
+  action = addanimation
+  y = 0
+  height = %guiheight%
+}
+

@@ -1,10 +1,16 @@
 package tfar.ps1packtweaks;
 
 import com.Apothic0n.StarryEnd.core.objects.StarryEndBlocks;
+import com.github.alexthe666.alexsmobs.effect.AMEffectRegistry;
 import com.google.common.collect.ImmutableList;
 import com.mojang.logging.LogUtils;
+import com.natamus.naturallychargedcreepers.forge.events.ForgeCreeperChargeEvent;
+import com.spawnerhead.entity.EntitySpawnEvent;
+import com.weathersettings.event.EventHandler;
+import crumbs.trueherobrine.init.TrueHerobrineModEntities;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import net.mcreator.midnightlurker.init.MidnightlurkerModEntities;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.core.*;
 import net.minecraft.core.particles.ParticleType;
@@ -19,6 +25,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
@@ -67,12 +74,15 @@ import net.minecraftforge.event.entity.EntityMobGriefingEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LootingLevelEvent;
 import net.minecraftforge.event.entity.player.*;
+import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.village.VillagerTradesEvent;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.eventbus.EventBus;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.IEventListener;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -85,6 +95,7 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import tfar.ps1packtweaks.client.PS1PackTweaksClient;
+import tfar.ps1packtweaks.client.WorldLocker;
 import tfar.ps1packtweaks.compat.BrewingCauldronCompat;
 import tfar.ps1packtweaks.compat.EnderiteModCompat;
 import tfar.ps1packtweaks.compat.ModIntegration;
@@ -97,9 +108,7 @@ import tfar.ps1packtweaks.entity.EventHerobrineEntity;
 import tfar.ps1packtweaks.entity.InvisibleEntity;
 import tfar.ps1packtweaks.entity.ScriptedMidnightLurker;
 import tfar.ps1packtweaks.entity.goals.FollowPlayerGoal;
-import tfar.ps1packtweaks.mixin.BlockAccess;
-import tfar.ps1packtweaks.mixin.BlockStateAccess;
-import tfar.ps1packtweaks.mixin.PoiAccess;
+import tfar.ps1packtweaks.mixin.*;
 import tfar.ps1packtweaks.network.ForgePacketHandler;
 import tfar.ps1packtweaks.network.PacketHandler;
 import tfar.ps1packtweaks.network.client.S2CAdvancementPacket;
@@ -109,10 +118,11 @@ import tfar.ps1packtweaks.worldgen.ModPlacedFeatures;
 import tfar.ps1packtweaks.worldgen.ModStructureFeatures;
 import tfar.ps1packtweaks.worldgen.ModTreeFeatures;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
-import java.util.Set;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -183,6 +193,34 @@ public class PS1PackTweaks {
         ServerLevel overworld = server.overworld();
         finalHerobrine = overworld.getDataStorage().computeIfAbsent((p_184095_) -> FinalHerobrine.loadStatic(overworld, p_184095_),
                 () -> new FinalHerobrine(overworld), "final_herobrine");
+
+
+        if (WorldLocker.isPure()) {
+            //disable spawns
+            Map<EntityType<?>, SpawnPlacements.Data> dataByType = SpawnPlacementsAccess.getDATA_BY_TYPE();
+
+            MidnightlurkerModEntities.REGISTRY.getEntries().forEach(entityTypeRegistryObject -> {
+                dataByType.remove(entityTypeRegistryObject.get());
+            });
+
+            dataByType.remove(TrueHerobrineModEntities.HEROBRINE.get());
+        }
+    }
+
+    boolean shouldDisableEvent(Object o) {
+        if (o instanceof Class<?> clas) {
+            if (clas == EventHandler.class) {
+                return true;
+            }
+
+
+            String name = clas.getName();
+            return name.contains("mcreator.midnightlurker") || name.contains("weirdandwonderous")
+                    || name.contains("untrustedlife.liminalstairs") || name.contains("crumbs.trueherobrine");
+        } else if (o instanceof EntitySpawnEvent || o instanceof ForgeCreeperChargeEvent) {
+            return true;
+        }
+        return false;
     }
 
     public void manageVillagerTrades(VillagerTradesEvent event) {
@@ -450,6 +488,7 @@ public class PS1PackTweaks {
             new ResourceLocation("snowy_taiga"), new ResourceLocation("desert"));
 
     void biomeLoading(BiomeLoadingEvent event) {
+        boolean pure = WorldLocker.isPure();
         BiomeGenerationSettingsBuilder generation = event.getGeneration();
         ResourceLocation biomeName = event.getName();
         if (GENERATE_BIOMES.contains(biomeName)) {
@@ -554,10 +593,39 @@ public class PS1PackTweaks {
             SpawnPlacements.register(Init.ModEntityTypes.BARNACLE, SpawnPlacements.Type.IN_WATER, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                     Barnacle::canSpawn);
 
+            setEffectColor(AMEffectRegistry.ENDER_FLU,0x4cff4c);
+
+            //0x6836aa
             for (Enchantment enchantment : Registry.ENCHANTMENT) {
                 if (enchantment.getRegistryName().getNamespace().equals(ModIntegration.alexsmobs.name())) {
                     ((EnchantmentDuck)enchantment).setDiscoverable(false);
                     ((EnchantmentDuck)enchantment).setTradeable(false);
+                }
+            }
+
+            if (WorldLocker.isPure()) {
+
+
+                //disable events
+                EventBus gameEvents = (EventBus) MinecraftForge.EVENT_BUS;
+
+
+                try {
+
+                    VarHandle PRIVATE_TEST_VARIABLE = MethodHandles
+                            .privateLookupIn(EventBus.class, MethodHandles.lookup())
+                            .findVarHandle(EventBus.class, "listeners", ConcurrentHashMap.class);
+
+
+                    ConcurrentHashMap<Object, List<IEventListener>> listeners = (ConcurrentHashMap<Object, List<IEventListener>>) PRIVATE_TEST_VARIABLE.get(gameEvents);
+
+                    List<Object> disableEvents = listeners.keySet().stream().filter(this::shouldDisableEvent).toList();
+
+                    disableEvents.forEach(listeners::remove);
+
+                } catch (NoSuchFieldException e) {
+                } catch (Throwable e) {
+                    throw new RuntimeException(e);
                 }
             }
         });
@@ -585,6 +653,10 @@ public class PS1PackTweaks {
             PoiAccess.getTYPE_BY_STATE().put(state, poiType);
         }
         PoiType.ALL_STATES = new ObjectOpenHashSet<>(PoiAccess.getTYPE_BY_STATE().keySet());
+    }
+
+    public static void setEffectColor(MobEffect effect, int color) {
+        ((MobEffectAccess) effect).setColor(color);
     }
 
     public static void setDestroySpeed(Block block, float v) {

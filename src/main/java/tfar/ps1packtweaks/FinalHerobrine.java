@@ -3,10 +3,12 @@ package tfar.ps1packtweaks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SerializableUUID;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
@@ -20,20 +22,27 @@ import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.Nullable;
-import tfar.ps1packtweaks.entity.EventHerobrineEntity;
+import tfar.ps1packtweaks.client.PS1PackTweaksClient;
+import tfar.ps1packtweaks.client.WorldLocker;
 import tfar.ps1packtweaks.entity.FinalHerobrineEntity;
 import tfar.ps1packtweaks.network.ForgePacketHandler;
 import tfar.ps1packtweaks.network.client.S2CEventPacket;
 import vazkii.quark.content.building.entity.GlassItemFrame;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -48,6 +57,7 @@ public class FinalHerobrine extends SavedData {
 
     @Nullable
     UUID herobrineUUID;
+    BlockPos fire = BlockPos.ZERO;
 
     int tick;
 
@@ -78,6 +88,88 @@ public class FinalHerobrine extends SavedData {
         }
     }
 
+    private static void noOp() {
+        //[MODS]
+
+        //[CONFIGS]
+        //config>fancymenu>customization>Title Screen Low Res.txt
+        //- Change...
+        //
+        //customization {
+        //  restart_on_load = false
+        //  name = final_animation
+        //  action = animatebackground
+        //}
+        //
+        //...to
+        //
+        //customization {
+        //  restart_on_load = false
+        //  name = reversed
+        //  action = animatebackground
+        //}
+        //
+        //---------------------------------------------------------------------------------
+        //
+        //config>fancymenu>customization>LoadingWorld.txt
+        //- Change...
+        //
+        //customization {
+        //  orientation = top-left
+        //  name = loading
+        //  x = 0
+        //  width = %guiwidth%
+        //  actionid = 34a9efa1-e489-4830-9725-95049dd6add81729022291008
+        //  action = addanimation
+        //  y = 0
+        //  height = %guiheight%
+        //}
+        //
+        //...to
+        //
+        //customization {
+        //  orientation = top-left
+        //  name = loadingreversed
+        //  x = 0
+        //  width = %guiwidth%
+        //  actionid = 34a9efa1-e489-4830-9725-95049dd6add81729022291008
+        //  action = addanimation
+        //  y = 0
+        //  height = %guiheight%
+        //}
+        //
+        //---------------------------------------------------------------------------------
+        //
+        //config>fancymenu>customization>Progress.txt
+        //- Change...
+        //
+        //
+        //customization {
+        //  orientation = top-left
+        //  name = loading
+        //  x = 0
+        //  width = %guiwidth%
+        //  actionid = 2f3a0845-5349-4d42-bbd3-fb4f57ecd5aa1729022375927
+        //  action = addanimation
+        //  y = 0
+        //  height = %guiheight%
+        //}
+        //
+        //...to
+        //
+        //customization {
+        //  orientation = top-left
+        //  name = loadingreversed
+        //  x = 0
+        //  width = %guiwidth%
+        //  actionid = 2f3a0845-5349-4d42-bbd3-fb4f57ecd5aa1729022375927
+        //  action = addanimation
+        //  y = 0
+        //  height = %guiheight%
+        //}
+
+    }
+
     void advanceStage() {
         herobrineStage = Stage.values()[herobrineStage.ordinal()+1];
         tick = 0;
@@ -93,15 +185,59 @@ public class FinalHerobrine extends SavedData {
                 herobrine.discard();
                 herobrine = null;
                 herobrineUUID = null;
-                level.getServer().getPlayerList().getPlayers().forEach(player -> ForgePacketHandler.sendToClient(S2CEventPacket.OPEN_ACCESSIBILITY_SCREEN,player));
+                level.getServer().getPlayerList().getPlayers().forEach(player -> ForgePacketHandler.sendToClient(S2CEventPacket.OPEN_ONLINE_OPTIONS_SCREEN,player));
             }
 
             case END -> {
 
-            }
-        }
-        if (herobrineStage ==  Stage.SPLIT) {
 
+                level.setBlockAndUpdate(fire,Blocks.OAK_SIGN.defaultBlockState());
+
+                BlockEntity blockEntity = level.getBlockEntity(fire);
+                if (blockEntity instanceof SignBlockEntity signBlockEntity) {
+                    signBlockEntity.setMessage(0, new TextComponent("Thank You"));
+                }
+
+                setDirty();
+
+                MinecraftServer server = level.getServer();
+                GameRules.BooleanValue rule = level.getServer().getGameRules().getRule(PS1PackTweaks.RULE_CREEPY_EVENTS);
+                rule.set(false,server);
+
+                WorldLocker.unlock(WorldLocker.PURIFIED);
+                if (!(level.getServer() instanceof DedicatedServer)) {
+                    PS1PackTweaksClient.deleteSpecialWorlds();
+                    PS1PackTweaksClient.modifyFancyMenuSettings();
+                }
+
+                File serverDirectory = server.getServerDirectory();
+
+                //mcred.png - Deleted
+                //steve2.png - Deleted
+                //steve3.png - Deleted
+                    try {
+                        for (String s : new String[]{"mcred.png","steve2.png","steve3.png"}) {
+                            FileUtils.delete(serverDirectory.toPath().resolve(s).toFile());
+                        }
+                    }catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                try {
+                    Path datapackLocation = serverDirectory.toPath().resolve("global_packs").resolve("required_data");
+                    for (String s : new String[]{"LidnightMurker","Fuck the Fog"}) {
+                        FileUtils.deleteDirectory(datapackLocation.resolve(s).toFile());
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                //manually save
+                server.saveAllChunks(false, true, false);
+                //crash game
+                level.addFreshEntity(null);
+            }
         }
         setDirty();
     }
@@ -113,6 +249,11 @@ public class FinalHerobrine extends SavedData {
         }
         herobrine = null;
         herobrineUUID = null;
+
+        MinecraftServer server = level.getServer();
+        GameRules.BooleanValue rule = level.getServer().getGameRules().getRule(PS1PackTweaks.RULE_CREEPY_EVENTS);
+        rule.set(true,server);
+        WorldLocker.setCursed();
 
         setDirty();
     }
@@ -140,6 +281,8 @@ public class FinalHerobrine extends SavedData {
             pCompoundTag.putUUID("Herobrine",herobrine.getUUID());
         }
 
+        pCompoundTag.put("Fire",NbtUtils.writeBlockPos(fire));
+
 
         return pCompoundTag;
     }
@@ -151,6 +294,8 @@ public class FinalHerobrine extends SavedData {
         if (tag.hasUUID("Herobrine")) {
             fina.herobrineUUID = tag.getUUID("Herobrine");
         }
+
+        fina.fire = NbtUtils.readBlockPos(tag.getCompound("Fire"));
 
         return fina;
     }
@@ -169,27 +314,29 @@ public class FinalHerobrine extends SavedData {
         BlockPos pos = event.getPos();
         Level level = player.level;
         if (!level.isClientSide && level.dimension() == Level.OVERWORLD) {
-            if (PS1PackTweaks.finalHerobrine.herobrineStage != Stage.PREP) {
-                player.displayClientMessage(new TextComponent("Herobrine has already been summoned!"),false);
-                return;
-            }
 
             ItemStack stack = player.getItemInHand(hand);
             BlockState state = level.getBlockState(pos);
             if (stack.is(Items.FLINT_AND_STEEL)&& state.is(Blocks.BEDROCK)) {
+                if (PS1PackTweaks.finalHerobrine.herobrineStage != Stage.PREP) {
+                    player.displayClientMessage(new TextComponent("Herobrine has already been summoned!"),false);
+                    return;
+                }
+
                 if (hasCompleteStructure(player, (ServerLevel) level,pos)) {
                     //player.displayClientMessage(new TextComponent("Correct Structure"),false);
                     FinalHerobrineEntity herobrine = (FinalHerobrineEntity) Init.ModEntityTypes.FINAL_HEROBRINE.spawn((ServerLevel) level,null,null,pos.above(), MobSpawnType.EVENT,false,false);
                     if (herobrine != null) {
-                        PS1PackTweaks.finalHerobrine.begin(herobrine);
+                        PS1PackTweaks.finalHerobrine.begin(herobrine,pos.above());
                     }
                 }
             }
         }
     }
 
-    void begin(FinalHerobrineEntity herobrine) {
+    void begin(FinalHerobrineEntity herobrine,BlockPos firePos) {
         this.herobrine = herobrine;
+        this.fire = firePos;
         tick = 0;
         herobrineStage = Stage.START;
 

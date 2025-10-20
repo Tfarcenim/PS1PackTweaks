@@ -8,21 +8,21 @@ import com.google.gson.stream.JsonWriter;
 import com.mojang.datafixers.DataFixer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.storage.LevelSummary;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import tfar.ps1packtweaks.PS1PackTweaks;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.Reader;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.function.BiFunction;
 
 public class WorldLocker {
 
-    public static final File FILE = new File("config/unlocked.json");
+    private static final File FILE = new File("config/unlocked.json");
 
-    public static final Gson GSON = new Gson();
+    private static final Gson GSON = new Gson();
 
     public static final Map<String, ResourceLocation> LOCKED_WORLDS = new HashMap<>();
     public static final ResourceLocation EAT_COOKIE =  PS1PackTweaks.id("unlock/eat_cookie");
@@ -36,6 +36,8 @@ public class WorldLocker {
     public static final ResourceLocation ENCOUNTER_MIDNIGHT_LURKER = PS1PackTweaks.id("unlock/encounter_midnight_lurker");
     public static final ResourceLocation PLAYER_PET_DIES = PS1PackTweaks.id("unlock/player_pet_dies");
     public static final ResourceLocation BEATING_THE_GAME = new ResourceLocation("end/kill_dragon");
+
+    public static final ResourceLocation PURIFIED = PS1PackTweaks.id("purified");
 
     public static final ResourceLocation PLAY_ENDERMOSH = new ResourceLocation("unlock/endermosh");
 
@@ -59,7 +61,19 @@ public class WorldLocker {
 
     }
 
+    public static void deleteSpecialWorlds(Path saves) {
+        for (String s : LOCKED_WORLDS.keySet()) {
+            try {
+                FileUtils.deleteDirectory(saves.resolve(s).toFile());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public static final List<ResourceLocation> KEYS = new ArrayList<>();
+
+
 
     public static boolean isWorldLocked(String name) {
         if (LOCKED_WORLDS.containsKey(name)) {
@@ -69,6 +83,17 @@ public class WorldLocker {
             }
         }
         return false;
+    }
+
+    public static boolean isPure() {
+        if (!FILE.exists())write();
+        updateLocks();
+        return KEYS.contains(PURIFIED);
+    }
+
+    public static void setCursed() {
+        KEYS.remove(PURIFIED);
+        write();
     }
 
     public static final BiFunction<File, DataFixer, LevelSummary> returnNothing = (file, dataFixer) -> null;
@@ -87,7 +112,7 @@ public class WorldLocker {
         load(read());
     }
 
-    public static JsonArray read() {
+    private static JsonArray read() {
         Reader reader = null;
         try {
             reader = new FileReader(FILE);
@@ -103,13 +128,13 @@ public class WorldLocker {
         }
     }
 
-    public static void load(JsonArray jsonArray) {
+    private static void load(JsonArray jsonArray) {
         for (JsonElement element : jsonArray) {
             KEYS.add(new ResourceLocation(element.getAsString()));
         }
     }
 
-    public static void write() {
+    private static void write() {
 
         JsonWriter writer = null;
         try {

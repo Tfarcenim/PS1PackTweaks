@@ -2,10 +2,9 @@ package tfar.ps1packtweaks.network.client;
 
 import net.minecraft.network.FriendlyByteBuf;
 import tfar.ps1packtweaks.client.PS1PackTweaksClient;
-import tfar.ps1packtweaks.client.WorldLocker;
 
 public enum S2CEventPacket implements S2CModPacket {
-    OPEN_ACCESSIBILITY_SCREEN,
+    OPEN_ONLINE_OPTIONS_SCREEN,
     STOP_MUSIC;
 
     static final S2CEventPacket[] VALUES = values();
