@@ -1,0 +1,437 @@
+type = menu
+
+customization-meta {
+  identifier = net.minecraft.client.gui.screens.TitleScreen
+  randomgroup = 1
+  renderorder = foreground
+  randommode = false
+  randomonlyfirsttime = false
+}
+
+customization {
+  restart_on_load = false
+  name = reversed
+  action = animatebackground
+}
+
+customization {
+  keepaspectratio = true
+  action = backgroundoptions
+}
+
+customization {
+  identifier = %id=button_compatibility_id:mc_titlescreen_copyright_button%
+  action = hidebutton
+}
+
+customization {
+  identifier = %id=button_compatibility_id:mc_titlescreen_multiplayer_button%
+  action = hidebutton
+}
+
+customization {
+  identifier = %id=button_compatibility_id:mc_titlescreen_accessibility_button%
+  action = hidebutton
+}
+
+customization {
+  identifier = %id=button_compatibility_id:mc_titlescreen_options_button%
+  orientation = mid-centered
+  x = -49
+  action = movebutton
+  y = 62
+}
+
+customization {
+  identifier = %id=button_compatibility_id:mc_titlescreen_options_button%
+  action = setbuttonlabel
+  value = Options
+}
+
+customization {
+  identifier = %id=button_compatibility_id:mc_titlescreen_options_button%
+  seconds = 73.0
+  onlyfirsttime = true
+  action = hidebuttonfor
+}
+
+customization {
+  identifier = %id=button_compatibility_id:mc_titlescreen_quit_button%
+  action = hidebutton
+}
+
+customization {
+  identifier = %id=button_compatibility_id:mc_titlescreen_quit_button%
+  orientation = bottom-centered
+  x = -82
+  action = movebutton
+  y = -26
+}
+
+customization {
+  identifier = %id=button_compatibility_id:mc_titlescreen_quit_button%
+  width = 163
+  action = resizebutton
+  height = 20
+}
+
+customization {
+  identifier = %id=button_compatibility_id:mc_titlescreen_quit_button%
+  action = setbuttonlabel
+  value = 
+}
+
+customization {
+  identifier = %id=button_compatibility_id:mc_titlescreen_quit_button%
+  loopbackgroundanimations = true
+  restartbackgroundanimations = true
+  action = setbuttontexture
+  backgroundhovered = blank.png
+  backgroundnormal = blank.png
+}
+
+customization {
+  identifier = %id=button_compatibility_id:mc_titlescreen_quit_button%
+  seconds = 75.5
+  onlyfirsttime = true
+  action = hidebuttonfor
+}
+
+customization {
+  identifier = %id=button_compatibility_id:mc_titlescreen_language_button%
+  action = hidebutton
+}
+
+customization {
+  identifier = %id=button_compatibility_id:mc_titlescreen_language_button%
+  orientation = mid-centered
+  x = -49
+  action = movebutton
+  y = 19
+}
+
+customization {
+  identifier = %id=button_compatibility_id:mc_titlescreen_language_button%
+  width = 21
+  action = resizebutton
+  height = 20
+}
+
+customization {
+  identifier = %id=button_compatibility_id:mc_titlescreen_singleplayer_button%
+  orientation = mid-centered
+  x = -49
+  action = movebutton
+  y = 18
+}
+
+customization {
+  identifier = %id=button_compatibility_id:mc_titlescreen_singleplayer_button%
+  width = 98
+  action = resizebutton
+  height = 20
+}
+
+customization {
+  identifier = %id=button_compatibility_id:mc_titlescreen_singleplayer_button%
+  action = setbuttonlabel
+  value = Play
+}
+
+customization {
+  identifier = %id=button_compatibility_id:mc_titlescreen_singleplayer_button%
+  seconds = 72.0
+  onlyfirsttime = true
+  action = hidebuttonfor
+}
+
+customization {
+  identifier = %id=button_compatibility_id:forge_titlescreen_mods_button%
+  action = hidebutton
+}
+
+customization {
+  identifier = %id=button_compatibility_id:mc_titlescreen_realms_button%
+  action = hidebutton
+}
+
+customization {
+  orientation = top-left
+  hidden = true
+  x = 79
+  width = 268
+  action = deep_customization_element:title_screen_forge_top
+  actionid = fff48069-c5cc-4f3f-a860-57e36f49256a1666420641132
+  y = 4
+  height = 19
+}
+
+customization {
+  orientation = top-left
+  hidden = true
+  x = 2
+  width = 108
+  action = deep_customization_element:title_screen_branding
+  actionid = 62c2e109-bf26-4f97-8426-c0f70a1f298d1666420641134
+  y = 300
+  height = 40
+}
+
+customization {
+  orientation = top-left
+  hidden = true
+  x = 198
+  width = 228
+  action = deep_customization_element:title_screen_forge_copyright
+  actionid = da60c87a-5d21-46c3-99cb-5ac5192ff40b1666420641135
+  y = 322
+  height = 9
+}
+
+customization {
+  orientation = top-left
+  hidden = true
+  x = 316
+  width = 13
+  action = deep_customization_element:title_screen_realms_notification
+  actionid = 14712d5a-35b9-4aa7-a46e-dea81d56dabf1666420641135
+  y = 185
+  height = 13
+}
+
+customization {
+  orientation = top-left
+  hidden = false
+  x = 23
+  width = 274
+  action = deep_customization_element:title_screen_logo
+  actionid = 5960763b-e201-4ca3-804d-a1740cb1327a1666420641135
+  y = 30
+  height = 52
+}
+
+customization {
+  orientation = original
+  splash_color = #ffff00
+  hidden = true
+  x = 0
+  width = 60
+  splash_rotation = -20
+  action = deep_customization_element:title_screen_splash
+  actionid = f3260878-dfc9-45fb-bcd6-cf0587d65cb31666420641135
+  y = 0
+  height = 30
+}
+
+customization {
+  orientation = mid-centered
+  delayappearanceseconds = 69.0
+  path = mc.png
+  fadein = true
+  fadeinspeed = 1.0
+  x = -130
+  width = 263
+  action = addtexture
+  actionid = cdfc66d1-bd68-411a-9824-59f090571e6c1660248618384
+  y = -166
+  delayappearance = true
+  delayappearanceeverytime = false
+  height = 263
+}
+
+customization {
+  orientation = top-left
+  restartbackgroundanimations = true
+  delayappearanceseconds = 69.9
+  buttonaction = mimicbutton
+  backgroundhovered = mojang.png
+  label = 
+  loopbackgroundanimations = true
+  hoverlabel = 
+  x = 273
+  width = 46
+  actionid = 48fbf026-8c0c-424f-ac4f-be5ff8b83b291693801363697
+  action = addbutton
+  y = 199
+  delayappearance = true
+  backgroundnormal = mojang.png
+  value = net.minecraft.client.gui.screens.TitleScreen:button_compatibility_id:mc_titlescreen_multiplayer_button
+  delayappearanceeverytime = false
+  height = 36
+}
+
+customization {
+  orientation = top-left
+  loop = false
+  channel = master
+  x = 0
+  width = 50
+  action = custom_layout_element:fancymenu_extension:audio_item
+  actionid = b803fc9a-c6ef-43dd-ad34-a83a5eedb4851707554053912
+  y = 4
+  once_per_session = true
+  audio_source:e77ac040-1478-4cd1-ab4a-5841ed07abf01707554108554 = intro.ogg;EXTERNAL_LOCAL;100;0
+  height = 46
+}
+
+customization {
+  orientation = bottom-centered
+  enable_scrolling = false
+  shadow = true
+  delayappearanceseconds = 69.3
+  scale = 0.7
+  source = ©Mojang Specifications, LLC. 1997, 1998, 1999
+  text_border = 0
+  case_mode = normal
+  fadein = true
+  source_mode = direct
+  line_spacing = 1
+  fadeinspeed = 1.0
+  x = -81
+  width = 163
+  action = custom_layout_element:fancymenu_customization_item_text
+  actionid = 885e2d96-fd1c-49a6-af4d-30174bd5f8011728803584909
+  y = -23
+  delayappearance = true
+  alignment = left
+  delayappearanceeverytime = false
+  height = 11
+}
+
+customization {
+  orientation = bottom-centered
+  enable_scrolling = false
+  shadow = true
+  delayappearanceseconds = 69.3
+  scale = 0.7
+  source = All Rights Reserved
+  text_border = 0
+  case_mode = normal
+  fadein = true
+  source_mode = direct
+  line_spacing = 1
+  fadeinspeed = 1.0
+  x = -34
+  width = 69
+  action = custom_layout_element:fancymenu_customization_item_text
+  actionid = c84ec887-79f4-4b8e-83ad-960ec43c8e141728869645891
+  y = -15
+  delayappearance = true
+  alignment = left
+  delayappearanceeverytime = false
+  height = 11
+}
+
+customization {
+  audio_source:06e98437-571e-4a29-8743-52008a926b4a1728927024365 = break.ogg;EXTERNAL_LOCAL;100;0
+  orientation = top-left
+  loop = false
+  channel = master
+  x = 115
+  width = 50
+  action = custom_layout_element:fancymenu_extension:audio_item
+  actionid = d3ca0131-3780-4bec-bf77-e7edd9c234781728927011858
+  y = 15
+  once_per_session = true
+  height = 50
+}
+
+customization {
+  orientation = top-left
+  restartbackgroundanimations = true
+  buttonaction = mimicbutton
+  backgroundhovered = blank.png
+  label = 
+  loopbackgroundanimations = true
+  x = 78
+  width = 164
+  actionid = 7509055d-7a03-48fe-8998-67bb7443d2621728965485427
+  action = addbutton
+  y = 213
+  backgroundnormal = blank.png
+  value = net.minecraft.client.gui.screens.TitleScreen:button_compatibility_id:mc_titlescreen_quit_button
+  height = 20
+}
+
+customization {
+  orientation = top-left
+  delayappearanceseconds = 899.0
+  path = mcred.png
+  fadein = true
+  fadeinspeed = 0.4
+  x = 30
+  width = 263
+  action = addtexture
+  actionid = e36332b2-0442-4dc0-ad42-32a0f12bcd701729023597385
+  y = -46
+  delayappearance = true
+  delayappearanceeverytime = true
+  height = 263
+}
+
+customization {
+  orientation = top-left
+  delayappearanceseconds = 70.5
+  path = steve1.png
+  fadein = true
+  fadeinspeed = 1.0
+  x = 0
+  width = %guiwidth%
+  action = addtexture
+  actionid = b3fd7cc5-31bb-4ef0-be07-992c57e29aef1729025525681
+  y = 0
+  delayappearance = true
+  delayappearanceeverytime = false
+  height = %guiheight%
+}
+
+customization {
+  orientation = top-left
+  delayappearanceseconds = 499.0
+  path = steve2.png
+  fadein = true
+  fadeinspeed = 0.4
+  x = 0
+  width = %guiwidth%
+  action = addtexture
+  actionid = 565f6473-f379-407c-a1f8-eee142c8a4741729025582410
+  y = 0
+  delayappearance = true
+  delayappearanceeverytime = true
+  height = %guiheight%
+}
+
+customization {
+  orientation = top-left
+  delayappearanceseconds = 899.0
+  path = steve3.png
+  fadein = true
+  fadeinspeed = 0.4
+  x = 0
+  width = %guiwidth%
+  action = addtexture
+  actionid = a166941b-ae8a-43d3-907c-b426c3e8cfaa1729025657283
+  y = 0
+  delayappearance = true
+  delayappearanceeverytime = true
+  height = %guiheight%
+}
+
+customization {
+  orientation = top-left
+  restartbackgroundanimations = true
+  delayappearanceseconds = 72.5
+  buttonaction = join_last_world
+  label = Continue
+  loopbackgroundanimations = true
+  x = 111
+  width = 98
+  actionid = 529a9e55-3cda-4c1d-a743-94d5900f51291732818225713
+  action = addbutton
+  y = 160
+  delayappearance = true
+  value = null
+  delayappearanceeverytime = false
+  height = 20
+}
+

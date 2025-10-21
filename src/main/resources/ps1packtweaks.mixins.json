@@ -62,6 +62,7 @@
     "BlockColorsAccess",
     "BlockRenderDispatcherMixin",
     "DragonBreathParticleMixin",
+    "DragonRendererMixin",
     "ForgeIngameGuiAccess",
     "GuiMixin",
     "IntegratedServerMixin",

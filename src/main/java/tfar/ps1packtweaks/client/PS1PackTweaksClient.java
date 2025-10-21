@@ -98,6 +98,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 public class PS1PackTweaksClient {
@@ -693,15 +694,19 @@ public class PS1PackTweaksClient {
     }
 
     public static void modifyFancyMenuSettings() {
-        read();
+        String[] configs = new String[]{"LoadingWorld.txt","Progress.txt","Title Screen Low Res.txt"};
+        for (String config : configs){
+            read(config);
+        }
     }
 
-    public static void read() {
+    public static void read(String name) {
         try{
             InputStream resource = PS1PackTweaksClient.class.getClassLoader()
-                    .getResourceAsStream("config_changes/LoadingWorld.txt");
+                    .getResourceAsStream("config_changes/"+name);
 
-            Files.copy(resource, Minecraft.getInstance().gameDirectory.toPath().resolve("config").resolve("LoadingWorld.txt"));
+            Files.copy(resource, Minecraft.getInstance().gameDirectory.toPath().resolve("config")
+                    .resolve("fancymenu").resolve("customization").resolve(name), StandardCopyOption.REPLACE_EXISTING);
             resource.close();
 
         } catch (IOException e) {

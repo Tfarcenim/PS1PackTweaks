@@ -1,7 +1,7 @@
 type = menu
 
 customization-meta {
-  identifier = net.minecraft.client.gui.screens.LevelLoadingScreen
+  identifier = net.minecraft.client.gui.screens.ProgressScreen
   randomgroup = 1
   renderorder = foreground
   randommode = false
@@ -21,22 +21,28 @@ customization {
 customization {
   path = loadingscreen.png
   orientation = top-left
+  delayappearanceseconds = 2.0
   x = 0
   width = %guiwidth%
   action = addtexture
-  actionid = ecbfe1a4-6ed4-4402-86bb-4828571db9ed1662925284693
+  actionid = 466391d3-4e65-42cb-a60e-144f7489a22d1662925121789
   y = 0
+  delayappearance = true
+  delayappearanceeverytime = true
   height = %guiheight%
 }
 
 customization {
   path = load.gif
   orientation = mid-centered
+  delayappearanceseconds = 2.0
   x = -66
   width = 132
   action = addtexture
-  actionid = 93f7ee50-7972-4754-a702-26056d4064f51662925291854
+  actionid = 854f4da8-b074-43c7-9420-056117f1a1141662925137091
   y = -78
+  delayappearance = true
+  delayappearanceeverytime = true
   height = 132
 }
 
@@ -45,7 +51,7 @@ customization {
   name = loadingreversed
   x = 0
   width = %guiwidth%
-  actionid = 34a9efa1-e489-4830-9725-95049dd6add81729022291008
+  actionid = 2f3a0845-5349-4d42-bbd3-fb4f57ecd5aa1729022375927
   action = addanimation
   y = 0
   height = %guiheight%
