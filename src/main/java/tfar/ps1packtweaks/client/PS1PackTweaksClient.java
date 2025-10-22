@@ -11,6 +11,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Vector3f;
+import net.minecraft.client.*;
 import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.gui.screens.*;
@@ -41,10 +42,6 @@ import org.lwjgl.opengl.GL11;
 import software.bernie.shadowed.eliotlash.mclib.math.functions.limit.Min;
 import tfar.ps1packtweaks.*;
 import net.minecraft.Util;
-import net.minecraft.client.CameraType;
-import net.minecraft.client.KeyMapping;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.Screenshot;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -85,6 +82,7 @@ import tfar.ps1packtweaks.client.particle.FinalHerobrineParticle;
 import tfar.ps1packtweaks.compat.BetterGuiCompassHUD;
 import tfar.ps1packtweaks.compat.ModIntegration;
 import tfar.ps1packtweaks.duck.AbstractClientPlayerDuck;
+import tfar.ps1packtweaks.duck.MusicManagerDuck;
 import tfar.ps1packtweaks.mixin.BlockColorsAccess;
 import tfar.ps1packtweaks.mixin.ForgeIngameGuiAccess;
 import tfar.ps1packtweaks.mixin.OverlayRegistryAccess;
@@ -686,6 +684,7 @@ public class PS1PackTweaksClient {
         switch (s2CEventPacket) {
             case OPEN_ONLINE_OPTIONS_SCREEN -> {
                 Minecraft.getInstance().setScreen(new OnlineOptionsScreen(null,Minecraft.getInstance().options ));
+                ((MusicManagerDuck)Minecraft.getInstance().getMusicManager()).setMute(true);
             }
             case STOP_MUSIC -> {
                 Minecraft.getInstance().getMusicManager().stopPlaying();
@@ -712,5 +711,29 @@ public class PS1PackTweaksClient {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    //[23:53:46] [Server thread/INFO]: Resource Pack: vanilla
+    //[23:53:46] [Server thread/INFO]: Resource Pack: mod_resources
+    //[23:53:46] [Server thread/INFO]: Resource Pack: programer_art
+    //[23:53:46] [Server thread/INFO]: Resource Pack: quark:emote_resources
+    //[23:53:46] [Server thread/INFO]: Resource Pack: Forgery
+    //[23:53:46] [Server thread/INFO]: Resource Pack: Forgery grayscale
+    //[23:53:46] [Server thread/INFO]: Resource Pack: file/Quark Programmer Art.zip
+    //[23:53:46] [Server thread/INFO]: Resource Pack: file/Developer.Art+.1.19_2.zip
+    //[23:53:46] [Server thread/INFO]: Resource Pack: loadmyresources.hiddenpack
+    //[23:53:46] [Server thread/INFO]: Resource Pack: file/TrapdoorSoundFixer.zip
+    //[23:53:46] [Server thread/INFO]: Resource Pack: file/consistent-sounds_v1.2.1.zip
+    //[23:53:46] [Server thread/INFO]: Resource Pack: file/MCSX_Resources.zip
+    //[23:53:46] [Server thread/INFO]: Resource Pack: file/MCSX_MusicPack.zip
+    //[23:53:46] [Server thread/INFO]: Resource Pack: file/From-The-Fog-1.18-v1.9-Data-Resource-Pack.zip remove
+    //[23:53:46] [Server thread/INFO]: Resource Pack: file/MCSX_ResourcesP2.zip remove
+
+    public static void disableResourcePacks() {
+        Options options = Minecraft.getInstance().options;
+        options.resourcePacks.remove("file/MCSX_ResourcesP2.zip");
+        options.resourcePacks.remove("file/From-The-Fog-1.18-v1.9-Data-Resource-Pack.zip");
+
+        options.save();
     }
 }

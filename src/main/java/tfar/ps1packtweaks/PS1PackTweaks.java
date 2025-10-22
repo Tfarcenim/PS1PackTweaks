@@ -12,6 +12,8 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.mcreator.midnightlurker.init.MidnightlurkerModEntities;
 import net.minecraft.advancements.Advancement;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.Options;
 import net.minecraft.core.*;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.resources.ResourceLocation;
@@ -94,6 +96,7 @@ import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.items.CapabilityItemHandler;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import software.bernie.shadowed.eliotlash.mclib.math.functions.limit.Min;
 import tfar.ps1packtweaks.client.PS1PackTweaksClient;
 import tfar.ps1packtweaks.client.WorldLocker;
 import tfar.ps1packtweaks.compat.BrewingCauldronCompat;
@@ -205,6 +208,7 @@ public class PS1PackTweaks {
 
             dataByType.remove(TrueHerobrineModEntities.HEROBRINE.get());
         }
+
     }
 
     boolean shouldDisableEvent(Object o) {
@@ -534,11 +538,34 @@ public class PS1PackTweaks {
         }
     }
 
+    //can run clientside
     void entityJoinWorld(EntityJoinWorldEvent event) {
-        Entity var2 = event.getEntity();
-        if (var2 instanceof PathfinderMob pathfinderMob) {
-            if (pathfinderMob.getNavigation() instanceof GroundPathNavigation || pathfinderMob.getNavigation() instanceof FlyingPathNavigation) {
-                pathfinderMob.goalSelector.addGoal(0, new FollowPlayerGoal(pathfinderMob, 1.0, 4.0F, 30.0F));
+        Entity entity = event.getEntity();
+        Level level = entity.level;
+        if (!level.isClientSide) {
+            boolean pure = !entity.level.getGameRules().getBoolean(RULE_CREEPY_EVENTS);
+
+            if (pure){
+
+                if (entity.getType() == Init.ModEntityTypes.INVISIBLE_ENTITY || entity.getType() == Init.ModEntityTypes.SCRIPTED_MIDNIGHT_LURKER ||
+                        entity.getType() == Init.ModEntityTypes.HEROBRINE) {
+                    event.setCanceled(true);
+                    return;
+                }
+
+                ResourceLocation id = Registry.ENTITY_TYPE.getKey(entity.getType());
+                String modid = id.getNamespace();
+
+                if (ModIntegration.shouldRemoveMobs(modid)) {
+                    event.setCanceled(true);
+                    return;
+                }
+            }
+
+            if (entity instanceof PathfinderMob pathfinderMob) {
+                if (pathfinderMob.getNavigation() instanceof GroundPathNavigation || pathfinderMob.getNavigation() instanceof FlyingPathNavigation) {
+                    pathfinderMob.goalSelector.addGoal(0, new FollowPlayerGoal(pathfinderMob, 1.0, 4.0F, 30.0F));
+                }
             }
         }
     }

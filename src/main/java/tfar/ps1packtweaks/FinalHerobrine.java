@@ -1,5 +1,6 @@
 package tfar.ps1packtweaks;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SerializableUUID;
@@ -42,7 +43,10 @@ import tfar.ps1packtweaks.network.client.S2CEventPacket;
 import vazkii.quark.content.building.entity.GlassItemFrame;
 
 import java.io.File;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -208,9 +212,23 @@ public class FinalHerobrine extends SavedData {
                 if (!(level.getServer() instanceof DedicatedServer)) {
                     PS1PackTweaksClient.deleteSpecialWorlds();
                     PS1PackTweaksClient.modifyFancyMenuSettings();
+                    PS1PackTweaksClient.disableResourcePacks();
                 }
 
                 File serverDirectory = server.getServerDirectory();
+
+                try {
+                    InputStream resource = PS1PackTweaksClient.class.getClassLoader()
+                            .getResourceAsStream("config_changes/diamond.json");
+
+                    Files.copy(resource, serverDirectory.toPath().resolve("global_packs")
+                            .resolve("required_data").resolve("FishyBusiness").resolve("data").resolve("fishingreal")
+                            .resolve("fishing").resolve("diamond.json"), StandardCopyOption.REPLACE_EXISTING);
+                    resource.close();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
                 //mcred.png - Deleted
                 //steve2.png - Deleted

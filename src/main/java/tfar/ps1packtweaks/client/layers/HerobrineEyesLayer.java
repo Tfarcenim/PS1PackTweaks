@@ -8,7 +8,6 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import tfar.ps1packtweaks.FinalHerobrine;
 import tfar.ps1packtweaks.entity.FinalHerobrineEntity;
 
 public class HerobrineEyesLayer extends GenericEyesLayer<FinalHerobrineEntity, PlayerModel<FinalHerobrineEntity>>{

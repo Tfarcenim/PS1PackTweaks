@@ -1,0 +1,8 @@
+{
+  "input": {
+    "item": "minecraft:diamond"
+  },
+  "result": {
+    "id": "minecraft:diamond"
+  }
+}

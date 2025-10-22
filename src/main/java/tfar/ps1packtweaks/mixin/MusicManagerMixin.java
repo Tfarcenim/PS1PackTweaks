@@ -14,14 +14,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import tfar.ps1packtweaks.PS1PackTweaksConfig;
 import tfar.ps1packtweaks.client.DynamicSoundInstance;
 import tfar.ps1packtweaks.client.PS1PackTweaksClient;
+import tfar.ps1packtweaks.duck.MusicManagerDuck;
 
 import javax.annotation.Nullable;
 
 @Mixin(MusicManager.class)
 //@Debug(export = true)
-public class MusicManagerMixin {
+public abstract class MusicManagerMixin implements MusicManagerDuck {
 
     @Shadow @Nullable private SoundInstance currentMusic;
+
+    @Shadow public abstract void stopPlaying();
+
+    @Shadow private int nextSongDelay;
+    boolean mute;
 
     @Inject(
             method = "startPlaying",
@@ -41,8 +47,17 @@ public class MusicManagerMixin {
     @Inject(method = "tick",at = @At("HEAD"),cancellable = true)
     private void delaySong(CallbackInfo ci) {
         elapsed++;
-        if (elapsed < PS1PackTweaksClient.CLIENT.delaySongTime.get()) {
+        if (elapsed < PS1PackTweaksClient.CLIENT.delaySongTime.get() || mute) {
             ci.cancel();
+        }
+    }
+
+    @Override
+    public void setMute(boolean mute) {
+        this.mute = mute;
+        if (mute) {
+            stopPlaying();
+            nextSongDelay = Integer.MAX_VALUE;
         }
     }
 }
