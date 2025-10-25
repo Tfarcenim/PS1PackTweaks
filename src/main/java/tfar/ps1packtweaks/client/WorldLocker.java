@@ -6,8 +6,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.mojang.datafixers.DataFixer;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.level.storage.LevelSummary;
@@ -106,8 +105,7 @@ public class WorldLocker {
             LOCKED_SCREENSHOT.renameTo(UNLOCKED_SCREENSHOT);
         }
          else if (LOCKED_WORLDS.containsValue(location)) {
-            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.WOODEN_DOOR_OPEN, 1.0F));
-
+            PS1PackTweaksClient.playUnlockSound();
         }
         KEYS.add(location);
         write();

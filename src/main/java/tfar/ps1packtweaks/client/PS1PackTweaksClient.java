@@ -20,6 +20,7 @@ import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.RecordItem;
@@ -490,6 +491,10 @@ public class PS1PackTweaksClient {
             BiomeColors.WATER_COLOR_RESOLVER = (biome, v, v1) -> 0xffffffff;
 
         });
+    }
+
+    public static void playUnlockSound() {
+        Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.WOODEN_DOOR_OPEN, 1.0F));
     }
 
     static void joinServer(ClientPlayerNetworkEvent.LoggedInEvent event) {
