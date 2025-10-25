@@ -10,6 +10,7 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntityType;
@@ -338,7 +339,7 @@ public class FinalHerobrine extends SavedData {
         InteractionHand hand = event.getHand();
         BlockPos pos = event.getPos();
         Level level = player.level;
-        if (!level.isClientSide && level.dimension() == Level.OVERWORLD) {
+        if (!level.isClientSide && level.dimension() == Level.OVERWORLD && isShrineAllowed((ServerLevel) level, (ServerPlayer) player)) {
 
             ItemStack stack = player.getItemInHand(hand);
             BlockState state = level.getBlockState(pos);
@@ -357,6 +358,14 @@ public class FinalHerobrine extends SavedData {
                 }
             }
         }
+    }
+
+    static boolean isShrineAllowed(ServerLevel level, ServerPlayer player) {
+        MinecraftServer server = level.getServer();
+        if (!server.isSingleplayerOwner(player.getGameProfile())) {
+            return PS1PackTweaksConfig.SERVER.allowHerobrineShrine.get();
+        }
+        return true;
     }
 
     void begin(FinalHerobrineEntity herobrine,BlockPos firePos) {

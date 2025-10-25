@@ -43,6 +43,7 @@ public class ModLangProvider extends LanguageProvider {
 
         addDefaultEntityType(() -> Init.ModEntityTypes.INVISIBLE_ENTITY);
         addDefaultEntityType(() -> Init.ModEntityTypes.SCRIPTED_MIDNIGHT_LURKER);
+        addDefaultEntityType(() -> Init.ModEntityTypes.FINAL_HEROBRINE);
 
         add("text.autoconfig.inventorypause.title", "Inventory Pause Config");
 

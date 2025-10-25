@@ -1,5 +1,6 @@
 package tfar.ps1packtweaks.entity;
 
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.player.Player;
@@ -14,7 +15,7 @@ public class FinalHerobrineEntity extends AbstractHerobrineEntity{
 
     public boolean noClip;
 
-    public int duration = 30;
+    public int duration = 50;
     public int start = 150;
 
     @Override
@@ -34,6 +35,11 @@ public class FinalHerobrineEntity extends AbstractHerobrineEntity{
                         getZ() + width / 2 * (2 * Math.random() - 1), 0, 0.05, 0);
             }
         }
+    }
+
+    public float getLayer2Alpha(float partialTick) {
+        float alpha = Mth.clamp((partialTick + tickCount - start) / (duration+25), 0f, 1f);//should increase over time
+        return alpha;
     }
 
     @Override

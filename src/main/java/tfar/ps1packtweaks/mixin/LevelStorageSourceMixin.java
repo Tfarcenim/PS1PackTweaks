@@ -14,7 +14,7 @@ import java.io.File;
 import java.util.function.BiFunction;
 
 @Mixin(LevelStorageSource.class)
-@Debug(export = true)
+//@Debug(export = true)
 public class LevelStorageSourceMixin {//need to manually supply name because lambda
     //  private synthetic lambda$levelSummaryReader$2(Ljava/io/File;ZLjava/io/File;Lcom/mojang/datafixers/DataFixer;)Lnet/minecraft/world/level/storage/LevelSummary;
     //m_193012_

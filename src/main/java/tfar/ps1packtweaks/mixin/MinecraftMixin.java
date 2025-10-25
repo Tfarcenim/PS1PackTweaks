@@ -3,6 +3,7 @@ package tfar.ps1packtweaks.mixin;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.DeathScreen;
 import net.minecraft.client.gui.screens.OnlineOptionsScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -38,10 +39,14 @@ public abstract class MinecraftMixin {
 
     @Inject(at = @At("TAIL"), method = "setScreen")
     public void openScreen(@Nullable Screen screen, CallbackInfo ci) {
+        boolean canPauseGame = isLocalServer() && this.singleplayerServer!= null && !this.singleplayerServer.isPublished();
         if (PS1PackTweaksClient.CLIENT.inventorypause_enabled.get() && PS1PackTweaksClient.CLIENT.inventorypause_pause_sounds.get() &&
                 PS1PackTweaksClient.isPauseScreen(screen)) {
-            boolean canPauseGame = isLocalServer() && !this.singleplayerServer.isPublished();
             if(canPauseGame) {
+                this.getSoundManager().pause();
+            }
+        } else if (screen instanceof DeathScreen) {
+            if (canPauseGame) {
                 this.getSoundManager().pause();
             }
         }

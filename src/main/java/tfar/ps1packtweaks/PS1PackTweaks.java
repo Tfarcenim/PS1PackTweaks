@@ -12,8 +12,6 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.mcreator.midnightlurker.init.MidnightlurkerModEntities;
 import net.minecraft.advancements.Advancement;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.Options;
 import net.minecraft.core.*;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.resources.ResourceLocation;
@@ -76,7 +74,6 @@ import net.minecraftforge.event.entity.EntityMobGriefingEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LootingLevelEvent;
 import net.minecraftforge.event.entity.player.*;
-import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.village.VillagerTradesEvent;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
@@ -96,7 +93,6 @@ import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.items.CapabilityItemHandler;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import software.bernie.shadowed.eliotlash.mclib.math.functions.limit.Min;
 import tfar.ps1packtweaks.client.PS1PackTweaksClient;
 import tfar.ps1packtweaks.client.WorldLocker;
 import tfar.ps1packtweaks.compat.BrewingCauldronCompat;
@@ -121,7 +117,6 @@ import tfar.ps1packtweaks.worldgen.ModPlacedFeatures;
 import tfar.ps1packtweaks.worldgen.ModStructureFeatures;
 import tfar.ps1packtweaks.worldgen.ModTreeFeatures;
 
-import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.util.*;
@@ -221,10 +216,7 @@ public class PS1PackTweaks {
             String name = clas.getName();
             return name.contains("mcreator.midnightlurker") || name.contains("weirdandwonderous")
                     || name.contains("untrustedlife.liminalstairs") || name.contains("crumbs.trueherobrine");
-        } else if (o instanceof EntitySpawnEvent || o instanceof ForgeCreeperChargeEvent) {
-            return true;
-        }
-        return false;
+        } else return o instanceof EntitySpawnEvent || o instanceof ForgeCreeperChargeEvent;
     }
 
     public void manageVillagerTrades(VillagerTradesEvent event) {
@@ -265,6 +257,7 @@ public class PS1PackTweaks {
                     Init.ITEM_CRAFTED.trigger(serverPlayer, stack);
                 }
             }
+            serverPlayer.giveExperiencePoints(2);
         }
     }
 

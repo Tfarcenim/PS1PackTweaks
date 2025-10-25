@@ -17,7 +17,7 @@ public class AltFinalHerobrineRenderer extends SimplePlayerRenderer<FinalHerobri
         super(context, slim);
     }
 
-    int pass;
+    public int pass;
     @Override
     public void render(FinalHerobrineEntity pEntity, float pEntityYaw, float pPartialTicks, PoseStack pMatrixStack, MultiBufferSource pBuffer, int pPackedLight) {
         pass = 0;

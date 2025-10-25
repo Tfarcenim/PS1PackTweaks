@@ -71,6 +71,8 @@ public class PS1PackTweaksConfig {
         public final ForgeConfigSpec.DoubleValue randomTotemUseChance;
         public final ForgeConfigSpec.DoubleValue randomArrowChance;
 
+        public final ForgeConfigSpec.BooleanValue allowHerobrineShrine;
+
         Server(ForgeConfigSpec.Builder builder) {
             builder.push("tweaks");
             builder.push("barnacle");
@@ -147,6 +149,9 @@ public class PS1PackTweaksConfig {
 
             courbetReplaceChance = builder.comment("Chance to replace courbet painting when looked at")
                     .defineInRange("courbet_replace_chance",1/256d,0,1);
+
+            allowHerobrineShrine = builder.comment("Whether to allow the herobrine shrine to be activated, only has effect on dedicated servers")
+                    .define("allow_herobrine_shrine",false);
 
             builder.pop();
 

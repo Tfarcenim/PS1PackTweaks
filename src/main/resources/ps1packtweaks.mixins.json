@@ -71,6 +71,7 @@
     "LavaSlimeModelMixin",
     "LevelRendererMixin",
     "LiquidBlockRendererMixin",
+    "LivingEntityRendererMixin",
     "LivingEntityRenderMixin",
     "MinecraftMixin",
     "MouseHandlerMixin",
