@@ -1,4 +1,4 @@
-package tfar.ps1packtweaks.client;
+package tfar.ps1packtweaks.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib3.renderers.geo.GeoEntityRenderer;
+import tfar.ps1packtweaks.client.BasicGeoModel;
 import tfar.ps1packtweaks.entity.ScriptedMidnightLurker;
 
 public class ScriptedMidnightLurkerRenderer extends GeoEntityRenderer<ScriptedMidnightLurker> {

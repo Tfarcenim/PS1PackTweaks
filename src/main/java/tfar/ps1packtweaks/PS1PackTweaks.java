@@ -261,8 +261,8 @@ public class PS1PackTweaks {
             ItemStack stack = event.getCrafting();
             Container container = event.getInventory();
             if (container instanceof CraftingContainer craftingContainer) {
-                if (craftingContainer.getContainerSize() == 9){
-                    Init.ITEM_CRAFTED.trigger(serverPlayer,stack);
+                if (craftingContainer.getContainerSize() == 9) {
+                    Init.ITEM_CRAFTED.trigger(serverPlayer, stack);
                 }
             }
         }
@@ -271,7 +271,7 @@ public class PS1PackTweaks {
     void advancementGet(AdvancementEvent e) {
         Advancement advancement = e.getAdvancement();
         Player player = e.getPlayer();
-        ForgePacketHandler.sendToClient(new S2CAdvancementPacket(advancement.getId()),(ServerPlayer) player);
+        ForgePacketHandler.sendToClient(new S2CAdvancementPacket(advancement.getId()), (ServerPlayer) player);
     }
 
     void afterSleep(PlayerWakeUpEvent event) {
@@ -287,7 +287,7 @@ public class PS1PackTweaks {
         if (damageSource.getEntity() instanceof LivingEntity living) {
             MobEffectInstance luckEffect = living.getEffect(MobEffects.LUCK);
             if (luckEffect != null) {
-                event.setLootingLevel(event.getLootingLevel()+luckEffect.getAmplifier()+1);
+                event.setLootingLevel(event.getLootingLevel() + luckEffect.getAmplifier() + 1);
             }
         }
     }
@@ -297,20 +297,21 @@ public class PS1PackTweaks {
         DamageSource source = event.getSource();
         Entity attacker = source.getEntity();
         if (attacker instanceof ServerPlayer player && player.level.getGameRules().getBoolean(RULE_CREEPY_EVENTS) && player.getRandom().nextDouble() < PS1PackTweaksConfig.SERVER.blackAndWhiteKillChance.get()) {
-            ForgePacketHandler.sendToClient(new S2CShaderPacket(id("shaders/post/noir.json"),PS1PackTweaksConfig.SERVER.blackAndWhiteKillTime.get()),player);
+            ForgePacketHandler.sendToClient(new S2CShaderPacket(id("shaders/post/noir.json"), PS1PackTweaksConfig.SERVER.blackAndWhiteKillTime.get()), player);
         }
 
         LivingEntity entity = event.getEntityLiving();
         if (entity instanceof TamableAnimal tamableAnimal) {
             LivingEntity owner = tamableAnimal.getOwner();
             if (owner instanceof ServerPlayer serverPlayerOwner) {
-                Init.PLAYER_PET_KILLED.trigger(serverPlayerOwner,tamableAnimal);
+                Init.PLAYER_PET_KILLED.trigger(serverPlayerOwner, tamableAnimal);
             }
         }
     }
 
     ////[Items appearing in chests] - Redstone torch, leaves, logs, rotten flesh. These items should randomly appear in player placed chests.
-    public static final List<Item> items = List.of(Items.REDSTONE_TORCH,Items.OAK_LEAVES,Items.OAK_LOG,Items.ROTTEN_FLESH);
+    public static final List<Item> items = List.of(Items.REDSTONE_TORCH, Items.OAK_LEAVES, Items.OAK_LOG, Items.ROTTEN_FLESH);
+
     public static void onRandomTick(BlockBehaviour block, BlockState pState, ServerLevel pLevel, BlockPos pPos, Random pRandom) {
         if (pLevel.getGameRules().getBoolean(RULE_CREEPY_EVENTS) && (block == Blocks.TRAPPED_CHEST || block == Blocks.CHEST)) {
             BlockEntity blockEntity = pLevel.getBlockEntity(pPos);
@@ -320,9 +321,9 @@ public class PS1PackTweaks {
                 chestBlockEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(iItemHandler -> {
                     int slots = iItemHandler.getSlots();
                     ItemStack stack = item.getDefaultInstance();
-                    for (int i = 0; i < slots;i++) {
-                        stack = iItemHandler.insertItem(i,stack,false);
-                        if (stack.isEmpty())break;
+                    for (int i = 0; i < slots; i++) {
+                        stack = iItemHandler.insertItem(i, stack, false);
+                        if (stack.isEmpty()) break;
                     }
                 });
             }
@@ -416,7 +417,7 @@ public class PS1PackTweaks {
         event.getRegistry().registerAll(Init.ModParticleTypes.ENDERMAN.setRegistryName("enderman"),
                 Init.ModParticleTypes.BLUE_ENDERMAN.setRegistryName("blue_enderman"),
                 Init.ModParticleTypes.FINAL_HEROBRINE.setRegistryName("final_herobrine")
-                );
+        );
     }
 
     void registerItems(RegistryEvent.Register<Item> event) {
@@ -444,12 +445,12 @@ public class PS1PackTweaks {
     void registerSounds(RegistryEvent.Register<SoundEvent> event) {
         event.getRegistry().registerAll(Init.ModSounds.BARNACLE_AMBIENT.setRegistryName("barnacle_ambient"),
                 Init.ModSounds.BARNACLE_HURT.setRegistryName("barnacle_hurt"), Init.ModSounds.BARNACLE_DEATH.setRegistryName("barnacle_death"),
-                Init.ModSounds.BARNACLE_FLOP.setRegistryName("barnacle_flop"),Init.ModSounds.SCREEN.setRegistryName("screen"));
+                Init.ModSounds.BARNACLE_FLOP.setRegistryName("barnacle_flop"), Init.ModSounds.SCREEN.setRegistryName("screen"));
     }
 
     void registerFeatures(RegistryEvent.Register<Feature<?>> event) {
-        event.getRegistry().registerAll(Init.ModFeatures.TUNNEL.setRegistryName("tunnel"),Init.ModFeatures.SIGN.setRegistryName("sign"),
-                Init.ModFeatures.PYRAMID.setRegistryName("pyramid"),Init.ModFeatures.HUGE_ENDERSHROOM.setRegistryName("huge_endershroom"));
+        event.getRegistry().registerAll(Init.ModFeatures.TUNNEL.setRegistryName("tunnel"), Init.ModFeatures.SIGN.setRegistryName("sign"),
+                Init.ModFeatures.PYRAMID.setRegistryName("pyramid"), Init.ModFeatures.HUGE_ENDERSHROOM.setRegistryName("huge_endershroom"));
     }
 
     void registerStructures(RegistryEvent.Register<StructureFeature<?>> event) {
@@ -465,10 +466,10 @@ public class PS1PackTweaks {
     }
 
     void registerGLMs(RegistryEvent.Register<GlobalLootModifierSerializer<?>> event) {
-        Registry.register(Registry.LOOT_CONDITION_TYPE,id("or_loot_table_id"), OrLootTableCondition.OR_LOOT_TABLE_ID);
+        Registry.register(Registry.LOOT_CONDITION_TYPE, id("or_loot_table_id"), OrLootTableCondition.OR_LOOT_TABLE_ID);
         event.getRegistry().registerAll(Init.GlobalLootModifiers.DUPLICATE_OUTPUTS.setRegistryName("duplicate_outputs"),
                 Init.GlobalLootModifiers.ADD_ITEM.setRegistryName("add_item")
-                );
+        );
     }
 
 
@@ -505,24 +506,24 @@ public class PS1PackTweaks {
 
         switch (category) {
             case SAVANNA -> {
-                addIfNotPresent(generation,GenerationStep.Decoration.SURFACE_STRUCTURES,ModPlacedFeatures.PLACED_OAK_SIGN);
-                addIfNotPresent(generation,GenerationStep.Decoration.SURFACE_STRUCTURES,ModPlacedFeatures.PLACED_ACACIA_SIGN);
+                addIfNotPresent(generation, GenerationStep.Decoration.SURFACE_STRUCTURES, ModPlacedFeatures.PLACED_OAK_SIGN);
+                addIfNotPresent(generation, GenerationStep.Decoration.SURFACE_STRUCTURES, ModPlacedFeatures.PLACED_ACACIA_SIGN);
             }
 
             case JUNGLE -> {
-                addIfNotPresent(generation,GenerationStep.Decoration.SURFACE_STRUCTURES,ModPlacedFeatures.PLACED_JUNGLE_SIGN);
+                addIfNotPresent(generation, GenerationStep.Decoration.SURFACE_STRUCTURES, ModPlacedFeatures.PLACED_JUNGLE_SIGN);
 
             }
             case FOREST -> {
-                addIfNotPresent(generation,GenerationStep.Decoration.SURFACE_STRUCTURES,ModPlacedFeatures.PLACED_OAK_SIGN);
-                addIfNotPresent(generation,GenerationStep.Decoration.SURFACE_STRUCTURES,ModPlacedFeatures.PLACED_BIRCH_SIGN);
-                addIfNotPresent(generation,GenerationStep.Decoration.SURFACE_STRUCTURES,ModPlacedFeatures.PLACED_DARK_OAK_SIGN);
+                addIfNotPresent(generation, GenerationStep.Decoration.SURFACE_STRUCTURES, ModPlacedFeatures.PLACED_OAK_SIGN);
+                addIfNotPresent(generation, GenerationStep.Decoration.SURFACE_STRUCTURES, ModPlacedFeatures.PLACED_BIRCH_SIGN);
+                addIfNotPresent(generation, GenerationStep.Decoration.SURFACE_STRUCTURES, ModPlacedFeatures.PLACED_DARK_OAK_SIGN);
             }
             case TAIGA -> {
-                addIfNotPresent(generation,GenerationStep.Decoration.SURFACE_STRUCTURES,ModPlacedFeatures.PLACED_SPRUCE_SIGN);
+                addIfNotPresent(generation, GenerationStep.Decoration.SURFACE_STRUCTURES, ModPlacedFeatures.PLACED_SPRUCE_SIGN);
             }
             case OCEAN -> {
-                generation.addFeature(GenerationStep.Decoration.SURFACE_STRUCTURES,ModPlacedFeatures.PLACED_PYRAMID);
+                generation.addFeature(GenerationStep.Decoration.SURFACE_STRUCTURES, ModPlacedFeatures.PLACED_PYRAMID);
                 event.getSpawns().getSpawner(MobCategory.MONSTER).add(new MobSpawnSettings.SpawnerData(Init.ModEntityTypes.BARNACLE,
                         1000, 2, 3));
             }
@@ -533,8 +534,8 @@ public class PS1PackTweaks {
 
         ResourceLocation name = event.getName();
 
-        if (Objects.equals(Biomes.END_BARRENS.location(),name) || Objects.equals(Biomes.END_HIGHLANDS.location(),name)){
-            generation.addFeature(GenerationStep.Decoration.SURFACE_STRUCTURES,ModPlacedFeatures.HUGE_ENDERSHROOM);
+        if (Objects.equals(Biomes.END_BARRENS.location(), name) || Objects.equals(Biomes.END_HIGHLANDS.location(), name)) {
+            generation.addFeature(GenerationStep.Decoration.SURFACE_STRUCTURES, ModPlacedFeatures.HUGE_ENDERSHROOM);
         }
     }
 
@@ -545,7 +546,7 @@ public class PS1PackTweaks {
         if (!level.isClientSide) {
             boolean pure = !entity.level.getGameRules().getBoolean(RULE_CREEPY_EVENTS);
 
-            if (pure){
+            if (pure) {
 
                 if (entity.getType() == Init.ModEntityTypes.INVISIBLE_ENTITY || entity.getType() == Init.ModEntityTypes.SCRIPTED_MIDNIGHT_LURKER ||
                         entity.getType() == Init.ModEntityTypes.HEROBRINE) {
@@ -558,24 +559,23 @@ public class PS1PackTweaks {
 
                 if (ModIntegration.shouldRemoveMobs(modid)) {
                     event.setCanceled(true);
-                    return;
                 }
-            }
-
-            if (entity instanceof PathfinderMob pathfinderMob) {
-                if (pathfinderMob.getNavigation() instanceof GroundPathNavigation || pathfinderMob.getNavigation() instanceof FlyingPathNavigation) {
-                    pathfinderMob.goalSelector.addGoal(0, new FollowPlayerGoal(pathfinderMob, 1.0, 4.0F, 30.0F));
+            } else {
+                if (entity instanceof PathfinderMob pathfinderMob) {
+                    if (pathfinderMob.getNavigation() instanceof GroundPathNavigation || pathfinderMob.getNavigation() instanceof FlyingPathNavigation) {
+                        pathfinderMob.goalSelector.addGoal(0, new FollowPlayerGoal(pathfinderMob, 1.0, 4.0F, 30.0F));
+                    }
                 }
             }
         }
     }
 
-    static boolean hasFeature(List<Holder<PlacedFeature>> features,Holder<PlacedFeature> feature) {
+    static boolean hasFeature(List<Holder<PlacedFeature>> features, Holder<PlacedFeature> feature) {
         return features.stream().anyMatch(f -> f.is(feature.unwrapKey().get()));
     }
 
-    static void addIfNotPresent(BiomeGenerationSettingsBuilder generation,GenerationStep.Decoration step, Holder<PlacedFeature> feature) {
-        if (!hasFeature(generation.getFeatures(step),feature)) {
+    static void addIfNotPresent(BiomeGenerationSettingsBuilder generation, GenerationStep.Decoration step, Holder<PlacedFeature> feature) {
+        if (!hasFeature(generation.getFeatures(step), feature)) {
             generation.addFeature(step, feature);
         }
     }
@@ -600,10 +600,10 @@ public class PS1PackTweaks {
         PacketHandler.registerPackets();
         event.enqueueWork(() -> {
             Init.ModEntityDataSerializers.init();
-            setCanOcclude(Blocks.ICE,true);
+            setCanOcclude(Blocks.ICE, true);
             ModTreeFeatures.init();
             Init.init();
-            PotionBrewing.addMix(Potions.AWKWARD, StarryEndBlocks.ENDER_CLOVER.get().asItem(),Potions.LUCK);
+            PotionBrewing.addMix(Potions.AWKWARD, StarryEndBlocks.ENDER_CLOVER.get().asItem(), Potions.LUCK);
             ModConfiguredFeatures.init();
             if (ModIntegration.morehorsearmor.loaded) {
                 MoreHorseArmorCompat.setup();
@@ -615,18 +615,18 @@ public class PS1PackTweaks {
             if (ModIntegration.brewingcauldron.loaded) {
                 BrewingCauldronCompat.setup();
             }
-            ((BlockAccess)Blocks.CHEST).setIsRandomlyTicking(true);
-            ((BlockAccess)Blocks.TRAPPED_CHEST).setIsRandomlyTicking(true);
+            ((BlockAccess) Blocks.CHEST).setIsRandomlyTicking(true);
+            ((BlockAccess) Blocks.TRAPPED_CHEST).setIsRandomlyTicking(true);
             SpawnPlacements.register(Init.ModEntityTypes.BARNACLE, SpawnPlacements.Type.IN_WATER, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                     Barnacle::canSpawn);
 
-            setEffectColor(AMEffectRegistry.ENDER_FLU,0x4cff4c);
+            setEffectColor(AMEffectRegistry.ENDER_FLU, 0x4cff4c);
 
             //0x6836aa
             for (Enchantment enchantment : Registry.ENCHANTMENT) {
                 if (enchantment.getRegistryName().getNamespace().equals(ModIntegration.alexsmobs.name())) {
-                    ((EnchantmentDuck)enchantment).setDiscoverable(false);
-                    ((EnchantmentDuck)enchantment).setTradeable(false);
+                    ((EnchantmentDuck) enchantment).setDiscoverable(false);
+                    ((EnchantmentDuck) enchantment).setTradeable(false);
                 }
             }
 

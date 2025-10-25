@@ -1,4 +1,4 @@
-package tfar.ps1packtweaks.client;
+package tfar.ps1packtweaks.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.PlayerModel;

@@ -12,14 +12,20 @@ public class FinalHerobrineEntity extends AbstractHerobrineEntity{
         super(pEntityType, pLevel);
     }
 
+    public boolean noClip;
+
     public int duration = 30;
     public int start = 150;
 
     @Override
     public void tick() {
-        this.noPhysics = true;
+        if (noClip) {
+            this.noPhysics = true;
+        }
         super.tick();
-        this.noPhysics = false;
+        if (noClip) {
+            this.noPhysics = false;
+        }
         if (level.isClientSide && tickCount > start && tickCount < start + duration){
             double width = getBbWidth();
             for (int i = 0; i < 5;i++) {

@@ -1,6 +1,5 @@
 package tfar.ps1packtweaks;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SerializableUUID;
@@ -26,6 +25,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.StandingSignBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -189,17 +189,24 @@ public class FinalHerobrine extends SavedData {
                 herobrine.discard();
                 herobrine = null;
                 herobrineUUID = null;
-                level.getServer().getPlayerList().getPlayers().forEach(player -> ForgePacketHandler.sendToClient(S2CEventPacket.OPEN_ONLINE_OPTIONS_SCREEN,player));
+                level.getServer().getPlayerList().getPlayers().forEach(player -> {
+                    ForgePacketHandler.sendToClient(S2CEventPacket.PLAY_VIDEO, player);
+                    player.setInvulnerable(true);
+                });
             }
 
             case END -> {
+                level.getServer().getPlayerList().getPlayers().forEach(player -> {
+                    player.setInvulnerable(false);
+                    ForgePacketHandler.sendToClient(S2CEventPacket.END_EVENT,player);
+                });
+                level.setBlockAndUpdate(fire,Blocks.OAK_SIGN.defaultBlockState().setValue(StandingSignBlock.ROTATION,4));
+                level.setWeatherParameters(6000, 0, false, false);
 
-
-                level.setBlockAndUpdate(fire,Blocks.OAK_SIGN.defaultBlockState());
 
                 BlockEntity blockEntity = level.getBlockEntity(fire);
                 if (blockEntity instanceof SignBlockEntity signBlockEntity) {
-                    signBlockEntity.setMessage(0, new TextComponent("Thank You"));
+                    signBlockEntity.setMessage(1, new TextComponent("Thank You."));
                 }
 
                 setDirty();
@@ -358,6 +365,7 @@ public class FinalHerobrine extends SavedData {
         tick = 0;
         herobrineStage = Stage.START;
 
+        herobrine.noClip = true;
         herobrine.setInvulnerable(true);
         herobrine.setNoGravity(true);
 
@@ -367,6 +375,9 @@ public class FinalHerobrine extends SavedData {
         level.addFreshEntity(lightningBolt);
         level.setWeatherParameters(0, 6000, true, true);
         herobrine.playSound(SoundEvents.BEACON_AMBIENT,1,1);
+        level.getServer().getPlayerList().getPlayers().forEach(player -> {
+            ForgePacketHandler.sendToClient(S2CEventPacket.START_EVENT,player);
+        });
         setDirty();
     }
 

@@ -79,6 +79,7 @@
     "PaintingRendererMixin",
     "ProgressScreenMixin",
     "RabbitRendererMixin",
+    "ScreenMixin",
     "SheepFurLayerMixin",
     "UndeadHorseRendererMixin",
     "compat.ClientProxyMixin",

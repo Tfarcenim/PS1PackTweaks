@@ -14,6 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import tfar.ps1packtweaks.PS1PackTweaksConfig;
 import tfar.ps1packtweaks.client.DynamicSoundInstance;
 import tfar.ps1packtweaks.client.PS1PackTweaksClient;
+import tfar.ps1packtweaks.client.WorldLocker;
 import tfar.ps1packtweaks.duck.MusicManagerDuck;
 
 import javax.annotation.Nullable;
@@ -38,7 +39,9 @@ public abstract class MusicManagerMixin implements MusicManagerDuck {
             )}
     )
     public void replaceMusic(Music pSelector, CallbackInfo ci) {
-        this.currentMusic = new DynamicSoundInstance(pSelector.getEvent(), SoundSource.MUSIC);
+        if (!WorldLocker.isPure()) {
+            this.currentMusic = new DynamicSoundInstance(pSelector.getEvent(), SoundSource.MUSIC);
+        }
     }
 
     @Unique

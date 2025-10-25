@@ -4,8 +4,9 @@ import net.minecraft.network.FriendlyByteBuf;
 import tfar.ps1packtweaks.client.PS1PackTweaksClient;
 
 public enum S2CEventPacket implements S2CModPacket {
-    OPEN_ONLINE_OPTIONS_SCREEN,
-    STOP_MUSIC;
+    START_EVENT,
+    PLAY_VIDEO,
+    END_EVENT;
 
     static final S2CEventPacket[] VALUES = values();
 

@@ -35,11 +35,9 @@ import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.registries.IRegistryDelegate;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.opengl.GL11;
-import software.bernie.shadowed.eliotlash.mclib.math.functions.limit.Min;
 import tfar.ps1packtweaks.*;
 import net.minecraft.Util;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -79,6 +77,7 @@ import org.lwjgl.glfw.GLFW;
 import tfar.ps1packtweaks.block.CustomWoodTypes;
 import tfar.ps1packtweaks.client.particle.EndermanParticle;
 import tfar.ps1packtweaks.client.particle.FinalHerobrineParticle;
+import tfar.ps1packtweaks.client.renderer.*;
 import tfar.ps1packtweaks.compat.BetterGuiCompassHUD;
 import tfar.ps1packtweaks.compat.ModIntegration;
 import tfar.ps1packtweaks.duck.AbstractClientPlayerDuck;
@@ -91,9 +90,6 @@ import tyrannotitanlib.core.content.init.TyrannoBanners;
 import vazkii.quark.base.item.QuarkMusicDiscItem;
 
 import java.io.*;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -474,7 +470,7 @@ public class PS1PackTweaksClient {
             EntityRenderers.register(Init.ModEntityTypes.HEROBRINE, (EntityRendererProvider.Context context) -> new SimplePlayerRenderer<>(context,
                     false));
 
-            EntityRenderers.register(Init.ModEntityTypes.FINAL_HEROBRINE, (EntityRendererProvider.Context context) -> new FinalHerobrineRenderer(context,
+            EntityRenderers.register(Init.ModEntityTypes.FINAL_HEROBRINE, (EntityRendererProvider.Context context) -> new AltFinalHerobrineRenderer(context,
                     false));
 
 
@@ -680,14 +676,21 @@ public class PS1PackTweaksClient {
         return strings;
     }
 
+    public static boolean lockScreen;
+
     public static void handleEvent(S2CEventPacket s2CEventPacket) {
         switch (s2CEventPacket) {
-            case OPEN_ONLINE_OPTIONS_SCREEN -> {
-                Minecraft.getInstance().setScreen(new OnlineOptionsScreen(null,Minecraft.getInstance().options ));
-                ((MusicManagerDuck)Minecraft.getInstance().getMusicManager()).setMute(true);
-            }
-            case STOP_MUSIC -> {
+            case START_EVENT -> {
                 Minecraft.getInstance().getMusicManager().stopPlaying();
+            }
+            case PLAY_VIDEO -> {
+                Minecraft.getInstance().setScreen(new OnlineOptionsScreen(null,Minecraft.getInstance().options));
+                ((MusicManagerDuck)Minecraft.getInstance().getMusicManager()).setMute(true);
+
+                MouseHider.hide(20 * 100);
+                lockScreen = true;
+            }
+            case END_EVENT -> {
             }
         }
     }

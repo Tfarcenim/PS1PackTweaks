@@ -1,4 +1,4 @@
-package tfar.ps1packtweaks.client;
+package tfar.ps1packtweaks.client.renderer;
 
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import tfar.ps1packtweaks.PS1PackTweaks;
