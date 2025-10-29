@@ -12,6 +12,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import tfar.ps1packtweaks.network.ForgePacketHandler;
+import tfar.ps1packtweaks.network.client.S2CEventPacket;
 import vazkii.quark.content.building.entity.GlassItemFrame;
 
 public class ModCommands {
@@ -25,7 +27,14 @@ public class ModCommands {
                 .then(Commands.literal("reset")
                         .executes(ModCommands::reset)
                 )
-        );
+                .then(Commands.literal("test_video")
+                .executes(ModCommands::testVideo)
+        ));
+    }
+
+    private static int testVideo(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        ForgePacketHandler.sendToClient(S2CEventPacket.PLAY_VIDEO,context.getSource().getPlayerOrException());
+        return 0;
     }
 
     static int reset(CommandContext<CommandSourceStack> context) {

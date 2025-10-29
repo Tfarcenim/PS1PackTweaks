@@ -1,5 +1,6 @@
 package tfar.ps1packtweaks.client;
 
+import com.github.NGoedix.watchvideo.client.ClientHandler;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -17,6 +18,7 @@ import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.gui.screens.*;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.client.player.Input;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -91,6 +93,7 @@ import tyrannotitanlib.core.content.init.TyrannoBanners;
 import vazkii.quark.base.item.QuarkMusicDiscItem;
 
 import java.io.*;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -232,6 +235,7 @@ public class PS1PackTweaksClient {
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::replaceBackground);
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::logout);
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::clientTick);
+        MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::input);
         MinecraftForge.EVENT_BUS.addListener(EventPriority.LOW, PS1PackTweaksClient::message);
 
         MinecraftForge.EVENT_BUS.addListener(PS1PackTweaksClient::onOpenGUI);
@@ -689,13 +693,31 @@ public class PS1PackTweaksClient {
                 Minecraft.getInstance().getMusicManager().stopPlaying();
             }
             case PLAY_VIDEO -> {
-                Minecraft.getInstance().setScreen(new OnlineOptionsScreen(null,Minecraft.getInstance().options));
                 ((MusicManagerDuck)Minecraft.getInstance().getMusicManager()).setMute(true);
+
+                File fileName = FMLPaths.GAMEDIR.get().resolve("resources/loading").resolve("end.mp4").toFile();
+
+                URI uri =fileName.toURI();
+
+                ClientHandler.openVideo(uri.toString(), 125, true,false);
 
                 MouseHider.hide(20 * 100);
                 lockScreen = true;
             }
             case END_EVENT -> {
+            }
+        }
+    }
+
+    static void input(MovementInputUpdateEvent event) {
+        Input input = event.getInput();
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player != null) {
+            if (player.isUnderWater()) {
+                player.setSprinting(true);
+                input.forwardImpulse *= .75;
+            } else {
+                player.setSprinting(false);
             }
         }
     }

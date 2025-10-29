@@ -592,6 +592,11 @@ public class PS1PackTweaks {
 
         PacketHandler.registerPackets();
         event.enqueueWork(() -> {
+
+            Blocks.CHEST.getStateDefinition().getPossibleStates().forEach(state -> ((BlockStateAccess)state).setCanOcclude(false));
+            Blocks.TRAPPED_CHEST.getStateDefinition().getPossibleStates().forEach(state -> ((BlockStateAccess)state).setCanOcclude(false));
+            Blocks.ENDER_CHEST.getStateDefinition().getPossibleStates().forEach(state -> ((BlockStateAccess)state).setCanOcclude(false));
+
             Init.ModEntityDataSerializers.init();
             setCanOcclude(Blocks.ICE, true);
             ModTreeFeatures.init();

@@ -18,6 +18,7 @@
     "BoatTypeMixin",
     "ChestBlockMixin",
     "EnchantmentMixin",
+    "EnderChestBlockMixin",
     "EnderManMixin",
     "EndermiteMixin",
     "EndGatewayBlockMixin",
@@ -38,6 +39,7 @@
     "SkeletonHorseMixin",
     "SmithingTableMenuMixin",
     "SpawnPlacementsAccess",
+    "StonecutterBlockMixin",
     "StructureMixin",
     "ThrownEnderpearlMixin",
     "WeatherDetectorBlockMixin",
@@ -87,6 +89,7 @@
     "compat.ForgeGuiEventMixin",
     "compat.HotbarMixin",
     "compat.ScreenShotScreenMixin",
+    "compat.VideoScreenMixin",
     "compat.embeddium.ChunkRenderRebuildTaskMixin"
   ],
   "server": [

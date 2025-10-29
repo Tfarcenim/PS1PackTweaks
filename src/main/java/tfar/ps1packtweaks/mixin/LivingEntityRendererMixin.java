@@ -16,7 +16,7 @@ import tfar.ps1packtweaks.client.renderer.AltFinalHerobrineRenderer;
 import tfar.ps1packtweaks.entity.FinalHerobrineEntity;
 
 @Mixin(LivingEntityRenderer.class)
-@Debug(export = true)
+//@Debug(export = true)
 public class LivingEntityRendererMixin<T extends LivingEntity> {
 
     private static final ThreadLocal<LivingEntity> LOCAL = ThreadLocal.withInitial(() -> null);
