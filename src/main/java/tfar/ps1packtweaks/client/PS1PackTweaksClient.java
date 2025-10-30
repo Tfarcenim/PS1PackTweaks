@@ -147,12 +147,11 @@ public class PS1PackTweaksClient {
     public static final ResourceLocation JUMP_SCARE = PS1PackTweaks.id("textures/screen.png");
 
     public static final IIngameOverlay jump_scare = (gui, poseStack, partialTick, width, height) -> {
-        if (PS1PackTweaksClient.jumpscareTimer > 0) {
-            gui.renderTextureOverlay(JUMP_SCARE, 1);
-        }
+      //  if (PS1PackTweaksClient.jumpscareTimer > 0) {
+           // gui.renderTextureOverlay(JUMP_SCARE, 1);
+    //    }
     };
 
-    public static int jumpscareTimer;
 
     public static void renderPattern(PoseStack pPoseStack, MultiBufferSource pBufferSource, int pPackedLight, int pPackedOverlay, ModelPart pFlagPart, Material pFlagMaterial, boolean pBanner, boolean pGlint) {
         pFlagPart.render(pPoseStack, pFlagMaterial.buffer(pBufferSource, RenderType::entitySolid, pGlint), pPackedLight, pPackedOverlay);
@@ -333,14 +332,10 @@ public class PS1PackTweaksClient {
                     if (random.nextDouble() < CLIENT.pauseChance.get()) {
                         minecraft.pauseGame(false);
                     }
-                    if (!minecraft.isPaused() && jumpscareTimer <= 0 && random.nextDouble() < CLIENT.jumpScareChance.get()) {
-                        jumpscareTimer = 30;
+                    if (!minecraft.isPaused() && random.nextDouble() < CLIENT.jumpScareChance.get() && !(minecraft.screen instanceof JumpscareScreen)) {
                         minecraft.getSoundManager().play(SimpleSoundInstance.forUI(Init.ModSounds.SCREEN, 1, 1));
+                        minecraft.pushGuiLayer(new JumpscareScreen(new TextComponent("")));
                     }
-                }
-
-                if (jumpscareTimer > 0) {
-                    jumpscareTimer--;
                 }
 
 

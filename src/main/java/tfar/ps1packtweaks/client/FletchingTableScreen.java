@@ -1,10 +1,11 @@
-package tfar.ps1packtweaks;
+package tfar.ps1packtweaks.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.screens.inventory.ItemCombinerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import tfar.ps1packtweaks.FletchingTableMenu;
+import tfar.ps1packtweaks.PS1PackTweaks;
 
 public class FletchingTableScreen extends ItemCombinerScreen<FletchingTableMenu>{
     public FletchingTableScreen(FletchingTableMenu pMenu, Inventory pPlayerInventory, Component pTitle) {
