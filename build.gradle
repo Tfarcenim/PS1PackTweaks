@@ -280,7 +280,7 @@ dependencies {
     implementation fg.deobf("local:StairsInTheWoods:1.18.2_v_1.0")
 
 
-    implementation fg.deobf("curse.maven:oculus-581495:4578744")
+    //implementation fg.deobf("curse.maven:oculus-581495:4578744")
 
     // For more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html

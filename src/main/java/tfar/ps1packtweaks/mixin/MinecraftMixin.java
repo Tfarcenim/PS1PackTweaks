@@ -52,6 +52,7 @@ public abstract class MinecraftMixin {
         }
     }
 
+
     @Inject(
             method = {"setLevel"},
             at = {@At("HEAD")}

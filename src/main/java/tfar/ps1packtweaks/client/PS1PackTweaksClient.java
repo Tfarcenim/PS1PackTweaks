@@ -761,4 +761,9 @@ public class PS1PackTweaksClient {
 
         options.save();
     }
+
+    public static boolean canStartSprinting(LocalPlayer player,boolean vanillaSprinting) {
+        boolean b = player.isUnderWater() && vanillaSprinting;
+        return b;
+    }
 }

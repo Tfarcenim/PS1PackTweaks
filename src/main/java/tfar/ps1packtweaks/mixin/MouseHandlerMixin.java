@@ -11,6 +11,6 @@ import tfar.ps1packtweaks.client.MouseHider;
 public class MouseHandlerMixin {
     @Inject(method = "releaseMouse",at = @At("RETURN"))
     private void afterRelease(CallbackInfo ci) {
-        MouseHider.afterRelease();
+        MouseHider.afterMouseRelease();
     }
 }
