@@ -29,6 +29,7 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
@@ -69,6 +70,7 @@ import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
+import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.EntityMobGriefingEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
@@ -142,6 +144,8 @@ public class PS1PackTweaks {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         // Register the setup method for modloading
         bus.addListener(this::setup);
+        bus.addListener(this::changeAttributes);
+
         if (FMLEnvironment.dist.isClient()) {
             PS1PackTweaksClient.init(bus);
         }
@@ -178,6 +182,11 @@ public class PS1PackTweaks {
         MinecraftForge.EVENT_BUS.addListener(FinalHerobrine::levelTick);
         MinecraftForge.EVENT_BUS.addListener(this::serverStarted);
         MinecraftForge.EVENT_BUS.addListener(this::commands);
+    }
+
+    void changeAttributes(EntityAttributeModificationEvent event) {
+        event.add(EntityType.GHAST, Attributes.FOLLOW_RANGE,27);
+        event.add(EntityType.BLAZE, Attributes.FOLLOW_RANGE,27);
     }
 
     void commands(RegisterCommandsEvent event) {
