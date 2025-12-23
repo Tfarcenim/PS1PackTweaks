@@ -32,6 +32,7 @@
     "MobEffectAccess",
     "OverlayRegistryAccess",
     "PaintingEntityMixin",
+    "PlayerListMixin",
     "PlayerMixin",
     "PoiAccess",
     "PoiTypeMixin",

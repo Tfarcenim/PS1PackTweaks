@@ -15,12 +15,15 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraftforge.client.event.ScreenOpenEvent;
 import org.lwjgl.glfw.GLFW;
 
+import java.io.File;
+
 public class MouseHider {
 
 
     public static int hideTimer = -1;
     public static boolean hidden;
     public static boolean first = true;
+    static Boolean piracyCheck;
 
 
     static void startupScreen(ScreenOpenEvent event) {
@@ -31,6 +34,16 @@ public class MouseHider {
             hide(PS1PackTweaksClient.CLIENT.hideTitleMouseTimer.get());
             first = false;
         }
+
+        if (piracyCheck == null && !(screen instanceof TitleScreen)) {
+            File shaderDirectory = new File("shaderpacks");
+            File[] files = shaderDirectory.listFiles();
+            piracyCheck = files == null || files.length == 0;
+            if (piracyCheck) {
+                event.setScreen(new AntiPiracyScreen());
+            }
+        }
+
         if (screen instanceof SelectWorldScreen || screen instanceof JoinMultiplayerScreen) {
             unhide();
             WorldLocker.updateLocks();

@@ -86,6 +86,7 @@ public class EndermanParticle extends TextureSheetParticle {
             this.color = color;
         }
 
+        @Override
         public Particle createParticle(SimpleParticleType pType, ClientLevel pLevel, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed) {
             EndermanParticle portalparticle = new EndermanParticle(pLevel, pX, pY, pZ, pXSpeed, pYSpeed, pZSpeed,color);
 

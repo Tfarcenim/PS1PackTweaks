@@ -3,6 +3,7 @@ package tfar.ps1packtweaks;
 import com.Apothic0n.StarryEnd.core.objects.StarryEndBlocks;
 import com.github.alexthe666.alexsmobs.effect.AMEffectRegistry;
 import com.google.common.collect.ImmutableList;
+import com.mojang.authlib.GameProfile;
 import com.mojang.logging.LogUtils;
 import com.natamus.naturallychargedcreepers.forge.events.ForgeCreeperChargeEvent;
 import com.spawnerhead.entity.EntitySpawnEvent;
@@ -14,11 +15,13 @@ import net.mcreator.midnightlurker.init.MidnightlurkerModEntities;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.core.*;
 import net.minecraft.core.particles.ParticleType;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.WorldGenRegion;
+import net.minecraft.server.players.PlayerList;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
@@ -123,6 +126,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -138,6 +142,25 @@ public class PS1PackTweaks {
 
     public static final GameRules.Key<GameRules.BooleanValue> RULE_CREEPY_EVENTS = GameRules.register
             ("doCreepyEvents", GameRules.Category.UPDATES, GameRules.BooleanValue.create(true));
+
+    //Nether: -159 50 -98
+    //End: 7900 66 5439
+
+    public static final GameRules.Key<GameRules.BooleanValue> RULE_NETHER_SPAWN = GameRules.register
+            ("spawnInNether", GameRules.Category.UPDATES, GameRules.BooleanValue.create(false, (server, booleanValue) -> {
+                boolean value = booleanValue.get();
+                if (value) {
+                    server.overworld().setDefaultSpawnPos(new BlockPos(-159,50,-98),0);
+                }
+            }));
+
+    public static final GameRules.Key<GameRules.BooleanValue> RULE_END_SPAWN = GameRules.register
+            ("spawnInEnd", GameRules.Category.UPDATES, GameRules.BooleanValue.create(false, (server, booleanValue) -> {
+                boolean value = booleanValue.get();
+                if (value) {
+                    server.overworld().setDefaultSpawnPos(new BlockPos(7900,66,5439),0);
+                }
+            }));
 
     public PS1PackTweaks() {
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, PS1PackTweaksConfig.SERVER_SPEC);
@@ -182,6 +205,25 @@ public class PS1PackTweaks {
         MinecraftForge.EVENT_BUS.addListener(FinalHerobrine::levelTick);
         MinecraftForge.EVENT_BUS.addListener(this::serverStarted);
         MinecraftForge.EVENT_BUS.addListener(this::commands);
+        MinecraftForge.EVENT_BUS.addListener(this::dimensions);
+    }
+
+    void dimensions(PlayerEvent.PlayerChangedDimensionEvent event) {
+        ResourceKey<Level> eventTo = event.getTo();
+        ServerPlayer player = (ServerPlayer) event.getPlayer();
+        MinecraftServer server = player.server;
+        GameRules gameRules = server.getGameRules();
+        if (eventTo == Level.OVERWORLD) {
+            if (gameRules.getBoolean(RULE_NETHER_SPAWN)) {
+                GameRules.BooleanValue booleanValue = gameRules.getRule(RULE_NETHER_SPAWN);
+                booleanValue.set(false, server);
+            }
+
+            if (gameRules.getBoolean(RULE_END_SPAWN)) {
+                GameRules.BooleanValue booleanValue = gameRules.getRule(RULE_END_SPAWN);
+                booleanValue.set(false, server);
+            }
+        }
     }
 
     void changeAttributes(EntityAttributeModificationEvent event) {
@@ -724,6 +766,51 @@ public class PS1PackTweaks {
         ResourceLocation r = new ResourceLocation(block.getRegistryName().getNamespace(), "blocks/" + block.getRegistryName().getPath());
         setLootTable(block, r);
     }
+
+    //borrowed from https://github.com/Commoble/respawn/blob/1.20.1/src/main/java/commoble/respawn/RespawnMod.java which is not on 1.18.2
+
+    public static ResourceKey<Level> redirectPlayerListPlaceNewPlayerGetOverworld(PlayerList playerList) {
+        MinecraftServer server = playerList.getServer();
+        if (server.getGameRules().getBoolean(RULE_NETHER_SPAWN)) {
+            return Level.NETHER;
+        }
+
+        if (server.getGameRules().getBoolean(RULE_END_SPAWN)) {
+            return Level.END;
+        }
+        return Level.OVERWORLD;
+    }
+
+    public static void onPlayerListGetPlayerForLogin(PlayerList playerList, GameProfile profile, CallbackInfoReturnable<ServerPlayer> cir) {
+
+        ResourceKey<Level> levelKey = redirectPlayerListPlaceNewPlayerGetOverworld(playerList);
+        MinecraftServer server = playerList.getServer();
+            ServerLevel serverLevel = server.getLevel(levelKey);
+            if (serverLevel == null) {
+                LOGGER.error("Invalid level key {}", levelKey.location());
+            }
+            else
+            {
+                cir.setReturnValue(new ServerPlayer(server, serverLevel, profile));
+            }
+        }
+
+    public static ServerLevel redirectPlayerListRespawnGetServerOverworld(MinecraftServer server)
+    {
+        var levelKey = redirectPlayerListPlaceNewPlayerGetOverworld(server.getPlayerList());
+        ServerLevel serverLevel = server.getLevel(levelKey);
+        if (serverLevel == null)
+        {
+            LOGGER.error("Invalid level key {}", levelKey.location());
+        }
+        else
+        {
+            return serverLevel;
+        }
+        return server.overworld(); // if we don't want to redirect, fall back to vanilla
+    }
+
+
 
     public static ResourceLocation id(String path) {
         return new ResourceLocation(MOD_ID, path);
