@@ -38,13 +38,13 @@ public class MouseHider {
         if (piracyCheck == null && !(screen instanceof TitleScreen)) {
             File shaderDirectory = new File("shaderpacks");
             File[] files = shaderDirectory.listFiles();
-            piracyCheck = files == null || files.length == 0;
+            piracyCheck = files == null || files.length < 2;
             if (piracyCheck) {
                 event.setScreen(new AntiPiracyScreen());
             }
         }
 
-        if (screen instanceof SelectWorldScreen || screen instanceof JoinMultiplayerScreen) {
+        if ( (screen instanceof SelectWorldScreen || screen instanceof JoinMultiplayerScreen)&& !piracyCheck) {
             unhide();
             WorldLocker.updateLocks();
         }
