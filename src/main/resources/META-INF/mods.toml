@@ -73,3 +73,10 @@ mandatory=false
 versionRange="*"
 ordering="AFTER"
 side="BOTH"
+[[dependencies.ps1packtweaks]]
+modId="quark"
+mandatory=false
+# This version range declares a minimum of the current minecraft version up to but not including the next major version
+versionRange="*"
+ordering="BEFORE"
+side="BOTH"

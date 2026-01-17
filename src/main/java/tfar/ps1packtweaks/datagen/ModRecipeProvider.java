@@ -4,6 +4,7 @@ import com.Apothic0n.StarryEnd.core.objects.StarryEndBlocks;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
 import tfar.ps1packtweaks.Init;
 

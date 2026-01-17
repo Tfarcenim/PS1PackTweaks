@@ -1,5 +1,8 @@
 package tfar.ps1packtweaks.mixin;
 
+import net.minecraftforge.data.loading.DatagenModLoader;
+import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraftforge.fml.loading.FMLLoader;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
@@ -20,6 +23,10 @@ public class MixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
+        boolean isDev = !FMLLoader.isProduction();
+        if (mixinClassName.contains("datagen")) {
+            return isDev;
+        }
         return true;
     }
 

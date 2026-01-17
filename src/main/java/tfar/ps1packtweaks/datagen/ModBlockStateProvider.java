@@ -1,5 +1,6 @@
 package tfar.ps1packtweaks.datagen;
 
+import com.cursedcauldron.wildbackport.common.registry.WBBlocks;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.HugeMushroomBlock;
@@ -9,6 +10,8 @@ import net.minecraftforge.common.data.ExistingFileHelper;
 import tfar.ps1packtweaks.Init;
 import tfar.ps1packtweaks.PS1PackTweaks;
 import tfar.ps1packtweaks.compat.ModIntegration;
+import vazkii.quark.content.world.module.NewStoneTypesModule;
+import vazkii.quark.content.world.module.SpiralSpiresModule;
 
 public class ModBlockStateProvider extends BlockStateProvider {
     public ModBlockStateProvider(DataGenerator gen, ExistingFileHelper exFileHelper) {
@@ -45,5 +48,10 @@ public class ModBlockStateProvider extends BlockStateProvider {
         simpleBlock(Init.ModBlocks.ENDERSHROOM,models().cross("endershroom",modLoc("block/endershroom")));
         itemModels().singleTexture("endershroom",mcLoc("item/generated"),
                 "layer0",modLoc("block/endershroom"));
+
+      //  simpleBlock(SpiralSpiresModule.myalite_crystal,models().cubeAll("myalite_crystal",
+        //        new ResourceLocation("quark","block/myalite_crystal")
+       // new ResourceLocation("block/ice")
+      //  ));
     }
 }
