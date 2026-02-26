@@ -36,6 +36,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
+import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.decoration.Motive;
 import net.minecraft.world.entity.monster.Evoker;
 import net.minecraft.world.entity.monster.Monster;
@@ -218,11 +219,6 @@ public class PS1PackTweaks {
                 GameRules.BooleanValue booleanValue = gameRules.getRule(RULE_NETHER_SPAWN);
                 booleanValue.set(false, server);
             }
-
-            if (gameRules.getBoolean(RULE_END_SPAWN)) {
-                GameRules.BooleanValue booleanValue = gameRules.getRule(RULE_END_SPAWN);
-                booleanValue.set(false, server);
-            }
         }
     }
 
@@ -349,6 +345,18 @@ public class PS1PackTweaks {
             LivingEntity owner = tamableAnimal.getOwner();
             if (owner instanceof ServerPlayer serverPlayerOwner) {
                 Init.PLAYER_PET_KILLED.trigger(serverPlayerOwner, tamableAnimal);
+            }
+        }
+    }
+
+    public static void onDragonKilled(EnderDragon dragon) {
+        //disable gamerule when dragon is killed
+        if (dragon.level instanceof ServerLevel serverLevel) {
+            MinecraftServer server =serverLevel.getServer();
+            GameRules gameRules = server.getGameRules();
+            if (gameRules.getBoolean(RULE_END_SPAWN)) {
+                GameRules.BooleanValue booleanValue = gameRules.getRule(RULE_END_SPAWN);
+                booleanValue.set(false, server);
             }
         }
     }
