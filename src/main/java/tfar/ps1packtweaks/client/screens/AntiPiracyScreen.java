@@ -1,4 +1,4 @@
-package tfar.ps1packtweaks.client;
+package tfar.ps1packtweaks.client.screens;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
@@ -10,7 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import tfar.ps1packtweaks.PS1PackTweaks;
 
 public class AntiPiracyScreen extends Screen {
-    protected AntiPiracyScreen() {
+    public AntiPiracyScreen() {
         super(new TextComponent(""));
     }
 

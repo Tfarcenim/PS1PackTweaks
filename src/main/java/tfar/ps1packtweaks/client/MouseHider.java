@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.gui.screens.InBedChatScreen;
 import net.minecraft.client.gui.screens.ProgressScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
+import tfar.ps1packtweaks.client.screens.AntiPiracyScreen;
 import tfar.ps1packtweaks.duck.AbstractClientPlayerDuck;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;

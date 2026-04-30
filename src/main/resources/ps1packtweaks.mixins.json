@@ -9,6 +9,7 @@
     "ApplyBonusCountMixin",
     "ArmorStandItemMixin",
     "ArrowInfiniteEnchantmentMixin",
+    "BindingCurseEnchantmentMixin",
     "BlockAccess",
     "BlockBehaviourMixin",
     "BlocksMixin",
@@ -62,6 +63,7 @@
     "compat.ZombieHorseEventMixin",
     "compat.datagen.SpiffyHudMixin",
     "compat.embeddium.FluidRendererMixin",
+    "compat.weirdandwonderous.OddZombieSpawnProcedureMixin",
     "villagertrades.EnchantBookForEmeraldsMixin",
     "villagertrades.EnchantedItemForEmeraldsMixin",
     "villagertrades.ItemsForEmeraldsMixin"

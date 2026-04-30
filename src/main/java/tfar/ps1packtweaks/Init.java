@@ -93,6 +93,8 @@ public class Init {
         public static final SoundEvent BARNACLE_DEATH = new SoundEvent(PS1PackTweaks.id( "barnacle_death"));
         public static final SoundEvent BARNACLE_FLOP = new SoundEvent(PS1PackTweaks.id( "barnacle_flop"));
         public static final SoundEvent SCREEN = new SoundEvent(PS1PackTweaks.id("screen"));
+
+        public static final SoundEvent LURKER_JUMPSCARE = new SoundEvent(PS1PackTweaks.id("lurker"));
     }
 
     //Can you make sure that the names are just ps1packtweaks:ebony_sign ps1packtweaks:enderviolet_sign

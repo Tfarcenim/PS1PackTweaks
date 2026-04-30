@@ -1,16 +1,16 @@
-package tfar.ps1packtweaks.client;
+package tfar.ps1packtweaks.client.screens;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import tfar.ps1packtweaks.PS1PackTweaksConfig;
+import tfar.ps1packtweaks.client.PS1PackTweaksClient;
 
-public class JumpscareScreen extends Screen {
+public class DeathJumpscareScreen extends Screen {
 
     int timer = 30;
 
-    protected JumpscareScreen(Component pTitle) {
+    public DeathJumpscareScreen(Component pTitle) {
         super(pTitle);
     }
 

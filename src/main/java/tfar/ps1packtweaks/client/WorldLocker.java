@@ -104,7 +104,7 @@ public class WorldLocker {
         if (location.equals(PLAY_ENDERMOSH) && LOCKED_SCREENSHOT.exists()) {
             LOCKED_SCREENSHOT.renameTo(UNLOCKED_SCREENSHOT);
         }
-         else if (LOCKED_WORLDS.containsValue(location)) {
+         else if (LOCKED_WORLDS.containsValue(location) && !isPure()) {
             PS1PackTweaksClient.playUnlockSound();
         }
         KEYS.add(location);
@@ -134,6 +134,7 @@ public class WorldLocker {
     }
 
     private static void load(JsonArray jsonArray) {
+        if (jsonArray == null)return;
         for (JsonElement element : jsonArray) {
             KEYS.add(new ResourceLocation(element.getAsString()));
         }

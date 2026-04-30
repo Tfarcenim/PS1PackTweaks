@@ -33,7 +33,7 @@ public class ModCommands {
     }
 
     private static int testVideo(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        ForgePacketHandler.sendToClient(S2CEventPacket.PLAY_VIDEO,context.getSource().getPlayerOrException());
+        S2CEventPacket.PLAY_VIDEO.send(context.getSource().getPlayerOrException());
         return 0;
     }
 

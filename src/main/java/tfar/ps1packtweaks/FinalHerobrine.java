@@ -2,9 +2,7 @@ package tfar.ps1packtweaks;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.SerializableUUID;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.server.MinecraftServer;
@@ -14,15 +12,13 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -199,7 +195,7 @@ public class FinalHerobrine extends SavedData {
             case END -> {
                 level.getServer().getPlayerList().getPlayers().forEach(player -> {
                     player.setInvulnerable(false);
-                    ForgePacketHandler.sendToClient(S2CEventPacket.END_EVENT,player);
+                    S2CEventPacket.END_FINAL_HEROBRINE.send(player);
                 });
                 level.setBlockAndUpdate(fire,Blocks.OAK_SIGN.defaultBlockState().setValue(StandingSignBlock.ROTATION,4));
                 level.setWeatherParameters(6000, 0, false, false);
@@ -235,6 +231,17 @@ public class FinalHerobrine extends SavedData {
                     resource.close();
 
                 } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                //replace midnightlurker config
+                InputStream resource = PS1PackTweaksClient.class.getClassLoader()
+                        .getResourceAsStream("config_changes/midnightlurkerconfig.json");
+                try {
+                    Files.copy(resource, serverDirectory.toPath().resolve("config")
+                            .resolve("midnightlurkerconfig.json"), StandardCopyOption.REPLACE_EXISTING);
+                    resource.close();
+                }catch (Exception e) {
                     e.printStackTrace();
                 }
 
@@ -384,9 +391,7 @@ public class FinalHerobrine extends SavedData {
         level.addFreshEntity(lightningBolt);
         level.setWeatherParameters(0, 6000, true, true);
         herobrine.playSound(SoundEvents.BEACON_AMBIENT,1,1);
-        level.getServer().getPlayerList().getPlayers().forEach(player -> {
-            ForgePacketHandler.sendToClient(S2CEventPacket.START_EVENT,player);
-        });
+        level.getServer().getPlayerList().getPlayers().forEach(S2CEventPacket.START_FINAL_HEROBRINE::send);
         setDirty();
     }
 
@@ -540,23 +545,16 @@ public class FinalHerobrine extends SavedData {
     public static final ItemStack CORRECT_BOOTS = Items.LEATHER_BOOTS.getDefaultInstance();
 
     static {
-        appendSpecialData(CORRECT_HEAD,"1757983967781",new int[]{-125815,12854,194052,-25708},EquipmentSlot.HEAD,0);
-        appendSpecialData(CORRECT_CHESTPLATE,"1757983744404",new int[]{-125815,10154,194052,-20308},EquipmentSlot.CHEST,1481884);
-        appendSpecialData(CORRECT_LEGGINGS,"1757983525326",new int[]{-125815,7154,194052,-14308},EquipmentSlot.LEGS,3949738);
-        appendSpecialData(CORRECT_BOOTS,"1757984094289",new int[]{-125815,15254,194052,-30508},EquipmentSlot.FEET,10329495);
+        appendSpecialData(CORRECT_HEAD, 0);
+        appendSpecialData(CORRECT_CHESTPLATE, 0x169c9c);
+        appendSpecialData(CORRECT_LEGGINGS, 0x3c44aa);
+        appendSpecialData(CORRECT_BOOTS, 0x9d9d97);
     }
 
-    static void appendSpecialData(ItemStack stack,String attrName,int[] uuid,EquipmentSlot slot,int color) {
-        stack.addAttributeModifier(Attributes.FOLLOW_RANGE,new AttributeModifier(SerializableUUID.uuidFromIntArray(uuid),
-                attrName,0, AttributeModifier.Operation.ADDITION), slot);
+    static void appendSpecialData(ItemStack stack, int color) {
+        stack.enchant(Enchantments.BINDING_CURSE,1);
+        stack.setRepairCost(1);
 
-        stack.hideTooltipPart(ItemStack.TooltipPart.MODIFIERS);
-
-        ListTag attributeModifiers = stack.getTag().getList("AttributeModifiers", CompoundTag.TAG_COMPOUND);
-        CompoundTag first = attributeModifiers.getCompound(0);
-        first.remove("Amount");
-        first.remove("Operation");
-        first.putString("AttributeName","generic.follow_range");
         if (!stack.is(Items.PLAYER_HEAD)) {
             CompoundTag tag = stack.getTag();
             CompoundTag display = new CompoundTag();

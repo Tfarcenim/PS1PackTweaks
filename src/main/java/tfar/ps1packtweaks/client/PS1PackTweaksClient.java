@@ -81,6 +81,9 @@ import tfar.ps1packtweaks.block.CustomWoodTypes;
 import tfar.ps1packtweaks.client.particle.EndermanParticle;
 import tfar.ps1packtweaks.client.particle.FinalHerobrineParticle;
 import tfar.ps1packtweaks.client.renderer.*;
+import tfar.ps1packtweaks.client.screens.DeathJumpscareScreen;
+import tfar.ps1packtweaks.client.screens.FletchingTableScreen;
+import tfar.ps1packtweaks.client.screens.LurkerJumpscareScreen;
 import tfar.ps1packtweaks.compat.BetterGuiCompassHUD;
 import tfar.ps1packtweaks.compat.ModIntegration;
 import tfar.ps1packtweaks.duck.AbstractClientPlayerDuck;
@@ -146,7 +149,7 @@ public class PS1PackTweaksClient {
 
     public static final ResourceLocation JUMP_SCARE = PS1PackTweaks.id("textures/screen.png");
 
-    public static final IIngameOverlay jump_scare = (gui, poseStack, partialTick, width, height) -> {
+    public static final IIngameOverlay DEATH_JUMP_CARE = (gui, poseStack, partialTick, width, height) -> {
       //  if (PS1PackTweaksClient.jumpscareTimer > 0) {
            // gui.renderTextureOverlay(JUMP_SCARE, 1);
     //    }
@@ -305,6 +308,20 @@ public class PS1PackTweaksClient {
             }
 
         } else {
+
+            if (!minecraft.isPaused()) {
+                if (lurkerCooldown > 0) {
+                    lurkerCooldown--;
+                }
+
+                if (lurkerTimer > 0) {
+                    lurkerTimer--;
+                    if (lurkerTimer == 0) {
+                        Minecraft.getInstance().pushGuiLayer(new LurkerJumpscareScreen(new TextComponent("")));
+                    }
+                }
+            }
+
             if (shaderTimer > 0) {
                 shaderTimer--;
                 if (shaderTimer == 0) {
@@ -332,9 +349,9 @@ public class PS1PackTweaksClient {
                     if (random.nextDouble() < CLIENT.pauseChance.get()) {
                         minecraft.pauseGame(false);
                     }
-                    if (!minecraft.isPaused() && random.nextDouble() < CLIENT.jumpScareChance.get() && !(minecraft.screen instanceof JumpscareScreen)) {
+                    if (!minecraft.isPaused() && random.nextDouble() < CLIENT.jumpScareChance.get() && !(minecraft.screen instanceof DeathJumpscareScreen)) {
                         minecraft.getSoundManager().play(SimpleSoundInstance.forUI(Init.ModSounds.SCREEN, 1, 1));
-                        minecraft.pushGuiLayer(new JumpscareScreen(new TextComponent("")));
+                        minecraft.pushGuiLayer(new DeathJumpscareScreen(new TextComponent("")));
                     }
                 }
 
@@ -446,7 +463,7 @@ public class PS1PackTweaksClient {
             OverlayRegistry.registerOverlayTop("banner_crash", banner_overlay);
         }
 
-        OverlayRegistry.registerOverlayTop("jump_scare", jump_scare);
+        OverlayRegistry.registerOverlayTop("jump_scare", DEATH_JUMP_CARE);
         OverlayRegistry.registerOverlayAbove(ForgeIngameGui.EXPERIENCE_BAR_ELEMENT,"Alt Experience Bar",ALT_EXPERIENCE);
         OverlayRegistry.enableOverlay(ForgeIngameGui.EXPERIENCE_BAR_ELEMENT,false);
         OverlayRegistry.registerOverlayTop("Alt Chat History",ALT_CHAT);
@@ -682,11 +699,18 @@ public class PS1PackTweaksClient {
 
     public static boolean lockScreen;
 
+    static int lurkerTimer;
+
+    static int lurkerCooldown;
     public static void handleEvent(S2CEventPacket s2CEventPacket) {
         switch (s2CEventPacket) {
-            case START_EVENT -> {
-                Minecraft.getInstance().getMusicManager().stopPlaying();
+            case PLAY_LURKER_JUMPSCARE -> {
+                if (lurkerTimer == 0  && lurkerCooldown == 0) {
+                    lurkerTimer = 100;
+                    lurkerCooldown = 20 * 60 * 60 * 2;
+                }
             }
+            case START_FINAL_HEROBRINE -> Minecraft.getInstance().getMusicManager().stopPlaying();
             case PLAY_VIDEO -> {
                 ((MusicManagerDuck)Minecraft.getInstance().getMusicManager()).setMute(true);
 
@@ -699,7 +723,7 @@ public class PS1PackTweaksClient {
                 MouseHider.hide(20 * 100);
                 lockScreen = true;
             }
-            case END_EVENT -> {
+            case END_FINAL_HEROBRINE -> {
             }
         }
     }

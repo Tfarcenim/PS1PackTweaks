@@ -2,7 +2,9 @@ package tfar.ps1packtweaks;
 
 import com.Apothic0n.StarryEnd.core.objects.StarryEndBlocks;
 import com.github.alexthe666.alexsmobs.effect.AMEffectRegistry;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Multimap;
 import com.mojang.authlib.GameProfile;
 import com.mojang.logging.LogUtils;
 import com.natamus.naturallychargedcreepers.forge.events.ForgeCreeperChargeEvent;
@@ -77,6 +79,8 @@ import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.EntityMobGriefingEvent;
+import net.minecraftforge.event.entity.living.LivingChangeTargetEvent;
+import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LootingLevelEvent;
 import net.minecraftforge.event.entity.player.*;
@@ -86,6 +90,7 @@ import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.EventBus;
 import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.IEventListener;
 import net.minecraftforge.fml.LogicalSide;
@@ -117,6 +122,7 @@ import tfar.ps1packtweaks.mixin.*;
 import tfar.ps1packtweaks.network.ForgePacketHandler;
 import tfar.ps1packtweaks.network.PacketHandler;
 import tfar.ps1packtweaks.network.client.S2CAdvancementPacket;
+import tfar.ps1packtweaks.network.client.S2CEventPacket;
 import tfar.ps1packtweaks.network.client.S2CShaderPacket;
 import tfar.ps1packtweaks.worldgen.ModConfiguredFeatures;
 import tfar.ps1packtweaks.worldgen.ModPlacedFeatures;
@@ -127,7 +133,6 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -193,6 +198,7 @@ public class PS1PackTweaks {
         MinecraftForge.EVENT_BUS.addListener(this::playerTick);
         //MinecraftForge.EVENT_BUS.addListener(this::breakBlock);
         MinecraftForge.EVENT_BUS.addListener(this::biomeLoading);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.LOW,this::lateBiomeLoading);
         MinecraftForge.EVENT_BUS.addListener(this::entityJoinWorld);
         MinecraftForge.EVENT_BUS.addListener(this::onKill);
         MinecraftForge.EVENT_BUS.addListener(this::adjustLooting);
@@ -207,6 +213,19 @@ public class PS1PackTweaks {
         MinecraftForge.EVENT_BUS.addListener(this::serverStarted);
         MinecraftForge.EVENT_BUS.addListener(this::commands);
         MinecraftForge.EVENT_BUS.addListener(this::dimensions);
+        MinecraftForge.EVENT_BUS.addListener(this::onTargetSet);
+        MinecraftForge.EVENT_BUS.addListener(this::livingDamage);
+    }
+
+    void livingDamage(LivingDamageEvent event) {
+        Entity attacker = event.getSource().getEntity();
+        LivingEntity target = event.getEntityLiving();
+        if (attacker!= null && attacker.getType().is(ModTags.MIDNIGHT_LURKERS) && target instanceof ServerPlayer serverPlayer) {
+            if (!encounteredLurkers.get(serverPlayer.getUUID()).contains(attacker.getUUID())) {
+                encounteredLurkers.get(serverPlayer.getUUID()).add(attacker.getUUID());
+                S2CEventPacket.PLAY_LURKER_JUMPSCARE.send(serverPlayer);
+            }
+        }
     }
 
     void dimensions(PlayerEvent.PlayerChangedDimensionEvent event) {
@@ -220,6 +239,12 @@ public class PS1PackTweaks {
                 booleanValue.set(false, server);
             }
         }
+    }
+
+    static final Multimap<UUID,UUID> encounteredLurkers = HashMultimap.create();
+
+    void onTargetSet(LivingChangeTargetEvent event) {
+
     }
 
     void changeAttributes(EntityAttributeModificationEvent event) {
@@ -249,11 +274,12 @@ public class PS1PackTweaks {
             });
 
             dataByType.remove(TrueHerobrineModEntities.HEROBRINE.get());
+            removeEventsAfterPurification();
         }
 
     }
 
-    boolean shouldDisableEvent(Object o) {
+    static boolean shouldDisableEvent(Object o) {
         if (o instanceof Class<?> clas) {
             if (clas == EventHandler.class) {
                 return true;
@@ -365,7 +391,7 @@ public class PS1PackTweaks {
     public static final List<Item> items = List.of(Items.REDSTONE_TORCH, Items.OAK_LEAVES, Items.OAK_LOG, Items.ROTTEN_FLESH);
 
     public static void onRandomTick(BlockBehaviour block, BlockState pState, ServerLevel pLevel, BlockPos pPos, Random pRandom) {
-        if (pLevel.getGameRules().getBoolean(RULE_CREEPY_EVENTS) && (block == Blocks.TRAPPED_CHEST || block == Blocks.CHEST)) {
+        if (/*pLevel.getGameRules().getBoolean(RULE_CREEPY_EVENTS)*/ !WorldLocker.isPure() && (block == Blocks.TRAPPED_CHEST || block == Blocks.CHEST)) {
             BlockEntity blockEntity = pLevel.getBlockEntity(pPos);
             if (pRandom.nextDouble() < PS1PackTweaksConfig.SERVER.randomItemsInChestChance.get() &&
                     blockEntity instanceof ChestBlockEntity chestBlockEntity && blockEntity.getTileData().getBoolean("ps1packtweaks:player_placed")) {
@@ -397,7 +423,7 @@ public class PS1PackTweaks {
     }
 
     public static void onStatAwarded(Player player, ResourceLocation pStat, int pIncrement) {
-        if (player instanceof ServerPlayer) {
+        if (player instanceof ServerPlayer && !WorldLocker.isPure()) {
             if (pStat == Stats.WALK_ONE_CM || pStat == Stats.SPRINT_ONE_CM) {
                 double leavesLogChance = PS1PackTweaksConfig.SERVER.leaves_and_logs_chance.get() * pIncrement;
                 if (player.getRandom().nextDouble() < leavesLogChance) {
@@ -497,7 +523,8 @@ public class PS1PackTweaks {
     void registerSounds(RegistryEvent.Register<SoundEvent> event) {
         event.getRegistry().registerAll(Init.ModSounds.BARNACLE_AMBIENT.setRegistryName("barnacle_ambient"),
                 Init.ModSounds.BARNACLE_HURT.setRegistryName("barnacle_hurt"), Init.ModSounds.BARNACLE_DEATH.setRegistryName("barnacle_death"),
-                Init.ModSounds.BARNACLE_FLOP.setRegistryName("barnacle_flop"), Init.ModSounds.SCREEN.setRegistryName("screen"));
+                Init.ModSounds.BARNACLE_FLOP.setRegistryName("barnacle_flop"), Init.ModSounds.SCREEN.setRegistryName("screen"),
+                Init.ModSounds.LURKER_JUMPSCARE.setRegistryName("lurker"));
     }
 
     void registerFeatures(RegistryEvent.Register<Feature<?>> event) {
@@ -545,7 +572,6 @@ public class PS1PackTweaks {
             new ResourceLocation("snowy_taiga"), new ResourceLocation("desert"));
 
     void biomeLoading(BiomeLoadingEvent event) {
-        boolean pure = WorldLocker.isPure();
         BiomeGenerationSettingsBuilder generation = event.getGeneration();
         ResourceLocation biomeName = event.getName();
         if (GENERATE_BIOMES.contains(biomeName)) {
@@ -591,12 +617,31 @@ public class PS1PackTweaks {
         }
     }
 
+    void lateBiomeLoading(BiomeLoadingEvent event) {
+        boolean pure = WorldLocker.isPure();
+        if (pure) {
+            for (MobCategory category : MobCategory.values()) {
+                List<MobSpawnSettings.SpawnerData> spawner = event.getSpawns().getSpawner(category);
+                List<MobSpawnSettings.SpawnerData> remove = new ArrayList<>();
+                for (MobSpawnSettings.SpawnerData data : spawner) {
+                    EntityType<?> type = data.type;
+                    ResourceLocation id = Registry.ENTITY_TYPE.getKey(type);
+                    String modid = id.getNamespace();
+                    if (ModIntegration.shouldRemoveMobs(modid)) {
+                        remove.add(data);
+                    }
+                }
+                spawner.removeAll(remove);
+            }
+        }
+    }
+
     //can run clientside
     void entityJoinWorld(EntityJoinWorldEvent event) {
         Entity entity = event.getEntity();
         Level level = entity.level;
         if (!level.isClientSide) {
-            boolean pure = !entity.level.getGameRules().getBoolean(RULE_CREEPY_EVENTS);
+            boolean pure = !entity.level.getGameRules().getBoolean(RULE_CREEPY_EVENTS) || WorldLocker.isPure();
 
             if (pure) {
 
@@ -688,32 +733,35 @@ public class PS1PackTweaks {
             }
 
             if (WorldLocker.isPure()) {
-
-
-                //disable events
-                EventBus gameEvents = (EventBus) MinecraftForge.EVENT_BUS;
-
-
-                try {
-
-                    VarHandle PRIVATE_TEST_VARIABLE = MethodHandles
-                            .privateLookupIn(EventBus.class, MethodHandles.lookup())
-                            .findVarHandle(EventBus.class, "listeners", ConcurrentHashMap.class);
-
-
-                    ConcurrentHashMap<Object, List<IEventListener>> listeners = (ConcurrentHashMap<Object, List<IEventListener>>) PRIVATE_TEST_VARIABLE.get(gameEvents);
-
-                    List<Object> disableEvents = listeners.keySet().stream().filter(this::shouldDisableEvent).toList();
-
-                    disableEvents.forEach(listeners::remove);
-
-                } catch (NoSuchFieldException e) {
-                } catch (Throwable e) {
-                    throw new RuntimeException(e);
-                }
+                removeEventsAfterPurification();
             }
         });
 
+    }
+
+    static void removeEventsAfterPurification() {
+
+        //disable events
+        EventBus gameEvents = (EventBus) MinecraftForge.EVENT_BUS;
+
+
+        try {
+
+            VarHandle PRIVATE_TEST_VARIABLE = MethodHandles
+                    .privateLookupIn(EventBus.class, MethodHandles.lookup())
+                    .findVarHandle(EventBus.class, "listeners", ConcurrentHashMap.class);
+
+
+            ConcurrentHashMap<Object, List<IEventListener>> listeners = (ConcurrentHashMap<Object, List<IEventListener>>) PRIVATE_TEST_VARIABLE.get(gameEvents);
+
+            List<Object> disableEvents = listeners.keySet().stream().filter(PS1PackTweaks::shouldDisableEvent).toList();
+
+            disableEvents.forEach(listeners::remove);
+
+        } catch (NoSuchFieldException e) {
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
