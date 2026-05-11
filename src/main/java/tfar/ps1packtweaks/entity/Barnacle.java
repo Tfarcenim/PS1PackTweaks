@@ -32,6 +32,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.AABB;
@@ -108,9 +109,21 @@ public class Barnacle extends Monster implements IAnimatable {
         }
     }
 
-    public static boolean canSpawn(EntityType<Barnacle> entity, LevelAccessor world, MobSpawnType spawnReason, BlockPos blockPos, Random random) {
-        boolean heightCheck = blockPos.getY() >= world.getHeight(Heightmap.Types.OCEAN_FLOOR, blockPos.getX(), blockPos.getZ()) && world.getDifficulty() != Difficulty.PEACEFUL && blockPos.getY() <= 45.0;
-        boolean b = heightCheck && (spawnReason == MobSpawnType.SPAWNER || world.getFluidState(blockPos).is(FluidTags.WATER));
+    public static boolean canSpawn(EntityType<Barnacle> entity, LevelAccessor world, MobSpawnType spawnReason, BlockPos pos, Random random) {
+        boolean tryAltSpawn = true;
+
+        if (tryAltSpawn){
+            int maxHeight = world.getSeaLevel()-13;
+            int minHeight = world.getMinBuildHeight();//maxHeight - 32;
+            boolean b = pos.getY() >= minHeight && pos.getY() <= maxHeight /*&& world.getFluidState(pos.below()).is(FluidTags.WATER) &&
+                    world.getBlockState(pos.above()).is(Blocks.WATER)*/;
+              return b;
+        }
+
+        boolean heightCheck = pos.getY() >= world.getHeight(Heightmap.Types.OCEAN_FLOOR, pos.getX(), pos.getZ())
+
+                && world.getDifficulty() != Difficulty.PEACEFUL && pos.getY() <= 45.0;
+        boolean b = heightCheck && (spawnReason == MobSpawnType.SPAWNER || world.getFluidState(pos).is(FluidTags.WATER));
         return b;
     }
 
@@ -343,7 +356,7 @@ public class Barnacle extends Monster implements IAnimatable {
     }
 
     public boolean checkSpawnObstruction(LevelReader worldIn) {
-        return !worldIn.getEntityCollisions(this, new AABB(this.getOnPos())).isEmpty();
+        return worldIn.isUnobstructed(this);
     }
 
     /**

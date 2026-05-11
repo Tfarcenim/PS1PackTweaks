@@ -34,6 +34,7 @@ import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.Nullable;
 import tfar.ps1packtweaks.client.PS1PackTweaksClient;
 import tfar.ps1packtweaks.client.WorldLocker;
+import tfar.ps1packtweaks.compat.ModIntegration;
 import tfar.ps1packtweaks.entity.FinalHerobrineEntity;
 import tfar.ps1packtweaks.network.ForgePacketHandler;
 import tfar.ps1packtweaks.network.client.S2CEventPacket;
@@ -221,29 +222,48 @@ public class FinalHerobrine extends SavedData {
 
                 File serverDirectory = server.getServerDirectory();
 
-                try {
-                    InputStream resource = PS1PackTweaksClient.class.getClassLoader()
-                            .getResourceAsStream("config_changes/diamond.json");
-
+                try (InputStream resource = FinalHerobrine.class.getClassLoader()
+                        .getResourceAsStream("config_changes/diamond.json")){
                     Files.copy(resource, serverDirectory.toPath().resolve("global_packs")
                             .resolve("required_data").resolve("FishyBusiness").resolve("data").resolve("fishingreal")
                             .resolve("fishing").resolve("diamond.json"), StandardCopyOption.REPLACE_EXISTING);
-                    resource.close();
 
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
 
                 //replace midnightlurker config
-                InputStream resource = PS1PackTweaksClient.class.getClassLoader()
-                        .getResourceAsStream("config_changes/midnightlurkerconfig.json");
-                try {
+                try (InputStream resource = FinalHerobrine.class.getClassLoader()
+                        .getResourceAsStream("config_changes/midnightlurkerconfig.json")){
                     Files.copy(resource, serverDirectory.toPath().resolve("config")
                             .resolve("midnightlurkerconfig.json"), StandardCopyOption.REPLACE_EXISTING);
-                    resource.close();
                 }catch (Exception e) {
                     e.printStackTrace();
                 }
+
+                //disable bloodmoons
+                try (InputStream resource = FinalHerobrine.class.getClassLoader()
+                        .getResourceAsStream("config_changes/enhancedcelestials-blood_moon.json")){
+                    Files.copy(resource, serverDirectory.toPath().resolve("config")
+                                    .resolve(ModIntegration.enhancedcelestials.name())
+                                    .resolve("minecraft").resolve("overworld").resolve("lunar")
+                                    .resolve("events")
+                            .resolve("enhancedcelestials-blood_moon.json"), StandardCopyOption.REPLACE_EXISTING);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                try (InputStream resource = FinalHerobrine.class.getClassLoader()
+                        .getResourceAsStream("config_changes/enhancedcelestials-super_blood_moon.json")){
+                    Files.copy(resource, serverDirectory.toPath().resolve("config")
+                            .resolve(ModIntegration.enhancedcelestials.name())
+                            .resolve("minecraft").resolve("overworld").resolve("lunar")
+                            .resolve("events")
+                            .resolve("enhancedcelestials-super_blood_moon.json"), StandardCopyOption.REPLACE_EXISTING);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
 
                 //mcred.png - Deleted
                 //steve2.png - Deleted

@@ -505,7 +505,6 @@ public class PS1PackTweaksClient {
             BiomeColors.FOLIAGE_COLOR_RESOLVER = (biome, v, v1) -> 0xffffffff;
             BiomeColors.GRASS_COLOR_RESOLVER = (biome, v, v1) -> 0xffffffff;
             BiomeColors.WATER_COLOR_RESOLVER = (biome, v, v1) -> 0xffffffff;
-
         });
     }
 
@@ -749,14 +748,10 @@ public class PS1PackTweaksClient {
     }
 
     public static void read(String name) {
-        try{
-            InputStream resource = PS1PackTweaksClient.class.getClassLoader()
-                    .getResourceAsStream("config_changes/"+name);
-
+        try(InputStream resource = PS1PackTweaksClient.class.getClassLoader()
+                .getResourceAsStream("config_changes/"+name)){
             Files.copy(resource, Minecraft.getInstance().gameDirectory.toPath().resolve("config")
                     .resolve("fancymenu").resolve("customization").resolve(name), StandardCopyOption.REPLACE_EXISTING);
-            resource.close();
-
         } catch (IOException e) {
             e.printStackTrace();
         }

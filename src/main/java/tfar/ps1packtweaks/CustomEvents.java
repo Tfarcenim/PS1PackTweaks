@@ -58,7 +58,6 @@ public class CustomEvents {
 
     static void randomArrow(ServerPlayer player) {
         if (player.getRandom().nextDouble() < PS1PackTweaksConfig.SERVER.randomArrowChance.get()) {
-            player.checkTotemDeathProtection(new DamageSource("generic"));
             BlockPos pos = player.blockPosition();
             int attempt = 0;
             BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();

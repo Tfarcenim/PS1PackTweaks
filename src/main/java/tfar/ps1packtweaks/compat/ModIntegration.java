@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 public enum ModIntegration {
     alexsmobs(false),
     brewingcauldron(false),
+    enhancedcelestials(false),
     enderitemod(false),
     guicompass(false),
     morehorsearmor(false),

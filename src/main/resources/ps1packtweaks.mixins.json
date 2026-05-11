@@ -103,7 +103,8 @@
     "compat.HotbarMixin",
     "compat.ScreenShotScreenMixin",
     "compat.VideoScreenMixin",
-    "compat.embeddium.ChunkRenderRebuildTaskMixin"
+    "compat.embeddium.ChunkRenderRebuildTaskMixin",
+    "compat.guicompass.GUIEventMixin"
   ],
   "server": [
     "compat.FixNetheriteShulkersCrash"

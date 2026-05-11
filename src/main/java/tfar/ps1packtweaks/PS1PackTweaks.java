@@ -4,6 +4,7 @@ import com.Apothic0n.StarryEnd.core.objects.StarryEndBlocks;
 import com.github.alexthe666.alexsmobs.effect.AMEffectRegistry;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
 import com.mojang.authlib.GameProfile;
 import com.mojang.logging.LogUtils;
@@ -28,6 +29,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
+import net.minecraft.util.random.WeightedRandomList;
 import net.minecraft.world.Container;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
@@ -64,14 +66,18 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
+import net.minecraft.world.level.levelgen.structure.BuiltinStructures;
+import net.minecraft.world.level.levelgen.structure.StructureSpawnOverride;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Material;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.loot.GlobalLootModifierSerializer;
 import net.minecraftforge.common.world.BiomeGenerationSettingsBuilder;
+import net.minecraftforge.event.OnDatapackSyncEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.TickEvent;
@@ -215,7 +221,56 @@ public class PS1PackTweaks {
         MinecraftForge.EVENT_BUS.addListener(this::dimensions);
         MinecraftForge.EVENT_BUS.addListener(this::onTargetSet);
         MinecraftForge.EVENT_BUS.addListener(this::livingDamage);
+        MinecraftForge.EVENT_BUS.addListener(this::onDatapackReload);
     }
+
+    public void onDatapackReload(OnDatapackSyncEvent event) {
+        MinecraftServer server = event.getPlayerList().getServer();
+        Registry<ConfiguredStructureFeature<?, ?>> registry = server.registryAccess().registryOrThrow(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY);
+
+        ConfiguredStructureFeature<?, ?> shipwreck = registry.get(BuiltinStructures.SHIPWRECK);
+
+        if (shipwreck != null) {
+            addSpawnToStructure(shipwreck, StructureSpawnOverride.BoundingBoxType.STRUCTURE, MobCategory.MONSTER,
+                    new MobSpawnSettings.SpawnerData(Init.ModEntityTypes.BARNACLE, 15, 1, 4));
+        }
+    }
+
+    //thanks Alex Mobs
+    private static void addSpawnToStructure(ConfiguredStructureFeature<?,?> feature, StructureSpawnOverride.BoundingBoxType bbType,
+                                            MobCategory category, MobSpawnSettings.SpawnerData spawn) {
+        if (!feature.spawnOverrides.isEmpty() && feature.spawnOverrides.get(category) != null) {
+            StructureSpawnOverride previous = feature.spawnOverrides.get(category);
+            List<MobSpawnSettings.SpawnerData> l = new ArrayList<>(previous.spawns().unwrap());
+            boolean contained = false;
+
+            for(MobSpawnSettings.SpawnerData data : l) {
+                if (data.type.equals(spawn.type)) {
+                    contained = true;
+                    break;
+                }
+            }
+
+            if (!contained) {
+                l.add(spawn);
+            }
+
+            WeightedRandomList<MobSpawnSettings.SpawnerData> spawns = WeightedRandomList.create(l);
+            StructureSpawnOverride override = new StructureSpawnOverride(previous.boundingBox(), spawns);
+            HashMap<MobCategory, StructureSpawnOverride> newMap = new HashMap<>(feature.spawnOverrides);
+
+
+            newMap.put(category, override);
+            feature.spawnOverrides = ImmutableMap.copyOf(newMap);
+        } else {
+            WeightedRandomList<MobSpawnSettings.SpawnerData> spawns = WeightedRandomList.create(spawn);
+            StructureSpawnOverride override = new StructureSpawnOverride(bbType, spawns);
+            HashMap<MobCategory, StructureSpawnOverride> newMap = new HashMap<>(feature.spawnOverrides);
+            newMap.put(category, override);
+            feature.spawnOverrides = ImmutableMap.copyOf(newMap);
+        }
+    }
+
 
     void livingDamage(LivingDamageEvent event) {
         Entity attacker = event.getSource().getEntity();
@@ -277,6 +332,11 @@ public class PS1PackTweaks {
             removeEventsAfterPurification();
         }
 
+        boolean pure = WorldLocker.isPure();
+        boolean pure2 = !server.getGameRules().getBoolean(RULE_CREEPY_EVENTS);
+
+        LOGGER.info("World is pure according to file: {}", pure);
+        LOGGER.info("World is pure according to gamerule: {}", pure2);
     }
 
     static boolean shouldDisableEvent(Object o) {
@@ -580,6 +640,8 @@ public class PS1PackTweaks {
             generation.addFeature(GenerationStep.Decoration.LOCAL_MODIFICATIONS, ModPlacedFeatures.COBBLE_ROCK);
         }
 
+
+
         Biome.BiomeCategory category = event.getCategory();
 
         switch (category) {
@@ -601,9 +663,9 @@ public class PS1PackTweaks {
                 addIfNotPresent(generation, GenerationStep.Decoration.SURFACE_STRUCTURES, ModPlacedFeatures.PLACED_SPRUCE_SIGN);
             }
             case OCEAN -> {
-                generation.addFeature(GenerationStep.Decoration.SURFACE_STRUCTURES, ModPlacedFeatures.PLACED_PYRAMID);
+              /*  generation.addFeature(GenerationStep.Decoration.SURFACE_STRUCTURES, ModPlacedFeatures.PLACED_PYRAMID);
                 event.getSpawns().getSpawner(MobCategory.MONSTER).add(new MobSpawnSettings.SpawnerData(Init.ModEntityTypes.BARNACLE,
-                        1000, 2, 3));
+                        1000, 1, 3));*/
             }
             case THEEND -> {
 
@@ -696,6 +758,7 @@ public class PS1PackTweaks {
 
         PacketHandler.registerPackets();
         event.enqueueWork(() -> {
+            WorldLocker.loadKeysFromFile();
 
             Blocks.CHEST.getStateDefinition().getPossibleStates().forEach(state -> ((BlockStateAccess)state).setCanOcclude(false));
             Blocks.TRAPPED_CHEST.getStateDefinition().getPossibleStates().forEach(state -> ((BlockStateAccess)state).setCanOcclude(false));
@@ -739,7 +802,7 @@ public class PS1PackTweaks {
 
     }
 
-    static void removeEventsAfterPurification() {
+    public static void removeEventsAfterPurification() {
 
         //disable events
         EventBus gameEvents = (EventBus) MinecraftForge.EVENT_BUS;

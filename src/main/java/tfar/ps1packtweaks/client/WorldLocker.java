@@ -8,14 +8,11 @@ import com.google.gson.stream.JsonWriter;
 import com.mojang.datafixers.DataFixer;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.level.storage.LevelSummary;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import tfar.ps1packtweaks.PS1PackTweaks;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.BiFunction;
@@ -26,10 +23,10 @@ public class WorldLocker {
 
     private static final Gson GSON = new Gson();
 
-    public static final Map<String, ResourceLocation> LOCKED_WORLDS = new HashMap<>();
-    public static final ResourceLocation EAT_COOKIE =  PS1PackTweaks.id("unlock/eat_cookie");
-    public static final ResourceLocation PLACE_CAKE =  PS1PackTweaks.id("unlock/place_cake");
-    public static final ResourceLocation SUMMON_SNOW_GOLEM =  PS1PackTweaks.id("unlock/summon_snow_golem");
+    private static final Map<String, ResourceLocation> LOCKED_WORLDS = new HashMap<>();
+    public static final ResourceLocation EAT_COOKIE = PS1PackTweaks.id("unlock/eat_cookie");
+    public static final ResourceLocation PLACE_CAKE = PS1PackTweaks.id("unlock/place_cake");
+    public static final ResourceLocation SUMMON_SNOW_GOLEM = PS1PackTweaks.id("unlock/summon_snow_golem");
     public static final ResourceLocation PLAY_DISC_11 = PS1PackTweaks.id("unlock/play_disc_11");
     public static final ResourceLocation DRINK_POTION = PS1PackTweaks.id("unlock/drink_potion");
     public static final ResourceLocation CRAFT_JACK_O_LANTERN = PS1PackTweaks.id("unlock/craft_jack_o_lantern");
@@ -47,7 +44,7 @@ public class WorldLocker {
     public static final File UNLOCKED_SCREENSHOT = new File("screenshots/1999-05-17_10.30.43.png");
 
     static {
-        LOCKED_WORLDS.put("1977-09-26",EAT_COOKIE);
+        LOCKED_WORLDS.put("1977-09-26", EAT_COOKIE);
         LOCKED_WORLDS.put("1979-06-01", PLACE_CAKE);
         LOCKED_WORLDS.put("1983-12-26", SUMMON_SNOW_GOLEM);
         LOCKED_WORLDS.put("1986-06-03", PLAY_DISC_11);
@@ -73,9 +70,16 @@ public class WorldLocker {
         }
     }
 
-    public static final List<ResourceLocation> KEYS = new ArrayList<>();
+    private static List<ResourceLocation> KEYS;
 
 
+    public static void loadKeysFromFile() {
+        if (!FILE.exists()) {
+            writeKeysToFile();//write empty file
+        }
+        KEYS = new ArrayList<>();
+        load(read());
+    }
 
     public static boolean isWorldLocked(String name) {
         if (LOCKED_WORLDS.containsKey(name)) {
@@ -88,69 +92,49 @@ public class WorldLocker {
     }
 
     public static boolean isPure() {
-        if (!FILE.exists())write();
-        updateLocks();
         return KEYS.contains(PURIFIED);
     }
 
     public static void setCursed() {
         KEYS.remove(PURIFIED);
-        write();
+        writeKeysToFile();
     }
 
     public static final BiFunction<File, DataFixer, LevelSummary> returnNothing = (file, dataFixer) -> null;
 
     public static void unlock(ResourceLocation location) {
+        if (isPure()) return;
         if (location.equals(PLAY_ENDERMOSH) && LOCKED_SCREENSHOT.exists()) {
             LOCKED_SCREENSHOT.renameTo(UNLOCKED_SCREENSHOT);
-        }
-         else if (LOCKED_WORLDS.containsValue(location) && !isPure()) {
+        } else if (LOCKED_WORLDS.containsValue(location)) {
             PS1PackTweaksClient.playUnlockSound();
         }
         KEYS.add(location);
-        write();
-    }
-
-    public static void updateLocks() {
-        KEYS.clear();
-        if (!FILE.exists()) return;
-        load(read());
+        writeKeysToFile();
     }
 
     private static JsonArray read() {
-        Reader reader = null;
-        try {
-            reader = new FileReader(FILE);
+        try (Reader reader = new FileReader(FILE)) {
             JsonReader jsonReader = new JsonReader(reader);
-            // Type listType = new TypeToken<ArrayList<BTSIslandConfig>>(){}.getType();
-            // LOGGER.info("Loading existing config");
             return GSON.fromJson(jsonReader, JsonArray.class);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
-        } finally {
-            IOUtils.closeQuietly(reader);
         }
     }
 
     private static void load(JsonArray jsonArray) {
-        if (jsonArray == null)return;
         for (JsonElement element : jsonArray) {
             KEYS.add(new ResourceLocation(element.getAsString()));
         }
     }
 
-    private static void write() {
-
-        JsonWriter writer = null;
-        try {
-            writer = GSON.newJsonWriter(new FileWriter(FILE));
+    private static void writeKeysToFile() {
+        try (JsonWriter writer = new JsonWriter(new FileWriter(FILE))) {
             writer.setIndent("    ");
             GSON.toJson(keysToArray(), writer);
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            IOUtils.closeQuietly(writer);
         }
     }
 
