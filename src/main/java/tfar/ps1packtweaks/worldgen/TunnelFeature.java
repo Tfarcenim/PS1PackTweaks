@@ -23,9 +23,6 @@ public class TunnelFeature extends Feature<TunnelConfiguration> {
     @Override
     public boolean place(FeaturePlaceContext<TunnelConfiguration> pContext) {
         WorldGenLevel level = pContext.level();
-        if (PS1PackTweaks.isWorldPure(level)) {
-            return false;
-        }
         Random random = pContext.random();
         BlockPos blockpos = pContext.origin();
         blockpos = blockpos.offset(7,0,7);

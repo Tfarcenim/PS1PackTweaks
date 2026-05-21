@@ -152,9 +152,6 @@ public class PS1PackTweaks {
 
     public static final boolean DEV = !FMLLoader.isProduction();
 
-    public static final GameRules.Key<GameRules.BooleanValue> RULE_CREEPY_EVENTS = GameRules.register
-            ("doCreepyEvents", GameRules.Category.UPDATES, GameRules.BooleanValue.create(true));
-
     //Nether: -159 50 -98
     //End: 7900 66 5439
 
@@ -333,10 +330,8 @@ public class PS1PackTweaks {
         }
 
         boolean pure = WorldLocker.isPure();
-        boolean pure2 = !server.getGameRules().getBoolean(RULE_CREEPY_EVENTS);
 
         LOGGER.info("World is pure according to file: {}", pure);
-        LOGGER.info("World is pure according to gamerule: {}", pure2);
     }
 
     static boolean shouldDisableEvent(Object o) {
@@ -371,15 +366,6 @@ public class PS1PackTweaks {
         return true;
     }
 
-    public static boolean isWorldPure(WorldGenLevel level) {
-        if (level instanceof WorldGenRegion worldGenRegion) {
-            return !worldGenRegion.getLevel().getGameRules().getBoolean(RULE_CREEPY_EVENTS);
-        } else if (level instanceof ServerLevel serverLevel) {
-            return !serverLevel.getGameRules().getBoolean(RULE_CREEPY_EVENTS);
-        }
-        return false;
-    }
-
     void itemCrafted(PlayerEvent.ItemCraftedEvent event) {
         Player player = event.getPlayer();
         if (player instanceof ServerPlayer serverPlayer) {
@@ -402,7 +388,7 @@ public class PS1PackTweaks {
 
     void afterSleep(PlayerWakeUpEvent event) {
         Player player = event.getPlayer();
-        if (player.level.getGameRules().getBoolean(RULE_CREEPY_EVENTS) && player instanceof ServerPlayer && player.getRandom().nextDouble() < PS1PackTweaksConfig.SERVER.wakeupSurpriseChance.get()) {
+        if (!WorldLocker.isPure() && player instanceof ServerPlayer && player.getRandom().nextDouble() < PS1PackTweaksConfig.SERVER.wakeupSurpriseChance.get()) {
             EntityType<? extends Monster> type = player.getRandom().nextBoolean() ? EntityType.ZOMBIE : EntityType.SKELETON;
             type.spawn((ServerLevel) player.level, null, null, player.blockPosition(), MobSpawnType.EVENT, false, false);
         }
@@ -422,7 +408,7 @@ public class PS1PackTweaks {
     void onKill(LivingDeathEvent event) {
         DamageSource source = event.getSource();
         Entity attacker = source.getEntity();
-        if (attacker instanceof ServerPlayer player && player.level.getGameRules().getBoolean(RULE_CREEPY_EVENTS) && player.getRandom().nextDouble() < PS1PackTweaksConfig.SERVER.blackAndWhiteKillChance.get()) {
+        if (attacker instanceof ServerPlayer player && !WorldLocker.isPure() && player.getRandom().nextDouble() < PS1PackTweaksConfig.SERVER.blackAndWhiteKillChance.get()) {
             ForgePacketHandler.sendToClient(new S2CShaderPacket(id("shaders/post/noir.json"), PS1PackTweaksConfig.SERVER.blackAndWhiteKillTime.get()), player);
         }
 
@@ -632,49 +618,52 @@ public class PS1PackTweaks {
             new ResourceLocation("snowy_taiga"), new ResourceLocation("desert"));
 
     void biomeLoading(BiomeLoadingEvent event) {
+
+        boolean pure = WorldLocker.isPure();
         BiomeGenerationSettingsBuilder generation = event.getGeneration();
         ResourceLocation biomeName = event.getName();
-        if (GENERATE_BIOMES.contains(biomeName)) {
-            generation.addFeature(GenerationStep.Decoration.UNDERGROUND_STRUCTURES, ModPlacedFeatures.PLACED_TUNNEL);
-            generation.addFeature(GenerationStep.Decoration.SURFACE_STRUCTURES, ModPlacedFeatures.PLACED_TUNNEL);
-            generation.addFeature(GenerationStep.Decoration.LOCAL_MODIFICATIONS, ModPlacedFeatures.COBBLE_ROCK);
-        }
+        if (!pure) {
 
-
-
-        Biome.BiomeCategory category = event.getCategory();
-
-        switch (category) {
-            case SAVANNA -> {
-                addIfNotPresent(generation, GenerationStep.Decoration.SURFACE_STRUCTURES, ModPlacedFeatures.PLACED_OAK_SIGN);
-                addIfNotPresent(generation, GenerationStep.Decoration.SURFACE_STRUCTURES, ModPlacedFeatures.PLACED_ACACIA_SIGN);
+            if (GENERATE_BIOMES.contains(biomeName)) {
+                generation.addFeature(GenerationStep.Decoration.UNDERGROUND_STRUCTURES, ModPlacedFeatures.PLACED_TUNNEL);
+                generation.addFeature(GenerationStep.Decoration.SURFACE_STRUCTURES, ModPlacedFeatures.PLACED_TUNNEL);
+                generation.addFeature(GenerationStep.Decoration.LOCAL_MODIFICATIONS, ModPlacedFeatures.COBBLE_ROCK);
             }
 
-            case JUNGLE -> {
-                addIfNotPresent(generation, GenerationStep.Decoration.SURFACE_STRUCTURES, ModPlacedFeatures.PLACED_JUNGLE_SIGN);
 
-            }
-            case FOREST -> {
-                addIfNotPresent(generation, GenerationStep.Decoration.SURFACE_STRUCTURES, ModPlacedFeatures.PLACED_OAK_SIGN);
-                addIfNotPresent(generation, GenerationStep.Decoration.SURFACE_STRUCTURES, ModPlacedFeatures.PLACED_BIRCH_SIGN);
-                addIfNotPresent(generation, GenerationStep.Decoration.SURFACE_STRUCTURES, ModPlacedFeatures.PLACED_DARK_OAK_SIGN);
-            }
-            case TAIGA -> {
-                addIfNotPresent(generation, GenerationStep.Decoration.SURFACE_STRUCTURES, ModPlacedFeatures.PLACED_SPRUCE_SIGN);
-            }
-            case OCEAN -> {
+            Biome.BiomeCategory category = event.getCategory();
+
+            switch (category) {
+                case SAVANNA -> {
+                    addIfNotPresent(generation, GenerationStep.Decoration.SURFACE_STRUCTURES, ModPlacedFeatures.PLACED_OAK_SIGN);
+                    addIfNotPresent(generation, GenerationStep.Decoration.SURFACE_STRUCTURES, ModPlacedFeatures.PLACED_ACACIA_SIGN);
+                }
+
+                case JUNGLE -> {
+                    addIfNotPresent(generation, GenerationStep.Decoration.SURFACE_STRUCTURES, ModPlacedFeatures.PLACED_JUNGLE_SIGN);
+
+                }
+                case FOREST -> {
+                    addIfNotPresent(generation, GenerationStep.Decoration.SURFACE_STRUCTURES, ModPlacedFeatures.PLACED_OAK_SIGN);
+                    addIfNotPresent(generation, GenerationStep.Decoration.SURFACE_STRUCTURES, ModPlacedFeatures.PLACED_BIRCH_SIGN);
+                    addIfNotPresent(generation, GenerationStep.Decoration.SURFACE_STRUCTURES, ModPlacedFeatures.PLACED_DARK_OAK_SIGN);
+                }
+                case TAIGA -> {
+                    addIfNotPresent(generation, GenerationStep.Decoration.SURFACE_STRUCTURES, ModPlacedFeatures.PLACED_SPRUCE_SIGN);
+                }
+                case OCEAN -> {
               /*  generation.addFeature(GenerationStep.Decoration.SURFACE_STRUCTURES, ModPlacedFeatures.PLACED_PYRAMID);
                 event.getSpawns().getSpawner(MobCategory.MONSTER).add(new MobSpawnSettings.SpawnerData(Init.ModEntityTypes.BARNACLE,
                         1000, 1, 3));*/
-            }
-            case THEEND -> {
+                }
+                case THEEND -> {
 
+                }
             }
         }
 
-        ResourceLocation name = event.getName();
 
-        if (Objects.equals(Biomes.END_BARRENS.location(), name) || Objects.equals(Biomes.END_HIGHLANDS.location(), name)) {
+        if (Objects.equals(Biomes.END_BARRENS.location(), biomeName) || Objects.equals(Biomes.END_HIGHLANDS.location(), biomeName)) {
             generation.addFeature(GenerationStep.Decoration.SURFACE_STRUCTURES, ModPlacedFeatures.HUGE_ENDERSHROOM);
         }
     }
@@ -703,7 +692,7 @@ public class PS1PackTweaks {
         Entity entity = event.getEntity();
         Level level = entity.level;
         if (!level.isClientSide) {
-            boolean pure = !entity.level.getGameRules().getBoolean(RULE_CREEPY_EVENTS) || WorldLocker.isPure();
+            boolean pure = WorldLocker.isPure();
 
             if (pure) {
 

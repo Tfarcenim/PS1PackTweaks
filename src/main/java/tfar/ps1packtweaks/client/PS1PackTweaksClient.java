@@ -598,7 +598,7 @@ public class PS1PackTweaksClient {
     public static void onPerspectiveChange(CameraType cameraType, CameraType pPointOfView) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
-            if (cameraType.isFirstPerson() && !pPointOfView.isFirstPerson() && player.level.getGameRules().getBoolean(PS1PackTweaks.RULE_CREEPY_EVENTS)) {
+            if (cameraType.isFirstPerson() && !pPointOfView.isFirstPerson() && !WorldLocker.isPure()) {
                 if (CLIENT.herobrine_skin_chance.get() > player.getRandom().nextDouble()) {
                     ((AbstractClientPlayerDuck) player).setHerobrine(true);
                 }

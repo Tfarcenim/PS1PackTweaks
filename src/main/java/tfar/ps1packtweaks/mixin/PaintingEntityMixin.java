@@ -17,6 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import tfar.ps1packtweaks.Init;
 import tfar.ps1packtweaks.PS1PackTweaks;
 import tfar.ps1packtweaks.PS1PackTweaksConfig;
+import tfar.ps1packtweaks.client.WorldLocker;
 import tfar.ps1packtweaks.duck.PaintingEntityDuck;
 
 import javax.annotation.Nullable;
@@ -63,7 +64,7 @@ public abstract class PaintingEntityMixin extends Entity implements PaintingEnti
     public void tick() {
         super.tick();
 
-        if (!level.getGameRules().getBoolean(PS1PackTweaks.RULE_CREEPY_EVENTS)) {
+        if (WorldLocker.isPure()) {
             return;
         }
 

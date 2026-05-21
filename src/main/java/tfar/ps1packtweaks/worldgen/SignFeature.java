@@ -32,9 +32,7 @@ public class SignFeature extends Feature<SignFeatureConfig> {
     public boolean place(FeaturePlaceContext<SignFeatureConfig> pContext) {
         SignFeatureConfig config = pContext.config();
         WorldGenLevel level = pContext.level();
-        if (PS1PackTweaks.isWorldPure(level)) {
-            return false;
-        }
+
         BlockPos pos = pContext.origin();
         BlockState state = config.block().defaultBlockState();
 

@@ -210,8 +210,6 @@ public class FinalHerobrine extends SavedData {
                 setDirty();
 
                 MinecraftServer server = level.getServer();
-                GameRules.BooleanValue rule = level.getServer().getGameRules().getRule(PS1PackTweaks.RULE_CREEPY_EVENTS);
-                rule.set(false,server);
 
                 WorldLocker.unlock(WorldLocker.PURIFIED);
                 if (!(level.getServer() instanceof DedicatedServer)) {
@@ -303,9 +301,6 @@ public class FinalHerobrine extends SavedData {
         herobrine = null;
         herobrineUUID = null;
 
-        MinecraftServer server = level.getServer();
-        GameRules.BooleanValue rule = level.getServer().getGameRules().getRule(PS1PackTweaks.RULE_CREEPY_EVENTS);
-        rule.set(true,server);
         WorldLocker.setCursed();
 
         setDirty();

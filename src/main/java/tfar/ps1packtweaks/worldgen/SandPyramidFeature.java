@@ -22,9 +22,6 @@ public class SandPyramidFeature extends Feature<PyramidConfig> {
     @Override
     public boolean place(FeaturePlaceContext<PyramidConfig> pContext) {
         WorldGenLevel level = pContext.level();
-        if (PS1PackTweaks.isWorldPure(level)) {
-            return false;
-        }
 
         BlockPos origin = pContext.origin();
         Predicate<BlockState> predicate = isReplaceable(BlockTags.FEATURES_CANNOT_REPLACE);

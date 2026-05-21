@@ -27,6 +27,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.*;
+import tfar.ps1packtweaks.client.WorldLocker;
 import tfar.ps1packtweaks.entity.EventHerobrineEntity;
 import tfar.ps1packtweaks.entity.InvisibleEntity;
 import tfar.ps1packtweaks.util.TreeScanner;
@@ -39,7 +40,7 @@ public class CustomEvents {
     public static final String FOLLOW = PS1PackTweaks.id("follow").toString();
 
     public static void handleEvents(ServerPlayer player) {
-        if (player.level.getGameRules().getBoolean(PS1PackTweaks.RULE_CREEPY_EVENTS)) {
+        if (!WorldLocker.isPure()) {
             randomUseTotem(player);
             tickHerobrineSpawn(player);
             tickFallingAnimalSpawn(player);

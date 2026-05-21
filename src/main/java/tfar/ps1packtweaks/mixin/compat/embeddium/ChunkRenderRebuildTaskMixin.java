@@ -13,13 +13,14 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import tfar.ps1packtweaks.PS1PackTweaks;
 import tfar.ps1packtweaks.client.PS1PackTweaksClient;
+import tfar.ps1packtweaks.client.WorldLocker;
 
 @Mixin(ChunkRenderRebuildTask.class)
 public class ChunkRenderRebuildTaskMixin {
 
     @Inject(method = "performBuild",at = @At("HEAD"),remap = false)
     private void trackReplace(ChunkBuildContext buildContext, CancellationSource cancellationSource, CallbackInfoReturnable<ChunkBuildResult> cir) {
-        if (!Minecraft.getInstance().level.getGameRules().getBoolean(PS1PackTweaks.RULE_CREEPY_EVENTS) ||
+        if (WorldLocker.isPure() ||
                 PS1PackTweaksClient.ticksSinceJoined<PS1PackTweaksClient.DIRT_TIME &&
                 Minecraft.getInstance().level.getRandom().nextDouble() > PS1PackTweaksClient.CLIENT.replaceBlocksChance.get()) {
                    PS1PackTweaksClient.ticksSinceJoined = PS1PackTweaksClient.DIRT_TIME+1;
