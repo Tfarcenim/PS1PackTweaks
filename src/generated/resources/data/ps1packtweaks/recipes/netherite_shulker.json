@@ -1,0 +1,19 @@
+{
+  "type": "ps1packtweaks:nbt_copy_crafting_shaped",
+  "pattern": [
+    "nnn",
+    "nsn",
+    "nnn"
+  ],
+  "key": {
+    "n": {
+      "item": "minecraft:netherite_ingot"
+    },
+    "s": {
+      "tag": "minecraft:shulker_boxes"
+    }
+  },
+  "result": {
+    "item": "netherite_shulkers:netherite_shulker_box"
+  }
+}

@@ -1,4 +1,4 @@
-package tfar.ps1packtweaks.mixin.compat;
+package tfar.ps1packtweaks.mixin.compat.netheriteshulkers;
 
 import be.ephys.netherite_shulkers.NetheriteShulkers;
 import net.minecraftforge.api.distmarker.Dist;

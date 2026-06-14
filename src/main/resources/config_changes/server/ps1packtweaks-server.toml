@@ -1,0 +1,93 @@
+
+[tweaks]
+
+	[tweaks.barnacle]
+		#Range: 1.0 ~ 1023.0
+		health = 40.0
+
+	[tweaks.events]
+		#Range: 0.0 ~ 1.0
+		falling_animal_chance = 0
+		#Range: 1 ~ 100000000000000
+		min_falling_animal_delay = 1000
+		falling_animal_types = ["minecraft:cow", "minecraft:pig", "minecraft:horse", "minecraft:villager", "minecraft:sheep"]
+		#Range: 0.0 ~ 1.0
+		leaves_and_logs_chance = 0
+		#Range: 0.0 ~ 1.0
+		disappearing_leaves_chance = 0
+		#Range: 1 ~ 1000000000
+		disappearing_leaves_delay = 10000
+		#Range: 1 ~ 512
+		disappearing_leaves_radius = 32
+		#Range: 0.0 ~ 1.0
+		disappearing_logs_chance = 0
+		#Range: 1 ~ 1000000000
+		disappearing_logs_delay = 10000
+		#Range: 0.0 ~ 1.0
+		tunnel_chance = 0
+		#Range: 0 ~ 1000000000
+		tunnel_delay = 50000
+		#Range: 1 ~ 200
+		tunnel_size_min = 16
+		#Range: 1 ~ 200
+		tunnel_size_max = 32
+		#Range: 0.0 ~ 1.0
+		tunnel_torch_chance = 0
+		#Max Y at which to rarely place extra tunnels
+		#Range: -2048 ~ 2048
+		tunnel_y_max = 16
+		#Range: 1 ~ 1000000000
+		random_sound_delay = 50000
+		#Chance per tick to set player on fire when looking up
+		#Range: 0.0 ~ 1.0
+		look_up_burn_chance = 0
+		#Chance per tick to break glass when looking at it
+		#Range: 0.0 ~ 1.0
+		break_glass_looked_at_chance = 0
+		#Chance to spawn invisible entity near player
+		#Range: 0.0 ~ 1.0
+		invisible_entity_chance = 0
+		#Chance every tick of mobs following player
+		#Range: 0.0 ~ 1.0
+		mobs_follow_player_chance = 0
+		#Length of time in ticks that mobs follow player
+		#Range: 0 ~ 1000000000
+		mobs_follow_player_duration = 400
+		#Chance to turn world black and white after killing a mob
+		#Range: 0.0 ~ 1.0
+		black_and_white_kill_chance = 0
+		#Time before reverting black and white after kill
+		#Range: 1 ~ 1000000000
+		black_and_white_kill_time = 20
+		#Chance to randomly use a totem every tick when held
+		#Range: 0.0 ~ 1.0
+		random_totem_use_chance = 0
+		#Chance to randomly shoot an arrow at player every tick
+		#Range: 0.0 ~ 1.0
+		random_arrow_chance = 0
+
+		[tweaks.events.herobrine]
+			#Range: 0.0 ~ 1.0
+			chance = 0
+			#Range: 1 ~ 100000000000000
+			min_delay = 10000
+			#Range: 1.0 ~ 128.0
+			spawn_distance = 32.0
+			#Range: 0 ~ 500000000
+			vanish_on_seen_weight = 5
+			#Range: 0 ~ 500000000
+			run_on_seen_weight = 3
+			#Range: 0 ~ 500000000
+			teleport_on_seen_weight = 2
+			#Range: 0 ~ 500000000
+			lurker_weight = 5
+			#Chance to put random items in chest when randomly ticked
+			#Range: 0.0 ~ 1.0
+			random_items_in_chest = 0.0015625
+			#Chance to put randomly spawn a skeleton or zombie after player wakes up
+			#Range: 0.0 ~ 1.0
+			wakeup_surprise_chance = 0
+			#Chance to replace courbet painting when looked at
+			#Range: 0.0 ~ 1.0
+			courbet_replace_chance = 0
+

@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "ps1packtweaks:netherite_shulker"
+    ]
+  },
+  "criteria": {
+    "has_shulker": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "tag": "minecraft:shulker_boxes"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "ps1packtweaks:netherite_shulker"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_shulker",
+      "has_the_recipe"
+    ]
+  ]
+}

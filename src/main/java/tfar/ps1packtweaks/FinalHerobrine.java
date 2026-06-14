@@ -284,6 +284,26 @@ public class FinalHerobrine extends SavedData {
                     e.printStackTrace();
                 }
 
+                //handle server configs
+
+                Path savePath = serverDirectory.toPath().resolve("saves");
+
+                File[] saveFiles = savePath.toFile().listFiles();
+
+                if (saveFiles != null) {
+                    for (File saveFile : saveFiles) {
+                        Path configFolder = saveFile.toPath().resolve("serverconfig");
+
+                        try (InputStream resource = FinalHerobrine.class.getClassLoader()
+                                .getResourceAsStream("config_changes/server/ps1packtweaks-server.toml")){
+                            Files.copy(resource,configFolder
+                                    .resolve("ps1packtweaks-server.toml"), StandardCopyOption.REPLACE_EXISTING);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
                 //manually save
                 server.saveAllChunks(false, true, false);
                 //crash game

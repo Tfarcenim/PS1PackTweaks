@@ -27,8 +27,8 @@ public class ModItemModelProvider extends ItemModelProvider {
     }
 
     private void generatedItem(String path) {
-        singleTexture(path, new ResourceLocation("item/generated"),
-                "layer0", PS1PackTweaks.id("item/" + path));
+        singleTexture(path, mcLoc("item/generated"),
+                "layer0", modLoc("item/" + path));
     }
 
     protected void makeSimpleBlockItem(Item item, ResourceLocation loc) {

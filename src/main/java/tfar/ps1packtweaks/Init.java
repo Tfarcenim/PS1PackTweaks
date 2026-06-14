@@ -3,7 +3,6 @@ package tfar.ps1packtweaks;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.resources.ResourceLocation;
@@ -30,9 +29,8 @@ import tfar.ps1packtweaks.entity.*;
 import tfar.ps1packtweaks.item.FloatingBlockItem;
 import tfar.ps1packtweaks.loot.AddItemLootModifier;
 import tfar.ps1packtweaks.loot.DuplicateOutputsLootModifier;
+import tfar.ps1packtweaks.recipes.NBTCopyShapedRecipe;
 import tfar.ps1packtweaks.worldgen.*;
-
-import java.util.Optional;
 
 public class Init {
 
@@ -158,6 +156,10 @@ public class Init {
         public static final DuplicateOutputsLootModifier.Serializer DUPLICATE_OUTPUTS = new DuplicateOutputsLootModifier.Serializer();
         public static final AddItemLootModifier.Serializer ADD_ITEM = new AddItemLootModifier.Serializer();
 
+    }
+
+    public static class ModRecipeSerializers {
+        public static final NBTCopyShapedRecipe.Serializer NBT_COPY_CRAFTING_SHAPED = new NBTCopyShapedRecipe.Serializer();
     }
 
     public static class ModEntityDataSerializers{

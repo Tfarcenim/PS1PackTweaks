@@ -3,10 +3,13 @@ package tfar.ps1packtweaks;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
 
 public class ModTags {
@@ -18,6 +21,8 @@ public class ModTags {
     public static final TagKey<Biome> HAS_CAMP = biome("has_structure/camp");
     public static final TagKey<Biome> HAS_RITUAL_SITE = biome("has_structure/ritual_site");
     public static final TagKey<Biome> HAS_PUMPKIN_FARM = biome("has_structure/pumpkin_farm");
+
+    public static final TagKey<Item> SHULKER_BOXES = ItemTags.create(new ResourceLocation("shulker_boxes"));
 
     public static final TagKey<ConfiguredStructureFeature<?, ?>> END_CITY = TagKey.create(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY,
             PS1PackTweaks.id("end_city"));

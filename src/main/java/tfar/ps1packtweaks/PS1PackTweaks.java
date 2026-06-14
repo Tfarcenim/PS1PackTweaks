@@ -23,7 +23,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.stats.Stats;
@@ -54,6 +53,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.biome.Biome;
@@ -192,6 +192,7 @@ public class PS1PackTweaks {
         bus.addGenericListener(Motive.class, this::registerMotives);
         bus.addGenericListener(StructureFeature.class, this::registerStructures);
         bus.addGenericListener(GlobalLootModifierSerializer.class, this::registerGLMs);
+        bus.addGenericListener(RecipeSerializer.class, this::registerRecipeSerializers);
 
         bus.addListener(ModDataGenerator::gatherData);
         bus.addListener(PS1PackTweaksConfig::configUpdate);
@@ -219,6 +220,10 @@ public class PS1PackTweaks {
         MinecraftForge.EVENT_BUS.addListener(this::onTargetSet);
         MinecraftForge.EVENT_BUS.addListener(this::livingDamage);
         MinecraftForge.EVENT_BUS.addListener(this::onDatapackReload);
+    }
+
+    public void registerRecipeSerializers(RegistryEvent.Register<RecipeSerializer<?>> event) {
+        event.getRegistry().register(Init.ModRecipeSerializers.NBT_COPY_CRAFTING_SHAPED.setRegistryName("nbt_copy_crafting_shaped"));
     }
 
     public void onDatapackReload(OnDatapackSyncEvent event) {

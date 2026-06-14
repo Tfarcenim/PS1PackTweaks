@@ -63,6 +63,7 @@
     "compat.ZombieHorseEventMixin",
     "compat.datagen.SpiffyHudMixin",
     "compat.embeddium.FluidRendererMixin",
+    "compat.netheriteshulkers.NetheriteShulkerBoxBlockEntityMixin",
     "compat.weirdandwonderous.OddZombieSpawnProcedureMixin",
     "villagertrades.EnchantBookForEmeraldsMixin",
     "villagertrades.EnchantedItemForEmeraldsMixin",
@@ -97,6 +98,7 @@
     "RabbitRendererMixin",
     "ScreenMixin",
     "SheepFurLayerMixin",
+    "SoundEngineMixin",
     "UndeadHorseRendererMixin",
     "compat.ClientProxyMixin",
     "compat.ForgeGuiEventMixin",
@@ -107,7 +109,7 @@
     "compat.guicompass.GUIEventMixin"
   ],
   "server": [
-    "compat.FixNetheriteShulkersCrash"
+    "compat.netheriteshulkers.FixNetheriteShulkersCrash"
   ],
   "injectors": {
     "defaultRequire": 1

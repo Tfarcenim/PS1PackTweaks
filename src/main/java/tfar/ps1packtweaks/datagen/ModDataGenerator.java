@@ -14,7 +14,7 @@ public class ModDataGenerator {
         DataGenerator generator = event.getGenerator();
         final ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
         if (event.includeServer()) {
-            generator.addProvider(new Recipes(generator));
+            generator.addProvider(new PS1PackTweaksRecipesProvider(generator));
             generator.addProvider(new LootTables(generator));
             ModBiomeTagsProvider biomeTags = new ModBiomeTagsProvider(generator, existingFileHelper);
             generator.addProvider(biomeTags);
