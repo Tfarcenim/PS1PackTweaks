@@ -11,6 +11,7 @@ import com.mojang.logging.LogUtils;
 import com.natamus.naturallychargedcreepers.forge.events.ForgeCreeperChargeEvent;
 import com.spawnerhead.entity.EntitySpawnEvent;
 import com.weathersettings.event.EventHandler;
+import corgitaco.enhancedcelestials.server.commands.LunarForecastCommand;
 import crumbs.trueherobrine.init.TrueHerobrineModEntities;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -94,6 +95,7 @@ import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.village.VillagerTradesEvent;
 import net.minecraftforge.event.world.BiomeLoadingEvent;
 import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.EventBus;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -220,6 +222,11 @@ public class PS1PackTweaks {
         MinecraftForge.EVENT_BUS.addListener(this::onTargetSet);
         MinecraftForge.EVENT_BUS.addListener(this::livingDamage);
         MinecraftForge.EVENT_BUS.addListener(this::onDatapackReload);
+        MinecraftForge.EVENT_BUS.addListener(this::levelLoad);
+    }
+
+    public void levelLoad(WorldEvent.Load event) {
+
     }
 
     public void registerRecipeSerializers(RegistryEvent.Register<RecipeSerializer<?>> event) {
@@ -323,6 +330,13 @@ public class PS1PackTweaks {
 
 
         if (WorldLocker.isPure()) {
+
+            if (!finalHerobrine.hasPurgedBloodMoons) {
+                LunarForecastCommand.recompute(server.createCommandSourceStack());
+                finalHerobrine.hasPurgedBloodMoons = true;
+                finalHerobrine.setDirty();
+            }
+
             //disable spawns
             Map<EntityType<?>, SpawnPlacements.Data> dataByType = SpawnPlacementsAccess.getDATA_BY_TYPE();
 

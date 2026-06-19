@@ -54,7 +54,6 @@
     "compat.MainMixin",
     "compat.ModuleLoaderMixin",
     "compat.MoreBabiesMixin",
-    "compat.MyaliteCrystalBlockMixin",
     "compat.NewLightningRodBlockMixin",
     "compat.OpenFletchingTableGUIProcedureMixin",
     "compat.ShinyHorsesModMixin",

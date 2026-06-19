@@ -1,5 +1,6 @@
 package tfar.ps1packtweaks;
 
+import corgitaco.enhancedcelestials.server.commands.LunarForecastCommand;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -62,6 +63,8 @@ public class FinalHerobrine extends SavedData {
     BlockPos fire = BlockPos.ZERO;
 
     int tick;
+
+    boolean hasPurgedBloodMoons;
 
 
     public FinalHerobrine(ServerLevel level) {
@@ -262,7 +265,6 @@ public class FinalHerobrine extends SavedData {
                     e.printStackTrace();
                 }
 
-
                 //mcred.png - Deleted
                 //steve2.png - Deleted
                 //steve3.png - Deleted
@@ -314,6 +316,7 @@ public class FinalHerobrine extends SavedData {
     }
 
     public void reset() {
+        hasPurgedBloodMoons = false;
         herobrineStage = Stage.PREP;
         if (herobrine != null) {
             herobrine.discard();
@@ -351,6 +354,7 @@ public class FinalHerobrine extends SavedData {
 
         pCompoundTag.put("Fire",NbtUtils.writeBlockPos(fire));
 
+        pCompoundTag.putBoolean("hasPurgedBloodMoons",hasPurgedBloodMoons);
 
         return pCompoundTag;
     }
@@ -364,6 +368,8 @@ public class FinalHerobrine extends SavedData {
         }
 
         fina.fire = NbtUtils.readBlockPos(tag.getCompound("Fire"));
+
+        fina.hasPurgedBloodMoons = tag.getBoolean("hasPurgedBloodMoons");
 
         return fina;
     }
