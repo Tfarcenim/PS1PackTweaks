@@ -91,6 +91,10 @@ public class WorldLocker {
         return false;
     }
 
+    public static boolean isFixedWeather(String name) {
+        return LOCKED_WORLDS.containsKey(name) || name.equals("Winter") || name.equals("Cave World");
+    }
+
     public static boolean isPure() {
         return KEYS.contains(PURIFIED);
     }

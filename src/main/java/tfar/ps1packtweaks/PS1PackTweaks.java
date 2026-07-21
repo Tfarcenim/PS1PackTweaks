@@ -328,8 +328,17 @@ public class PS1PackTweaks {
         finalHerobrine = overworld.getDataStorage().computeIfAbsent((p_184095_) -> FinalHerobrine.loadStatic(overworld, p_184095_),
                 () -> new FinalHerobrine(overworld), "final_herobrine");
 
+        boolean pure = WorldLocker.isPure();
 
-        if (WorldLocker.isPure()) {
+
+        if (!server.isDedicatedServer()) {
+            String levelName = server.getWorldData().getLevelName();
+            if (!WorldLocker.isFixedWeather(levelName)) {
+                server.getGameRules().getRule(GameRules.RULE_WEATHER_CYCLE).set(true,server);
+            }
+        }
+
+        if (pure) {
 
             if (!finalHerobrine.hasPurgedBloodMoons) {
                 LunarForecastCommand.recompute(server.createCommandSourceStack());
@@ -348,9 +357,8 @@ public class PS1PackTweaks {
             removeEventsAfterPurification();
         }
 
-        boolean pure = WorldLocker.isPure();
 
-        LOGGER.info("World is pure according to file: {}", pure);
+        //LOGGER.info("World is pure according to file: {}", pure);
     }
 
     static boolean shouldDisableEvent(Object o) {
