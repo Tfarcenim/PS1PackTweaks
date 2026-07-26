@@ -73,6 +73,9 @@ public class PS1PackTweaksConfig {
 
         public final ForgeConfigSpec.BooleanValue allowHerobrineShrine;
 
+        //debug
+        public final ForgeConfigSpec.BooleanValue listVillagerTrades;
+
         Server(ForgeConfigSpec.Builder builder) {
             builder.push("tweaks");
             builder.push("barnacle");
@@ -160,6 +163,9 @@ public class PS1PackTweaksConfig {
 
 
             builder.pop();
+            builder.pop();
+            builder.push("debug");
+            listVillagerTrades = builder.comment("Log all active villager trades on server start").define("list_villager_trades",false);
             builder.pop();
         }
     }

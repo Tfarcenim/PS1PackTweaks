@@ -2,6 +2,7 @@ package tfar.ps1packtweaks;
 
 import com.Apothic0n.StarryEnd.core.objects.StarryEndBlocks;
 import com.github.alexthe666.alexsmobs.effect.AMEffectRegistry;
+import com.github.alexthe666.alexsmobs.misc.ItemsForEmeraldsTrade;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -15,6 +16,8 @@ import corgitaco.enhancedcelestials.server.commands.LunarForecastCommand;
 import crumbs.trueherobrine.init.TrueHerobrineModEntities;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import net.mcreator.goldenmelons.init.GoldenmelonsModItems;
+import net.mcreator.goldenmelons.item.GoldenMelonItem;
 import net.mcreator.midnightlurker.init.MidnightlurkerModEntities;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.core.*;
@@ -109,9 +112,13 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.FMLLoader;
+import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.server.ServerLifecycleHooks;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import rejected.init.RejectedModItems;
+import rejected.item.PumpkinpieItem;
 import tfar.ps1packtweaks.client.PS1PackTweaksClient;
 import tfar.ps1packtweaks.client.WorldLocker;
 import tfar.ps1packtweaks.compat.BrewingCauldronCompat;
@@ -127,6 +134,7 @@ import tfar.ps1packtweaks.entity.InvisibleEntity;
 import tfar.ps1packtweaks.entity.ScriptedMidnightLurker;
 import tfar.ps1packtweaks.entity.goals.FollowPlayerGoal;
 import tfar.ps1packtweaks.mixin.*;
+import tfar.ps1packtweaks.mixin.compat.alexmobs.ItemsForEmeraldsTradeAccessor;
 import tfar.ps1packtweaks.network.ForgePacketHandler;
 import tfar.ps1packtweaks.network.PacketHandler;
 import tfar.ps1packtweaks.network.client.S2CAdvancementPacket;
@@ -137,8 +145,11 @@ import tfar.ps1packtweaks.worldgen.ModPlacedFeatures;
 import tfar.ps1packtweaks.worldgen.ModStructureFeatures;
 import tfar.ps1packtweaks.worldgen.ModTreeFeatures;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -212,6 +223,7 @@ public class PS1PackTweaks {
         MinecraftForge.EVENT_BUS.addListener(this::advancementGet);
         MinecraftForge.EVENT_BUS.addListener(this::itemCrafted);
         MinecraftForge.EVENT_BUS.addListener(this::manageVillagerTrades);
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.LOWEST,this::listVillagerTrades);
         MinecraftForge.EVENT_BUS.addListener(this::rightClickBlock);
         MinecraftForge.EVENT_BUS.addListener(this::preventColor);
         MinecraftForge.EVENT_BUS.addListener(FinalHerobrine::useFlintAndSteel);
@@ -374,12 +386,121 @@ public class PS1PackTweaks {
         } else return o instanceof EntitySpawnEvent || o instanceof ForgeCreeperChargeEvent;
     }
 
+    public void listVillagerTrades(VillagerTradesEvent event) {
+        if (!PS1PackTweaksConfig.SERVER.listVillagerTrades.get()) return;
+        VillagerProfession type = event.getType();
+
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+
+        List<String> lines = new ArrayList<>();
+
+
+        lines.add(LONG_TRIPLE_BAR);
+
+        lines.add("Villager Profession: "+ type);
+        Int2ObjectMap<List<VillagerTrades.ItemListing>> trades = event.getTrades();
+
+        for (int i = 1; i <=5 ;i++) {
+            lines.add("Villager Trade Rank #"+ i);
+            List<VillagerTrades.ItemListing> itemListings = trades.get(i);
+            if (itemListings != null) {
+                for (VillagerTrades.ItemListing itemListing : itemListings) {
+                    lines.add(LONG_DASHES);
+                    if (itemListing instanceof VillagerTrades.EmeraldForItems emeraldForItems) {
+                        lines.add("Villager Trade Type: "+emeraldForItems.getClass());
+
+                        lines.add("Buying Item: "+emeraldForItems.item);
+                        lines.add("Cost: "+emeraldForItems.cost);
+                        lines.add("Max Uses: "+emeraldForItems.maxUses);
+                        lines.add("Xp Value: "+emeraldForItems.villagerXp);
+                        lines.add("Price Multiplier: "+emeraldForItems.priceMultiplier);
+                    } else if (itemListing instanceof VillagerTrades.ItemsForEmeralds itemsForEmeralds) {
+                        lines.add("Villager Trade Type: "+itemsForEmeralds.getClass());
+
+                        lines.add("Selling Item: "+itemsForEmeralds.itemStack);
+                        lines.add("Emerald Count: "+itemsForEmeralds.emeraldCost);
+                        lines.add("Selling Item Count: "+itemsForEmeralds.numberOfItems);
+                        lines.add("Max Uses: "+itemsForEmeralds.maxUses);
+                        lines.add("Xp Value: "+itemsForEmeralds.villagerXp);
+                        lines.add("Price Multiplier: "+itemsForEmeralds.priceMultiplier);
+
+                    } else if (itemListing instanceof ItemsForEmeraldsTrade itemsForEmeraldsTrade) {
+                        ItemsForEmeraldsTradeAccessor itemsForEmeraldsTradeAccessor = (ItemsForEmeraldsTradeAccessor) itemsForEmeraldsTrade;
+                        lines.add("Villager Trade Type: "+itemsForEmeraldsTrade.getClass());
+
+                        lines.add("Selling Item: "+itemsForEmeraldsTradeAccessor.getSellingItem());
+                        lines.add("Emerald Count: "+itemsForEmeraldsTradeAccessor.getEmeraldCount());
+                        lines.add("Selling Item Count: "+itemsForEmeraldsTradeAccessor.getSellingItemCount());
+                        lines.add("Max Uses: "+itemsForEmeraldsTradeAccessor.getMaxUses());
+                        lines.add("Xp Value: "+itemsForEmeraldsTradeAccessor.getXpValue());
+                        lines.add("Price Multiplier: "+itemsForEmeraldsTradeAccessor.getPriceMultiplier());
+
+                    } else {
+                        lines.add("Villager Trade: "+ itemListing.toString());
+                    }
+                }
+            }
+            lines.add(LONG_EQUALS);
+        }
+
+        try (FileWriter fileWriter = new FileWriter(FMLPaths.CONFIGDIR.get().resolve("trades.txt").toFile(),true)) {
+            for (String line : lines) {
+                fileWriter.write(line);
+                fileWriter.write("\n");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    public static final String LONG_DASHES = "-".repeat(40);
+    public static final String LONG_EQUALS = "=".repeat(40);
+    public static final String LONG_TRIPLE_BAR = "≡".repeat(40);
+
+    // Can you remove shields from villager trades,
+    // replace the glistering melon trade with goldenmelons:golden_melon and rank 5
+    // replace the pumpkin pie trade with rejected:pumpkinpie rank 2
     public void manageVillagerTrades(VillagerTradesEvent event) {
         VillagerProfession type = event.getType();
         if (type == VillagerProfession.LIBRARIAN) {
             Int2ObjectMap<List<VillagerTrades.ItemListing>> trades = event.getTrades();
             List<VillagerTrades.ItemListing> itemListings = trades.get(4);
             itemListings.removeIf(this::shouldRemove);
+        } else if (type == VillagerProfession.ARMORER) {
+            Int2ObjectMap<List<VillagerTrades.ItemListing>> trades = event.getTrades();
+            List<VillagerTrades.ItemListing> itemListings = trades.get(4);
+            itemListings.removeIf(this::shouldRemove);
+        } else if (type == VillagerProfession.FARMER) {
+            Int2ObjectMap<List<VillagerTrades.ItemListing>> trades = event.getTrades();
+            List<VillagerTrades.ItemListing> itemListings2 = trades.get(2);
+            List<VillagerTrades.ItemListing> itemListings5 = trades.get(5);
+
+            replaceTrade(Items.GLISTERING_MELON_SLICE,GoldenmelonsModItems.GOLDEN_MELON.get(),itemListings5);
+            replaceTrade(Items.PUMPKIN_PIE, RejectedModItems.PUMPKINPIE.get(),itemListings2);
+
+        }
+       // try {
+            //Files.delete(FMLPaths.CONFIGDIR.get().resolve("trades.txt"));
+     //   } catch (IOException e) {
+            //throw new RuntimeException(e);
+       // }
+    }
+
+    public void replaceTrade(Item itemToReplace,Item replacement, List<VillagerTrades.ItemListing> itemListings) {
+        for (Iterator<VillagerTrades.ItemListing> iterator = itemListings.iterator(); iterator.hasNext(); ) {
+            VillagerTrades.ItemListing itemListing = iterator.next();
+            if (itemListing instanceof VillagerTrades.ItemsForEmeralds itemsForEmeralds) {
+                ItemStack item = itemsForEmeralds.itemStack;
+                if (item.is(itemToReplace)) {
+                    VillagerTrades.ItemsForEmeralds newTrade = new VillagerTrades.ItemsForEmeralds(
+                            new ItemStack(replacement,item.getCount()),itemsForEmeralds.emeraldCost,
+                            itemsForEmeralds.numberOfItems,itemsForEmeralds.maxUses,itemsForEmeralds.villagerXp);
+                    iterator.remove();
+                    itemListings.add(newTrade);
+                    break;
+                }
+            }
         }
     }
 
@@ -387,6 +508,11 @@ public class PS1PackTweaks {
         if (trade instanceof VillagerTrades.EmeraldForItems emeraldForItems) {
             Item item = emeraldForItems.item;
             if (item == Items.WRITABLE_BOOK) {
+                return true;
+            }
+        } else if (trade instanceof VillagerTrades.ItemsForEmeralds itemsForEmeralds) {
+            ItemStack itemStack = itemsForEmeralds.itemStack;
+            if (itemStack.is(Items.SHIELD)) {
                 return true;
             }
         }

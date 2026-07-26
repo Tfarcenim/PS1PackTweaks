@@ -63,6 +63,7 @@
     "compat.SkeletonHorseEventMixin",
     "compat.WeatherHandlerMixin",
     "compat.ZombieHorseEventMixin",
+    "compat.alexmobs.ItemsForEmeraldsTradeAccessor",
     "compat.datagen.SpiffyHudMixin",
     "compat.embeddium.FluidRendererMixin",
     "compat.netheriteshulkers.NetheriteShulkerBoxBlockEntityMixin",
