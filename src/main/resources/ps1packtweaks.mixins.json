@@ -50,6 +50,7 @@
     "WeatherDetectorBlockMixin",
     "ZombieHorseMixin",
     "compat.CopperGolemEntityMixin",
+    "compat.EnderiteMaterialMixin",
     "compat.EnderiteSwordMixin",
     "compat.EventHandlerMixin",
     "compat.IMyaliteColorProviderMixin",
@@ -104,12 +105,13 @@
     "SoundEngineMixin",
     "UndeadHorseRendererMixin",
     "compat.ClientProxyMixin",
-    "compat.ForgeGuiEventMixin",
     "compat.HotbarMixin",
     "compat.ScreenShotScreenMixin",
     "compat.VideoScreenMixin",
     "compat.embeddium.ChunkRenderRebuildTaskMixin",
-    "compat.guicompass.GUIEventMixin"
+    "compat.guiclock.ForgeGuiEventMixin",
+    "compat.guiclock.GUIEventMixin",
+    "compat.guicompass.ForgeGuiEventMixin"
   ],
   "server": [
     "compat.netheriteshulkers.FixNetheriteShulkersCrash"

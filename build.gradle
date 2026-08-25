@@ -286,6 +286,8 @@ dependencies {
 
     implementation fg.deobf("curse.maven:bounding-box-outline-reloaded-272578:4262403")
     implementation fg.deobf("curse.maven:enhanced-celestials-438447:3785992")
+
+    implementation fg.deobf("curse.maven:beacon-rework-1293472:6747326")
     //implementation fg.deobf("curse.maven:oculus-581495:4578744")
 
     // For more info...

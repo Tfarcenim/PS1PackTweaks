@@ -1,6 +1,6 @@
-package tfar.ps1packtweaks.mixin.compat;
+package tfar.ps1packtweaks.mixin.compat.guiclock;
 
-import com.natamus.guicompass.forge.events.ForgeGUIEvent;
+import com.natamus.guiclock.forge.events.ForgeGUIEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -9,10 +9,10 @@ import org.spongepowered.asm.mixin.Overwrite;
 public class ForgeGuiEventMixin {
     /**
      * @author tfarcenim
-     * @reason poorly written code
+     * @reason also poorly written code
      */
     @Overwrite(remap = false)
-    public void renderOverlay(RenderGameOverlayEvent.Pre e) {
-        //NO
+    public void renderOverlay(RenderGameOverlayEvent.Post e) {
+        //STOP IT
     }
 }

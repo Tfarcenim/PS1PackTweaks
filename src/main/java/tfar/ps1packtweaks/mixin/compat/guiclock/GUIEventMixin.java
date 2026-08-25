@@ -1,4 +1,4 @@
-package tfar.ps1packtweaks.mixin.compat.guicompass;
+package tfar.ps1packtweaks.mixin.compat.guiclock;
 
 import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.vertex.PoseStack;

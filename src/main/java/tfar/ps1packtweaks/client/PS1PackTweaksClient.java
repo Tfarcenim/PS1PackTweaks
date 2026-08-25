@@ -84,6 +84,7 @@ import tfar.ps1packtweaks.client.renderer.*;
 import tfar.ps1packtweaks.client.screens.DeathJumpscareScreen;
 import tfar.ps1packtweaks.client.screens.FletchingTableScreen;
 import tfar.ps1packtweaks.client.screens.LurkerJumpscareScreen;
+import tfar.ps1packtweaks.compat.BetterGuiClockHUD;
 import tfar.ps1packtweaks.compat.BetterGuiCompassHUD;
 import tfar.ps1packtweaks.compat.ModIntegration;
 import tfar.ps1packtweaks.duck.AbstractClientPlayerDuck;
@@ -494,6 +495,9 @@ public class PS1PackTweaksClient {
             EntityRenderers.register(Init.ModEntityTypes.INVISIBLE_ENTITY, (EntityRendererProvider.Context context) -> new InvisibleEntityRenderer<>(context,
                     false, PS1PackTweaks.id("textures/entity/herobrine.png")));
 
+            if (ModIntegration.guiclock.loaded) {
+                BetterGuiClockHUD.setup();
+            }
             if (ModIntegration.guicompass.loaded) {
                 BetterGuiCompassHUD.setup();
             }

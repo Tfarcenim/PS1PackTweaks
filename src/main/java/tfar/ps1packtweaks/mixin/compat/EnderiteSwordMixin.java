@@ -40,8 +40,8 @@ public class EnderiteSwordMixin {
     }
 
     /**
-     * @author
-     * @reason
+     * @author tfar
+     * @reason no tooltips
      */
     @Overwrite
     public void appendHoverText(ItemStack itemStack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {

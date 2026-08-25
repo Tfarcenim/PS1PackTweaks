@@ -18,4 +18,8 @@ public class DebugHooks {
             }
         }
     }
+
+    public static float getTestSpeed() {
+        return 31;
+    }
 }

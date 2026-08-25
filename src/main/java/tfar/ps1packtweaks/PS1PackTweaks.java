@@ -475,10 +475,12 @@ public class PS1PackTweaks {
             Int2ObjectMap<List<VillagerTrades.ItemListing>> trades = event.getTrades();
             List<VillagerTrades.ItemListing> itemListings2 = trades.get(2);
             List<VillagerTrades.ItemListing> itemListings5 = trades.get(5);
-
-            replaceTrade(Items.GLISTERING_MELON_SLICE,GoldenmelonsModItems.GOLDEN_MELON.get(),itemListings5);
-            replaceTrade(Items.PUMPKIN_PIE, RejectedModItems.PUMPKINPIE.get(),itemListings2);
-
+            if (ModIntegration.goldenmelons.loaded) {
+                replaceTrade(Items.GLISTERING_MELON_SLICE, GoldenmelonsModItems.GOLDEN_MELON.get(), itemListings5);
+            }
+            if (ModIntegration.rejected.loaded) {
+                replaceTrade(Items.PUMPKIN_PIE, RejectedModItems.PUMPKINPIE.get(), itemListings2);
+            }
         }
        // try {
             //Files.delete(FMLPaths.CONFIGDIR.get().resolve("trades.txt"));

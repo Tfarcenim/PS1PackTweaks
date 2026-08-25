@@ -12,6 +12,8 @@ public enum ModIntegration {
     brewingcauldron(false),
     enhancedcelestials(false),
     enderitemod(false),
+    goldenmelons(false),
+    guiclock(false),
     guicompass(false),
     morehorsearmor(false),
     netherite_shulkers(false),
@@ -21,6 +23,7 @@ public enum ModIntegration {
     midnightlurker(true),
     true_herobrine(true),
     playeranimator(false),
+    rejected(false),
     weird_and_wonderous(true);
 
     public static final ModIntegration[] values = values();
